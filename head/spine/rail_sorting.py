@@ -28,23 +28,44 @@ class RailSorter:
                 # Move away from railroad
                 self.s.move_for(1, 0.6, 70, 0)
             elif currzone != -1:
-                if currzone < destzone: # moving backward
-                    if destzone == 1:
-                        ultrasonic_go_to_position(self.s, front=26, unit='cm', rot=-.055)
-                    elif destzone == 2:
-                        ultrasonic_go_to_position(self.s, front=50, unit='cm', rot=-.02)
-                    elif destzone == 3:
-                        trapezoid(self.s.move_pid, (0, -175, .02), (.6, -175, .02), (0, -175, .02), 1.2)
-                        self.s.stop()
+                if course == 'A':
+                    if currzone < destzone: # moving backward
+                        if destzone == 1:
+                            ultrasonic_go_to_position(self.s, front=26, unit='cm', rot=-.055)
+                        elif destzone == 2:
+                            ultrasonic_go_to_position(self.s, front=50, unit='cm', rot=-.02)
+                        elif destzone == 3:
+                            trapezoid(self.s.move_pid, (0, -175, .02), (.6, -175, .02), (0, -175, .02), 1.2)
+                            self.s.stop()
+                    else:
+                       if destzone == 2:
+                           trapezoid(self.s.move_pid, (0, 0, .01), (.6, 0, .01), (0, 0, .01), 2.0)
+                           self.s.stop()
+                       elif destzone == 1:
+                           ultrasonic_go_to_position(self.s, front=26, unit='cm', rot=.01)
+                       elif destzone == 0:
+                           ultrasonic_go_to_position(self.s, front=5, unit='cm')
+                           trapezoid(self.s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 0.3)
+                elif course == 'B':
+                    if currzone < destzone: # moving backward
+                        if destzone == 1:
+                            ultrasonic_go_to_position(self.s, front=26, unit='cm')
+                        elif destzone == 2:
+                            ultrasonic_go_to_position(self.s, front=50, unit='cm')
+                        elif destzone == 3:
+                            trapezoid(self.s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 1.2)
+                            self.s.stop()
+                    else:
+                       if destzone == 2:
+                           trapezoid(self.s.move_pid, (0, 0, 0), (.6, 0, 0), (0, 0, 0), 2.0)
+                           self.s.stop()
+                       elif destzone == 1:
+                           ultrasonic_go_to_position(self.s, front=26, unit='cm')
+                       elif destzone == 0:
+                           ultrasonic_go_to_position(self.s, front=5, unit='cm')
+                           trapezoid(self.s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 0.3)
                 else:
-                   if destzone == 2:
-                       trapezoid(self.s.move_pid, (0, 0, .01), (.6, 0, .01), (0, 0, .01), 2.0)
-                       self.s.stop()
-                   elif destzone == 1:
-                       ultrasonic_go_to_position(self.s, front=26, unit='cm', rot=.01)
-                   elif destzone == 0:
-                       ultrasonic_go_to_position(self.s, front=5, unit='cm')
-                       trapezoid(self.s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 0.3)
+                    raise ValueError
 #                side_dist = 13
 #                if course == 'A':
 #                    ultrasonic_go_to_position(self.s, left=side_dist, unit='cm')
