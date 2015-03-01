@@ -150,3 +150,32 @@ class color_point:
             return 'B'
         else:
             return '?'
+
+    def get_color_improved(self):
+        h = self.hsv[0]
+        s = self.hsv[1]
+        v = self.hsv[2]
+        r = self.rgb[0]
+        g = self.rgb[1]
+        b = self.rgb[2]
+
+        if r > 200 and g < 150 and b < 150:
+            return 'R'
+        elif g > 200 and r < 150 and b < 150:
+            return 'G'
+        elif b > 200 and r < 150 and g < 150:
+            return 'B'
+        elif s < 20:
+            return 'B'
+        elif h <= 15:
+            if h == 0 and self.hsv[1] == 0 and self.hsv[2] == 0:
+                return '?'
+            return 'R'
+        elif h <= 32:
+            return 'Y'
+        elif h <= 95:
+            return 'G'
+        elif h <= 145:
+            return 'B'
+        else:
+            return '?'
