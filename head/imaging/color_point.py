@@ -26,7 +26,10 @@ class color_point:
                 r = r + rgb_image[i, j][2]
                 g = g + rgb_image[i, j][1]
                 b = b + rgb_image[i, j][0]
-                h = h + hsv_image[i, j][0]
+                if hsv_image[i, j][0] >= 165:
+                    h = h + 180 - hsv_image[i, j][0]
+                else:
+                    h = h + hsv_image[i, j][0]
                 s = s + hsv_image[i, j][1]
                 v = v + hsv_image[i, j][2]
         self.hsv = (math.floor(h / count),
