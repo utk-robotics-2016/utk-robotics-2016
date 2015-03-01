@@ -162,7 +162,7 @@ with get_spine() as s:
                 trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 3.0)
 
                 # ultrasonic alignment prior to calling the load function
-                dist = 88.0
+                dist = 85.0
                 if self.course == 'A':
                     ultrasonic_go_to_position(s, left=dist, unit='cm')
                 else:
