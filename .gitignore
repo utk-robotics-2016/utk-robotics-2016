@@ -11,3 +11,4 @@ block_setup/Debug/*
 docs/build
 utils/qr_code_cam/read_img
 utils/qr_code/read_img
+utils/bins
