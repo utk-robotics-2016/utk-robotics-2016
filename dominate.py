@@ -180,7 +180,7 @@ with get_spine() as s:
             def arm_to_vertical(self):
                 arm.move_to(Vec3d(11, -5, 10), 1.3, 180)
                 if self.course == 'A':
-                    arm.move_to(Vec3d(-11, -5, 10), 1.3, 180)
+                    arm.move_to(Vec3d(-11, -4, 10), 1.3, 180)
                 time.sleep(1)
 
             def go_to_rail_cars(self):
