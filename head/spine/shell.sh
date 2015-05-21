@@ -1,0 +1,1 @@
+ipython --profile=spine
