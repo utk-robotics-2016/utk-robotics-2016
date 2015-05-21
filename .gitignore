@@ -1,3 +1,7 @@
 .build
 .holder
 *.pyc
+*~
+*.swp
+.DS_Store
+head/lastrun.log
