@@ -139,7 +139,7 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'ping'");
         }
     }
-    else if(args[0].equals(String("le"))) {
+    else if(args[0].equals(String("le"))) { // led set
         if(numArgs == 2) {
             if(args[1].equals(String("on"))) {
                 ledState = HIGH;
@@ -156,14 +156,14 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'le [on/off]'");
         }
     }
-    else if(args[0].equals(String("rl"))) {
+    else if(args[0].equals(String("rl"))) { // read led
         if(numArgs == 1) {
             Serial.println(ledState);
         } else {
             Serial.println("error: usage - 'rl'");
         }
     }
-    else if(args[0].equals(String("sa"))) {
+    else if(args[0].equals(String("sa"))) { // set arm
         if(numArgs == 6) {
             int posbase = args[1].toInt();
             int posshoulder = args[2].toInt();
@@ -177,6 +177,14 @@ void parseAndExecuteCommand(String command) {
             wristrotate.write(poswristrotate);
         } else {
             Serial.println("error: usage - 'sa [base] [shoulder] [elbow] [wrist] [wristrotate]'");
+        }
+    }
+    else if(args[0].equals(String("ss"))) { // set suction
+        if(numArgs == 2) {
+            int pos= args[1].toInt();
+            suction.write(pos);
+        } else {
+            Serial.println("error: usage - 'ss [pos]'");
         }
     }
     else {
