@@ -3,7 +3,7 @@
 // Globals
 int ledState = HIGH;
 // Command parsing
-const int MAX_ARGS = 4;
+const int MAX_ARGS = 6;
 String args[MAX_ARGS];
 int numArgs = 0;
 
@@ -163,20 +163,22 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'rl'");
         }
     }
-    /*else if(args[0].equals(String("sv"))) {
-        if(numArgs == 3) {
-            int pos = args[2].toInt();
-
-            if(args[1].equals(String("A"))) {
-                analogWrite(SERVO_A, pos);
-                Serial.println("ok");
-            }else if(args[1].equals(String("B"))) {
-                Serial.println("not implemented");
-            }
+    else if(args[0].equals(String("sa"))) {
+        if(numArgs == 6) {
+            int posbase = args[1].toInt();
+            int posshoulder = args[2].toInt();
+            int poselbow = args[3].toInt();
+            int poswrist = args[4].toInt();
+            int poswristrotate = args[5].toInt();
+            base.write(posbase);
+            shoulder.write(posshoulder);
+            elbow.write(poselbow);
+            wrist.write(poswrist);
+            wristrotate.write(poswristrotate);
         } else {
-            Serial.println("error: usage - 'sv [A/B] [pos]'");
+            Serial.println("error: usage - 'sa [base] [shoulder] [elbow] [wrist] [wristrotate]'");
         }
-    }*/
+    }
     else {
         // Unrecognized command
         Serial.println("error: unrecognized command");
