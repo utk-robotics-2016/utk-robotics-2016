@@ -1,15 +1,20 @@
 #include <Servo.h>
 
 Servo base;
-int BASECENTER = 89; // more positive moves to the right
+int BASECENTER = 86; // more positive moves to the right
+int BASERIGHT = BASECENTER+85;
+int BASELEFT = BASECENTER-85;
 Servo shoulder;
 int SHOULDERCENTER = 95; // more positive moves backward
+int SHOULDERDOWN = SHOULDERCENTER-79;
 Servo elbow;
 int ELBOWCENTER = 126; // more positive moves down
-int ELBOWUP = ELBOWCENTER-90; // more positive moves down
+int ELBOWUP = ELBOWCENTER-90;
 Servo wrist;
 int WRISTCENTER = 95; // more positive flexes up
 int WRISTDOWN = WRISTCENTER-82;
+
+// Probably no calibration needed
 Servo wristrotate;
 int WRISTROTATECENTER = 90;
 Servo suction;
@@ -22,11 +27,9 @@ void setup()
     shoulder.attach(5);
     shoulder.write(SHOULDERCENTER);
     elbow.attach(6);
-    /*elbow.write(ELBOWCENTER);*/
-    elbow.write(ELBOWUP);
+    elbow.write(ELBOWCENTER);
     wrist.attach(9);
     wrist.write(WRISTCENTER);
-    /*wrist.write(WRISTDOWN);*/
     wristrotate.attach(10);
     wristrotate.write(WRISTROTATECENTER);
     suction.attach(11);
