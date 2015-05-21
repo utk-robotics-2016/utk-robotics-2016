@@ -61,6 +61,20 @@ class Spine:
         response = self.send(command)
         assert response == 'ok'
 
+    def set_arm(self, rot):
+        assert len(rot) == 5
+        for r in rot:
+            assert 0 <= r <= 180
+        command = 'sa %d %d %d %d %d' % tuple(rot)
+        response = self.send(command)
+        assert response == 'ok'
+
+    def set_suction(self, suction):
+        assert 0 <= suction <= 180
+        command = 'ss %d' % rot
+        response = self.send(command)
+        assert response == 'ok'
+
     def move(self, speed, direction, angular):
         assert 0 <= speed <= 1
         assert -180 <= direction <= 180

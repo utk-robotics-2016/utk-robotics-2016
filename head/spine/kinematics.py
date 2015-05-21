@@ -3,7 +3,7 @@ from math import atan2, pi, degrees, sqrt
 
 shoulderToElbow = 4.75*2.54
 elbowToWrist = 5.00*2.54
-shoulderPos = Vec3d(0, -5, 5)
+shoulderPos = Vec3d(0, -4.6, 7)
 
 def fwdkin(rot):
     humerus = Vec3d(0, 0, shoulderToElbow)

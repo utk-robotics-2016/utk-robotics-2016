@@ -175,6 +175,7 @@ void parseAndExecuteCommand(String command) {
             elbow.write(poselbow);
             wrist.write(poswrist);
             wristrotate.write(poswristrotate);
+            Serial.println("ok");
         } else {
             Serial.println("error: usage - 'sa [base] [shoulder] [elbow] [wrist] [wristrotate]'");
         }
@@ -183,6 +184,7 @@ void parseAndExecuteCommand(String command) {
         if(numArgs == 2) {
             int pos= args[1].toInt();
             suction.write(pos);
+            Serial.println("ok");
         } else {
             Serial.println("error: usage - 'ss [pos]'");
         }

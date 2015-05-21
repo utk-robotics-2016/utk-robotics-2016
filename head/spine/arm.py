@@ -1,8 +1,8 @@
-from inverse_kinematics import revkin, shoulderToElbow, elbowToWrist, shoulderPos
+from head.spine.kinematics import revkin, shoulderToElbow, elbowToWrist, shoulderPos
 from Vec3d import Vec3d
 from math import pi
 
-wristToCup = 7 # Distance in centimeters from wrist center to cup tip
+wristToCup = 10 # Distance in centimeters from wrist center to cup tip
 
 # Servo configuration
 BASECENTER = 86 # more positive moves to the right
@@ -25,9 +25,7 @@ SUCTIONCENTER = 90
 
 # CENTER is defined as 0 radians
 
-# Wrist is the amount of up rotation, from straight down, in radians
-# cuppos assumes that wrist is set to 0 radians
-def to_location(cuppos, wrist, wristrotate):
+def to_servos(cuppos, wrist, wristrotate):
     wristpos = cuppos + Vec3d(0,0,wristToCup)
     rot = revkin(wristpos)
     wrist += -pi/2
@@ -37,10 +35,17 @@ def to_location(cuppos, wrist, wristrotate):
     servo = [base_r2p(rot[0]), shoulder_r2p(rot[1]), elbow_r2p(rot[2]),
              wrist_r2p(wrist), wristrotate]
     servo = [int(round(p)) for p in servo]
-    print servo
+    #print servo
+    return servo
 
-to_location(shoulderPos+Vec3d(0,elbowToWrist,shoulderToElbow-wristToCup),0,0)
-to_location(shoulderPos+Vec3d(0,elbowToWrist+3,shoulderToElbow-wristToCup),0,0)
-to_location(shoulderPos+Vec3d(3,elbowToWrist,shoulderToElbow-wristToCup),0,0)
-to_location(shoulderPos+Vec3d(3,elbowToWrist,shoulderToElbow-wristToCup),pi/16,0)
+# Wrist is the amount of up rotation, from straight down, in radians
+# cuppos assumes that wrist is set to 0 radians
+def set_arm_pos(s, cuppos, wrist, wristrotate):
+    s.set_arm(to_servos(cuppos, wrist, wristrotate))
+
+
+#to_location(shoulderPos+Vec3d(0,elbowToWrist,shoulderToElbow-wristToCup),0,0)
+#to_location(shoulderPos+Vec3d(0,elbowToWrist+3,shoulderToElbow-wristToCup),0,0)
+#to_location(shoulderPos+Vec3d(3,elbowToWrist,shoulderToElbow-wristToCup),0,0)
+#to_location(shoulderPos+Vec3d(3,elbowToWrist,shoulderToElbow-wristToCup),pi/16,0)
 #to_location(shoulderPos+Vec3d(300,elbowToWrist,shoulderToElbow-wristToCup),0,0)
