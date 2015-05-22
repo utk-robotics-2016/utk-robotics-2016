@@ -22,7 +22,7 @@ void setup() {
     pinMode(LED, OUTPUT);
 
     // Init serial
-    Serial.begin(9600);
+    Serial.begin(115200);
 
     // Display ready LED
     digitalWrite(LED,HIGH);

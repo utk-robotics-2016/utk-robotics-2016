@@ -42,7 +42,7 @@ def to_servos(cuppos, wrist, wristrotate):
     wrist+= rot[1] + rot[2]
     servo = [base_r2p(rot[0]), shoulder_r2p(rot[1]), elbow_r2p(rot[2]),
              wrist_r2p(wrist), wristrotate]
-    servo = [int(round(p)) for p in servo]
+    servo = [max(int(round(p)),0) for p in servo]
     #print servo
     return servo
 
