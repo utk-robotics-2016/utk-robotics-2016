@@ -75,6 +75,11 @@ class Spine:
         response = self.send(command)
         assert response == 'ok'
 
+    def detach_servos(self):
+        command = 'ds'
+        response = self.send(command)
+        assert response == 'ok'
+
     def move(self, speed, direction, angular):
         assert 0 <= speed <= 1
         assert -180 <= direction <= 180

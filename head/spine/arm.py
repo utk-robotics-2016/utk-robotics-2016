@@ -11,7 +11,7 @@ from head.spine.Vec3d import Vec3d
 wristToCup = 10 # Distance in centimeters from wrist center to cup tip
 
 # Servo configuration
-BASECENTER = 86 # more positive moves to the right
+BASECENTER = 90 # more positive moves to the right
 BASERIGHT = BASECENTER+85
 BASELEFT = BASECENTER-85
 def base_r2p(r): return BASECENTER + (r/(pi/2))*(BASERIGHT-BASECENTER)
@@ -28,6 +28,8 @@ def wrist_r2p(r): return WRISTCENTER - (r/(pi/2))*(WRISTDOWN-WRISTCENTER)
 # Probably no calibration needed
 WRISTROTATECENTER = 90
 SUCTIONCENTER = 90
+
+PARKED = [90, 170, 180, 30, 0]
 
 # CENTER is defined as 0 radians
 
@@ -54,6 +56,7 @@ def interpolate(f, startargs, endargs, seconds, smoothing):
     start_time = time.time()
     difference = map(operator.sub, endargs, startargs)
     curr_time = time.time()
+    iters = 0
     while (curr_time-start_time) < seconds:
         elapsed = curr_time - start_time
         fraction = elapsed/seconds
@@ -65,12 +68,14 @@ def interpolate(f, startargs, endargs, seconds, smoothing):
         currargs = map(operator.add, startargs, toadd)
         f(*currargs)
         curr_time = time.time()
+        iters += 1
+    print(iters)
     f(*endargs)
 
 class Arm(object):
     def __init__(self, s):
         self.s = s
-        self.servos = None
+        self.servos = PARKED
 
     # Wrist is the amount of up rotation, from straight down, in radians
     # cuppos assumes that wrist is set to 0 radians
@@ -88,6 +93,15 @@ class Arm(object):
         endargs = to_servos(cuppos, wrist, wristrotate)
         interpolate(lambda *args: self.set_servos(*args), startargs, endargs, seconds, smoothing)
         #interpolate(lambda *args: print(repr(args)), startargs, endargs, seconds, smoothing)
+
+    def move_to_abs(self, servopos, seconds=1, smoothing='sigmoid'):
+        startargs = self.servos
+        endargs = servopos
+        interpolate(lambda *args: self.set_servos(*args), startargs, endargs, seconds, smoothing)
+
+    def park(self, seconds=2):
+        self.move_to_abs(PARKED, seconds)
+        self.s.detach_servos()
 
 
 #to_location(shoulderPos+Vec3d(0,elbowToWrist,shoulderToElbow-wristToCup),0,0)
