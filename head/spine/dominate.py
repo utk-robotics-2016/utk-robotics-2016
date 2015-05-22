@@ -47,12 +47,49 @@ class Robot:
         a.move_to(Vec3d(0,13,1.5),-pi/32,0,2)
         s.set_suction(180)
         time.sleep(3)
+        # lift block
         a.move_to(Vec3d(0,13,10),pi/10,0,2)
+        # hover over destination
         a.move_to(Vec3d(10,13,10),0,0,2)
+        # place block
         a.move_to(Vec3d(15,13,-1),0,0,2)
         s.set_suction(0)
         time.sleep(1)
+        # move to high position
         a.move_to(Vec3d(10,13,10),0,0,2)
+
+        # hover over red block
+        a.move_to(Vec3d(.5,5.5,10),-pi/64,0,2)
+        time.sleep(1)
+        # make contact with red block
+        a.move_to(Vec3d(.5,5,6),-pi/32,0,2)
+        s.set_suction(180)
+        time.sleep(3)
+        # lift red block
+        a.move_to(Vec3d(.5,5,10),pi/10,0,2)
+        # hover over destination
+        a.move_to(Vec3d(10,13,10),0,0,2)
+        a.move_to(Vec3d(14,13,5),pi/9,0,2)
+        a.move_to(Vec3d(14.5,13,3.5),pi/9,0,2)
+        # place block
+        s.set_suction(0)
+        time.sleep(1)
+
+        # hover over orange block
+        a.move_to(Vec3d(.5,4.5,6),0,0,2)
+        time.sleep(1)
+        a.move_to(Vec3d(.5,4,2),-pi/32,0,2)
+        s.set_suction(180)
+        time.sleep(3)
+        # lift orange block
+        a.move_to(Vec3d(.5,5,10),pi/10,0,2)
+        # hover over destination
+        a.move_to(Vec3d(10,13,10),0,0,2)
+        a.move_to(Vec3d(13,12,5),0,0,2)
+        a.move_to(Vec3d(12.5,12.5,3),pi/32,0,2)
+        # place block
+        s.set_suction(0)
+        time.sleep(1)
 
         # shutdown
         # move to a high position
