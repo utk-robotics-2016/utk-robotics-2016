@@ -7,26 +7,12 @@ const int MAX_ARGS = 6;
 String args[MAX_ARGS];
 int numArgs = 0;
 
-// Servo configuration
 Servo base;
-int BASECENTER = 86; // more positive moves to the right
-int BASERIGHT = BASECENTER+85;
-int BASELEFT = BASECENTER-85;
 Servo shoulder;
-int SHOULDERCENTER = 95; // more positive moves backward
-int SHOULDERDOWN = SHOULDERCENTER-79;
 Servo elbow;
-int ELBOWCENTER = 126; // more positive moves down
-int ELBOWUP = ELBOWCENTER-90;
 Servo wrist;
-int WRISTCENTER = 95; // more positive flexes up
-int WRISTDOWN = WRISTCENTER-82;
-
-// Probably no calibration needed
 Servo wristrotate;
-int WRISTROTATECENTER = 90;
 Servo suction;
-int SUCTIONCENTER = 90;
 
 // Pin definitions
 const char LED = 13;
@@ -35,22 +21,8 @@ void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
 
-    // Init sevos
-    base.attach(3);
-    base.write(BASECENTER);
-    shoulder.attach(5);
-    shoulder.write(SHOULDERCENTER);
-    elbow.attach(6);
-    elbow.write(ELBOWCENTER);
-    wrist.attach(9);
-    wrist.write(WRISTCENTER);
-    wristrotate.attach(10);
-    wristrotate.write(WRISTROTATECENTER);
-    suction.attach(11);
-    suction.write(SUCTIONCENTER);
-
     // Init serial
-    Serial.begin(9600);
+    Serial.begin(115200);
 
     // Display ready LED
     digitalWrite(LED,HIGH);
@@ -170,6 +142,13 @@ void parseAndExecuteCommand(String command) {
             int poselbow = args[3].toInt();
             int poswrist = args[4].toInt();
             int poswristrotate = args[5].toInt();
+            if (!base.attached()) {
+                base.attach(3);
+                shoulder.attach(5);
+                elbow.attach(6);
+                wrist.attach(9);
+                wristrotate.attach(10);
+            }
             base.write(posbase);
             shoulder.write(posshoulder);
             elbow.write(poselbow);
@@ -183,10 +162,26 @@ void parseAndExecuteCommand(String command) {
     else if(args[0].equals(String("ss"))) { // set suction
         if(numArgs == 2) {
             int pos= args[1].toInt();
+            if (!suction.attached()) {
+                suction.attach(11);
+            }
             suction.write(pos);
             Serial.println("ok");
         } else {
             Serial.println("error: usage - 'ss [pos]'");
+        }
+    }
+    else if(args[0].equals(String("ds"))) { // detach servos
+        if(numArgs == 1) {
+            base.detach();
+            shoulder.detach();
+            elbow.detach();
+            wrist.detach();
+            wristrotate.detach();
+            suction.detach();
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'ds'");
         }
     }
     else {

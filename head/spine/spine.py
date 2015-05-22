@@ -13,7 +13,7 @@ import mecanum
 DEF_LINUX_PORT= '/dev/mega'
 
 class Spine:
-    def __init__(self, port, baud=9600, t_out=1, delim='\n'):
+    def __init__(self, port, baud=115200, t_out=1, delim='\n'):
         self.ser = serial.Serial(port, baud, timeout=t_out)
         self.delim = delim
         self.compass_tare = 0
@@ -71,7 +71,12 @@ class Spine:
 
     def set_suction(self, suction):
         assert 0 <= suction <= 180
-        command = 'ss %d' % rot
+        command = 'ss %d' % suction
+        response = self.send(command)
+        assert response == 'ok'
+
+    def detach_servos(self):
+        command = 'ds'
         response = self.send(command)
         assert response == 'ok'
 
