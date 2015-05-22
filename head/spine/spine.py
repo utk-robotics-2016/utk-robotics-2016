@@ -71,7 +71,7 @@ class Spine:
 
     def set_suction(self, suction):
         assert 0 <= suction <= 180
-        command = 'ss %d' % rot
+        command = 'ss %d' % suction
         response = self.send(command)
         assert response == 'ok'
 

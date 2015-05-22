@@ -1,6 +1,12 @@
+from __future__ import print_function
+
+from math import pi, exp
+import time
+import operator
+import logging
+
 from head.spine.kinematics import revkin, shoulderToElbow, elbowToWrist, shoulderPos
-from Vec3d import Vec3d
-from math import pi
+from head.spine.Vec3d import Vec3d
 
 wristToCup = 10 # Distance in centimeters from wrist center to cup tip
 
@@ -38,10 +44,50 @@ def to_servos(cuppos, wrist, wristrotate):
     #print servo
     return servo
 
-# Wrist is the amount of up rotation, from straight down, in radians
-# cuppos assumes that wrist is set to 0 radians
-def set_arm_pos(s, cuppos, wrist, wristrotate):
-    s.set_arm(to_servos(cuppos, wrist, wristrotate))
+def interpolate(f, startargs, endargs, seconds, smoothing):
+    def linear(x):
+        return x
+    def rawsigmoid(a, x):
+        return 1/(1 + exp(-(x - .5)/a))
+    def sigmoid(a, x):
+        return (rawsigmoid(a, x) - rawsigmoid(a, 0))/(rawsigmoid(a, 1) - rawsigmoid(a, 0))
+    start_time = time.time()
+    difference = map(operator.sub, endargs, startargs)
+    curr_time = time.time()
+    while (curr_time-start_time) < seconds:
+        elapsed = curr_time - start_time
+        fraction = elapsed/seconds
+        if smoothing == 'linear':
+            sfunc = lambda x: linear(x)
+        elif smoothing == 'sigmoid':
+            sfunc = lambda x: sigmoid(0.13, x)
+        toadd = [v*sfunc(fraction) for v in difference]
+        currargs = map(operator.add, startargs, toadd)
+        f(*currargs)
+        curr_time = time.time()
+    f(*endargs)
+
+class Arm(object):
+    def __init__(self, s):
+        self.s = s
+        self.servos = None
+
+    # Wrist is the amount of up rotation, from straight down, in radians
+    # cuppos assumes that wrist is set to 0 radians
+    # This is a raw function - use move_to instead
+    def set_pos(self, cuppos, wrist, wristrotate):
+        self.servos = to_servos(cuppos, wrist, wristrotate)
+        self.s.set_arm(self.servos)
+
+    def set_servos(self, *args):
+        self.servos = args
+        self.s.set_arm(list(args))
+
+    def move_to(self, cuppos, wrist, wristrotate, seconds=1, smoothing='sigmoid'):
+        startargs = self.servos
+        endargs = to_servos(cuppos, wrist, wristrotate)
+        interpolate(lambda *args: self.set_servos(*args), startargs, endargs, seconds, smoothing)
+        #interpolate(lambda *args: print(repr(args)), startargs, endargs, seconds, smoothing)
 
 
 #to_location(shoulderPos+Vec3d(0,elbowToWrist,shoulderToElbow-wristToCup),0,0)
