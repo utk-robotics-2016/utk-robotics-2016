@@ -1,5 +1,6 @@
 .build
 .holder
+*.o
 *.pyc
 *~
 *.swp
