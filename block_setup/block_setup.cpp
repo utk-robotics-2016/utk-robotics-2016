@@ -1,16 +1,13 @@
 /*****************************************************************************
+ * UTK IEEE Robotics 2015-2016
  * File: block_setup.cpp
+ * Author: Parker Mitchell
  *
  * Description: Implements a basic block position randomization program
  * which allows for different course setups for each run.
  ****************************************************************************/
 
 #include "block_setup.h"
-
-/*----------------------------------------------------------------------------
- Debugging flag - enable by setting to TRUE - enables debugging output
-----------------------------------------------------------------------------*/
-#define DEBUG TRUE
 
 /*----------------------------------------------------------------------------
  Boolean constants
@@ -37,40 +34,9 @@ unsigned int small_blocks;
 unsigned int large_blocks;
 
 /*----------------------------------------------------------------------------
- Ouptuts a debugging message if DEBUG is enabled
-----------------------------------------------------------------------------*/
-static void dbg_msg( const char* format, ... )
-{
-    va_list arglist;
-
-    if( DEBUG )
-    {
-        printf( "DBG: " );
-        va_start( arglist, format );
-        vprintf( format, arglist );
-        va_end( arglist );
-        printf( "\n" );
-    }
-}
-
-/*----------------------------------------------------------------------------
- Ouputs an error message and exists if fatal
-----------------------------------------------------------------------------*/
-static inline void error( string error_message, bool fatal )
-{
-    printf(
-          "%s: %s\n",
-          ( fatal ) ? "fatal error" : "error",
-          error_message.c_str()
-          );
-
-    if( fatal ) exit( 1 );
-}
-
-/*----------------------------------------------------------------------------
  Output all of the blocks in the blocks vector if DEBUG is enabled
 ----------------------------------------------------------------------------*/
-static inline void dbg_print_blocks( vector <block *> &blocks )
+void dbg_print_blocks( vector <block *> &blocks )
 {
     if( DEBUG )
     {
@@ -176,6 +142,9 @@ void load_blocks( string filename, vector <block *> &blocks )
     }
 }
 
+/*----------------------------------------------------------------------------
+ Removes a random block from avaiable and returns a pointer to it
+----------------------------------------------------------------------------*/
 block * get_block( vector <block *> &blocks )
 {
     int r_num; /* random number */
@@ -204,6 +173,9 @@ block * get_block( vector <block *> &blocks )
     return b;
 }
 
+/*----------------------------------------------------------------------------
+ Same as get_block except it ensures the block is a large block
+----------------------------------------------------------------------------*/
 block * get_large_block( vector <block *> &blocks )
 {
     int r_num; /* random number */
@@ -227,6 +199,9 @@ block * get_large_block( vector <block *> &blocks )
     return b;
 }
 
+/*----------------------------------------------------------------------------
+ Same as get_block except it ensure the block is a small block
+----------------------------------------------------------------------------*/
 block * get_small_block( vector <block *> &blocks )
 {
     int r_num; /* random number */
@@ -301,6 +276,9 @@ void generate_setup(
     }
 }
 
+/*----------------------------------------------------------------------------
+ Prints a column of blocks
+----------------------------------------------------------------------------*/
 void print_col( block_col *bc )
 {
     block *b;
@@ -335,6 +313,9 @@ void print_col( block_col *bc )
     printf("\n");
 }
 
+/*----------------------------------------------------------------------------
+ Provides text output for the generated block configuration
+----------------------------------------------------------------------------*/
 void print_output( vector <block_col *> &zone_b, vector <block_col *> &zone_c )
 {
     int i;
