@@ -72,7 +72,7 @@ void add_block( vector <block *> &blocks, string size, string color )
     }
     else
     {
-        error( UNREC_SIZE, TRUE );
+        error( TRUE, UNREC_SIZE );
     }
 
     if( color == "red" )
@@ -93,7 +93,7 @@ void add_block( vector <block *> &blocks, string size, string color )
     }
     else
     {
-        error( UNREC_COLOR, TRUE );
+        error( TRUE, UNREC_COLOR );
     }
 
     /* Create the block object, add to the vector, and assign its attributes */
@@ -117,6 +117,7 @@ void add_block( vector <block *> &blocks, string size, string color )
 ----------------------------------------------------------------------------*/
 void load_blocks( string filename, vector <block *> &blocks )
 {
+    int line_count;
     fstream input;
     stringstream ss;
     string line;
@@ -127,15 +128,35 @@ void load_blocks( string filename, vector <block *> &blocks )
 
     input.open( filename.c_str() );
 
+    /* Keep track of the line for error reporting */
+    line_count = 1;
+
     /* Process each line of text into a block */
     while( getline( input, line ) )
     {
+        /* initialize the strings */
+        size = "error";
+        color = "error";
+
         ss.clear();
         ss.str(line);
 
         ss >> size >> color;
 
+        if( size == "error"  || color == "error"
+         || size.size() == 0 || color.size() == 0 )
+        {
+            error
+                (
+                TRUE,
+                "parse error in %s at line %d",
+                filename.c_str(),
+                line_count
+                );
+        }
+
         add_block( blocks, size, color );
+        line_count++;
     }
 }
 
@@ -149,7 +170,7 @@ block * get_block( vector <block *> &blocks )
 
     if( blocks.size() == 0 )
     {
-        error( NO_BLKS, TRUE );
+        error( TRUE, NO_BLKS );
         return NULL;
     }
 
@@ -179,7 +200,7 @@ block * get_large_block( vector <block *> &blocks )
     block *b;
 
     if( large_blocks == 0 ) {
-        error( NO_LG_BLKS, TRUE );
+        error( TRUE, NO_LG_BLKS );
         return NULL;
     }
 
@@ -197,7 +218,7 @@ block * get_large_block( vector <block *> &blocks )
 }
 
 /*----------------------------------------------------------------------------
- Same as get_block except it ensure the block is a small block
+ Same as get_block except it ensures the block is a small block
 ----------------------------------------------------------------------------*/
 block * get_small_block( vector <block *> &blocks )
 {
@@ -206,7 +227,7 @@ block * get_small_block( vector <block *> &blocks )
 
     if( small_blocks == 0 )
     {
-        error( NO_SM_BLKS, TRUE );
+        error( TRUE, NO_SM_BLKS );
         return NULL;
     }
 
@@ -271,6 +292,12 @@ void generate_setup(
 
         zone_b.push_back( bc );
     }
+
+    /*------------------------------------------------------------------------
+     randomize the column order in zone b to address the inherit bias
+     in the random block selection algorithm
+    ------------------------------------------------------------------------*/
+    random_shuffle( blocks.begin(), blocks.end() );
 }
 
 /*----------------------------------------------------------------------------
@@ -282,12 +309,12 @@ void print_col( block_col *bc )
 
     if( bc == NULL )
     {
-        error( "NULL block column", TRUE );
+        error( TRUE, "NULL block column" );
     }
 
     if( bc->top[0] == NULL || bc->bottom[0] == NULL )
     {
-        error( "NULL block in column", TRUE );
+        error( TRUE, "NULL block in column" );
     }
 
     printf("\t");

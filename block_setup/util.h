@@ -27,5 +27,5 @@ using namespace std;
 /*----------------------------------------------------------------------------
  Utility procedures
 ----------------------------------------------------------------------------*/
-void dbg_msg( const char* format, ... );
-void error( string error_message, bool fatal );
+void dbg_msg( const char *format, ... );
+void error( bool fatal, const char *format, ... );

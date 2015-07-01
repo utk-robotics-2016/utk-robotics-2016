@@ -28,13 +28,16 @@ void dbg_msg( const char* format, ... )
 /*----------------------------------------------------------------------------
  Ouputs an error message and exists if fatal
 ----------------------------------------------------------------------------*/
-void error( string error_message, bool fatal )
+void error( bool fatal, const char *format, ... )
 {
-    printf(
-          "%s: %s\n",
-          ( fatal ) ? "fatal error" : "error",
-          error_message.c_str()
-          );
+    va_list arglist;
+
+    printf("%s: ", ( fatal ) ? "fatal error" : "error" );
+
+    va_start( arglist, format );
+    vprintf( format, arglist );
+    va_end( arglist );
+    printf( "\n" );
 
     if( fatal ) exit( 1 );
 }
