@@ -7,28 +7,38 @@
 
 #include "block_setup.h"
 
-/*****************************************************************************
- * Debugging flag - enable by setting to TRUE - enables debugging output
- ****************************************************************************/
+/*----------------------------------------------------------------------------
+ Debugging flag - enable by setting to TRUE - enables debugging output
+----------------------------------------------------------------------------*/
 #define DEBUG TRUE
 
-/*****************************************************************************
- * Boolean constants
- ****************************************************************************/
-#define TRUE 1
-#define FALSE 0
+/*----------------------------------------------------------------------------
+ Boolean constants
+----------------------------------------------------------------------------*/
+#define TRUE  ( 1 )
+#define FALSE ( 0 )
 
-/*****************************************************************************
- * Error Messages
- ****************************************************************************/
+/*----------------------------------------------------------------------------
+ Columns in each zone to generate
+----------------------------------------------------------------------------*/
+#define ZONE_B_COLS ( 7 )
+#define ZONE_C_COLS ( 6 )
+
+/*----------------------------------------------------------------------------
+ Error Messages
+----------------------------------------------------------------------------*/
 #define UNREC_COLOR "unrecognized block color"
 #define UNREC_SIZE "unrecognized block size"
 
-using namespace std;
+/*----------------------------------------------------------------------------
+ Keep track of number of blocks
+----------------------------------------------------------------------------*/
+unsigned int small_blocks;
+unsigned int large_blocks;
 
-/*****************************************************************************
- * Ouptuts a debugging message if DEBUG is enabled
- ****************************************************************************/
+/*----------------------------------------------------------------------------
+ Ouptuts a debugging message if DEBUG is enabled
+----------------------------------------------------------------------------*/
 static void dbg_msg( const char* format, ... )
 {
     va_list arglist;
@@ -43,9 +53,9 @@ static void dbg_msg( const char* format, ... )
     }
 }
 
-/*****************************************************************************
- * Ouputs an error message and exists if fatal
- ****************************************************************************/
+/*----------------------------------------------------------------------------
+ Ouputs an error message and exists if fatal
+----------------------------------------------------------------------------*/
 static inline void error( string error_message, bool fatal )
 {
     printf(
@@ -57,31 +67,29 @@ static inline void error( string error_message, bool fatal )
     if( fatal ) exit( 1 );
 }
 
-/*****************************************************************************
- * Output all of the blocks in the blocks vector if DEBUG is enabled
- ****************************************************************************/
-static inline void dbg_print_blocks( vector <block *> blocks )
+/*----------------------------------------------------------------------------
+ Output all of the blocks in the blocks vector if DEBUG is enabled
+----------------------------------------------------------------------------*/
+static inline void dbg_print_blocks( vector <block *> &blocks )
 {
     if( DEBUG )
     {
         for( int i = 0; i < blocks.size(); i++ )
         {
-            dbg_msg( "Block %d - color: %c size: %s", blocks[i]->id, blocks[i]->color, (blocks[i]->size) ? "large" : "small" );
+            dbg_msg
+                (
+                "Block %d - color: %c size: %s",
+                blocks[i]->id,
+                blocks[i]->color,
+                ( blocks[i]->size ) ? "large" : "small"
+                );
         }
     }
 }
 
-/*****************************************************************************
- * Randomly generate a column of blocks
- ****************************************************************************/
-void generate_block_col()
-{
-
-}
-
-/*****************************************************************************
- * Adds a new block to the blocks vector
- ****************************************************************************/
+/*----------------------------------------------------------------------------
+ Adds a new block to the blocks vector
+----------------------------------------------------------------------------*/
 void add_block( vector <block *> &blocks, string size, string color )
 {
     int i_size;
@@ -131,11 +139,19 @@ void add_block( vector <block *> &blocks, string size, string color )
     blocks.back()->size = i_size;
     blocks.back()->color = i_color;
 
+    if( i_size == 1 )
+    {
+        large_blocks++;
+    }
+    else
+    {
+        small_blocks++;
+    }
 }
 
-/*****************************************************************************
- * Loads the available blocks from an input file into the blocks vector
- ****************************************************************************/
+/*----------------------------------------------------------------------------
+ Loads the available blocks from an input file into the blocks vector
+----------------------------------------------------------------------------*/
 void load_blocks( string filename, vector <block *> &blocks )
 {
     fstream input;
@@ -160,21 +176,181 @@ void load_blocks( string filename, vector <block *> &blocks )
     }
 }
 
-/*****************************************************************************
- * Generates the block set up based on the available blocks and given seed
- ****************************************************************************/
+block * get_block( vector <block *> &blocks )
+{
+    int r_num; /* random number */
+    block *b;
+
+    if( blocks.size() == 0 )
+    {
+        error( "Out of blocks", TRUE );
+        return NULL;
+    }
+
+    r_num = rand() % blocks.size();
+    b = blocks[r_num];
+
+    if( b->size == 1 )
+    {
+        large_blocks--;
+    }
+    else
+    {
+        small_blocks--;
+    }
+
+    blocks.erase( blocks.begin() + r_num );
+
+    return b;
+}
+
+block * get_large_block( vector <block *> &blocks )
+{
+    int r_num; /* random number */
+    block *b;
+
+    if( large_blocks == 0 ) {
+        error( "Out of large blocks", TRUE );
+        return NULL;
+    }
+
+    do
+    {
+        r_num = rand() % blocks.size();
+        b = blocks[r_num];
+    }
+    while( b->size == 0 );
+
+    large_blocks--;
+    blocks.erase( blocks.begin() + r_num );
+
+    return b;
+}
+
+block * get_small_block( vector <block *> &blocks )
+{
+    int r_num; /* random number */
+    block *b;
+
+    if( small_blocks == 0 )
+    {
+        error( "Out of small blocks", TRUE );
+        return NULL;
+    }
+
+    do
+    {
+        r_num =  rand() % blocks.size();
+        b = blocks[r_num];
+    }
+    while( b->size == 1 );
+
+    small_blocks--;
+    blocks.erase( blocks.begin() + r_num );
+
+    return b;
+}
+
+/*----------------------------------------------------------------------------
+ Generates the block set up based on the available blocks and given seed
+----------------------------------------------------------------------------*/
 void generate_setup(
-                   vector <block *> blocks,
-                   vector <block_col> zone_a,
-                   vector <block_col> zone_b,
+                   vector <block *> &blocks,
+                   vector <block_col *> &zone_b,
+                   vector <block_col *> &zone_c,
                    int seed
                    )
 {
+    int i; /* iterator */
+    int r_num; /* random number */
+    block *b;
+    block_col *bc;
 
     /* Seed the random number generator */
     srand( seed );
 
     dbg_msg( "Generating setup" );
+
+    /* generate zone c first to use large blocks */
+    for( i = 0; i < ZONE_C_COLS; i++ )
+    {
+        bc = new block_col;
+        bc->top[0] = get_large_block( blocks );
+        bc->bottom[0] = get_large_block( blocks );
+        zone_c.push_back( bc );
+    }
+
+    /* generate zone b */
+    for( i = 0; i < ZONE_B_COLS; i++ )
+    {
+        bc = new block_col;
+
+        bc->top[0] = get_block( blocks );
+        if( bc->top[0]->size == 0 )
+        {
+            bc->top[1] = get_small_block( blocks );
+        }
+
+        bc->bottom[0] = get_block( blocks );
+        if( bc->bottom[0]->size == 0 )
+        {
+            bc->bottom[1] = get_small_block( blocks );
+        }
+
+        zone_b.push_back( bc );
+    }
+}
+
+void print_col( block_col *bc )
+{
+    block *b;
+
+    if( bc == NULL )
+    {
+        error( "NULL block column", TRUE );
+    }
+
+    if( bc->top[0] == NULL || bc->bottom[0] == NULL )
+    {
+        error( "NULL block in column", TRUE );
+    }
+
+    printf("\t");
+
+    printf( "Top: %c ", bc->top[0]->color );
+    if( bc->top[0]->size == 0 )
+    {
+        printf( "%c ", bc->top[1]->color );
+    }
+    else
+    {
+        printf( "  " );
+    }
+
+    printf( "Bottom: %c", bc->bottom[0]->color );
+    if( bc->bottom[0]->size == 0 )
+    {
+        printf( " %c", bc->bottom[1]->color );
+    }
+    printf("\n");
+}
+
+void print_output( vector <block_col *> &zone_b, vector <block_col *> &zone_c )
+{
+    int i;
+
+    printf("Zone B:\n");
+    for( i = 0; i < zone_b.size(); i++ )
+    {
+        print_col( zone_b[i] );
+    }
+
+    printf("Zone C:\n");
+    for( i = 0; i < zone_c.size(); i++ )
+    {
+        print_col( zone_c[i] );
+    }
+
 }
 
 int main ( int argc, char **argv )
@@ -186,8 +362,8 @@ int main ( int argc, char **argv )
     vector <block *> blocks;
 
     /* use a vector to represent each zone */
-    vector <block_col> zone_a;
-    vector <block_col> zone_b;
+    vector <block_col *> zone_b;
+    vector <block_col *> zone_c;
 
     /* Allow for specifying the seed as a command line parameter */
     if( argc == 1 )
@@ -199,15 +375,20 @@ int main ( int argc, char **argv )
         seed = atoi( argv[1] );
     }
 
+    large_blocks = 0;
+    small_blocks = 0;
+
     /* default input file for now - TODO: add as a command line parameter */
     input_file = "input.txt";
 
     /* read in the available blocks */
     load_blocks( input_file, blocks );
     /* TODO: generate the layout of blocks in each zone */
-    generate_setup( blocks, zone_a, zone_b, seed );
+    generate_setup( blocks, zone_b, zone_c, seed );
     /* TODO: output the results */
-    dbg_print_blocks( blocks );
+    //dbg_print_blocks( blocks );
+    dbg_msg( "Small Blocks left: %d | Large Blocks left: %d | Blocks left: %d", small_blocks, large_blocks, blocks.size() );
+    print_output( zone_b, zone_c );
 
     return( 0 );
 }

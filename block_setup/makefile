@@ -10,7 +10,7 @@ all: $(EXECUTABLES)
 	$(CC) $(CFLAGS) -c $*.cpp
 
 block_setup: block_setup.o block_setup.h
-	$(CC) $(CFLAGS) -o block_setup block_setup.o
+	$(CC) $(CFLAGS) -g -o block_setup block_setup.o
 
 clean:
 	rm $(EXECUTABLES) *.o

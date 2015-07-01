@@ -14,6 +14,8 @@
 #include <fstream>
 #include <vector>
 
+using namespace std;
+
 /*****************************************************************************
  * Represents each wooden block
  * Size:
@@ -33,9 +35,14 @@ struct block
     int size;
 };
 
+/*****************************************************************************
+ * Represents each column of blocks
+ * Each column can support 2 half length blocks at the bottom or the top
+ * or 1 full length block at the bottom or the top
+ ****************************************************************************/
 struct block_col
 {
     int id;
-    struct block top[2];
-    struct block bottom[2];
+    struct block *top[2];
+    struct block *bottom[2];
 };
