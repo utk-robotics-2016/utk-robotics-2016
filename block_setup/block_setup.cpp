@@ -297,7 +297,8 @@ void generate_setup(
      randomize the column order in zone b to address the inherit bias
      in the random block selection algorithm
     ------------------------------------------------------------------------*/
-    random_shuffle( blocks.begin(), blocks.end() );
+    random_shuffle( zone_b.begin(), zone_b.end() );
+    random_shuffle( zone_c.begin(), zone_c.end() );
 }
 
 /*----------------------------------------------------------------------------
