@@ -10,12 +10,6 @@
 #include "block_setup.h"
 
 /*----------------------------------------------------------------------------
- Boolean constants
-----------------------------------------------------------------------------*/
-#define TRUE  ( 1 )
-#define FALSE ( 0 )
-
-/*----------------------------------------------------------------------------
  Columns in each zone to generate
 ----------------------------------------------------------------------------*/
 #define ZONE_B_COLS ( 7 )
@@ -25,7 +19,10 @@
  Error Messages
 ----------------------------------------------------------------------------*/
 #define UNREC_COLOR "unrecognized block color"
-#define UNREC_SIZE "unrecognized block size"
+#define UNREC_SIZE  "unrecognized block size"
+#define NO_SM_BLKS  "out of small blocks"
+#define NO_LG_BLKS  "out of large blocks"
+#define NO_BLKS     "out of blocks"
 
 /*----------------------------------------------------------------------------
  Keep track of number of blocks
@@ -152,7 +149,7 @@ block * get_block( vector <block *> &blocks )
 
     if( blocks.size() == 0 )
     {
-        error( "Out of blocks", TRUE );
+        error( NO_BLKS, TRUE );
         return NULL;
     }
 
@@ -182,7 +179,7 @@ block * get_large_block( vector <block *> &blocks )
     block *b;
 
     if( large_blocks == 0 ) {
-        error( "Out of large blocks", TRUE );
+        error( NO_LG_BLKS, TRUE );
         return NULL;
     }
 
@@ -209,7 +206,7 @@ block * get_small_block( vector <block *> &blocks )
 
     if( small_blocks == 0 )
     {
-        error( "Out of small blocks", TRUE );
+        error( NO_SM_BLKS, TRUE );
         return NULL;
     }
 
@@ -364,12 +361,16 @@ int main ( int argc, char **argv )
 
     /* read in the available blocks */
     load_blocks( input_file, blocks );
-    /* TODO: generate the layout of blocks in each zone */
     generate_setup( blocks, zone_b, zone_c, seed );
-    /* TODO: output the results */
-    //dbg_print_blocks( blocks );
-    dbg_msg( "Small Blocks left: %d | Large Blocks left: %d | Blocks left: %d", small_blocks, large_blocks, blocks.size() );
+    dbg_msg
+        (
+        "Small Blocks left: %d | Large Blocks left: %d | Blocks left: %d",
+        small_blocks,
+        large_blocks,
+        blocks.size()
+        );
     print_output( zone_b, zone_c );
+    /* TODO: Add graphical and/or pretty terminal printing */
 
     return( 0 );
 }
