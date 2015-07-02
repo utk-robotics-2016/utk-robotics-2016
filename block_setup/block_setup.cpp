@@ -37,7 +37,7 @@ void dbg_print_blocks( vector <block *> &blocks )
 {
     if( DEBUG )
     {
-        for( int i = 0; i < blocks.size(); i++ )
+        for( unsigned int i = 0; i < blocks.size(); i++ )
         {
             dbg_msg
                 (
@@ -255,8 +255,6 @@ void generate_setup(
                    )
 {
     int i; /* iterator */
-    int r_num; /* random number */
-    block *b;
     block_col *bc;
 
     /* Seed the random number generator */
@@ -306,7 +304,6 @@ void generate_setup(
 ----------------------------------------------------------------------------*/
 void print_col( block_col *bc )
 {
-    block *b;
 
     if( bc == NULL )
     {
@@ -343,7 +340,7 @@ void print_col( block_col *bc )
 ----------------------------------------------------------------------------*/
 void print_output( vector <block_col *> &zone_b, vector <block_col *> &zone_c )
 {
-    int i;
+    unsigned int i;
 
     printf("Zone B:\n");
     for( i = 0; i < zone_b.size(); i++ )
@@ -363,6 +360,7 @@ int main ( int argc, char **argv )
 {
     int seed;
     string input_file;
+	char c;
 
     /* use a vector to represent each set of blocks */
     vector <block *> blocks;
@@ -374,7 +372,7 @@ int main ( int argc, char **argv )
     /* Allow for specifying the seed as a command line parameter */
     if( argc == 1 )
     {
-        seed = time( 0 );
+        seed = (int) time( 0 );
     }
     else if( argc == 2 )
     {
@@ -399,6 +397,14 @@ int main ( int argc, char **argv )
         );
     print_output( zone_b, zone_c );
     /* TODO: Add graphical and/or pretty terminal printing */
+
+	/*------------------------------------------------------------------------
+	 The window will not exit immediately if running from Visual Studio
+	------------------------------------------------------------------------*/
+	#if defined(_MSC_VER)
+	printf("\nPress enter to exit\n");
+	c = getchar();
+	#endif
 
     return( 0 );
 }
