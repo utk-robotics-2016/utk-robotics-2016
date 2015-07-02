@@ -9,6 +9,9 @@
 
 Just run the makefile on a Mac or Linux computer.
 
+On Windows, open the Visual Studio solution file in Visual Studio 2013, and
+the project should build. If you run into any issues, let me know. 
+
 ------------------------------------------------------------------------------
  Running Instructions
 ------------------------------------------------------------------------------
