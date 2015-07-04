@@ -1,0 +1,44 @@
+******************************************************************************
+* UTK Robotics 2015-2016                                                     *
+* README: Block Setup Utility                                                *
+******************************************************************************
+
+------------------------------------------------------------------------------
+ Compilation Directions
+------------------------------------------------------------------------------
+
+Just run the makefile on a Mac or Linux computer.
+
+On Windows, open the Visual Studio solution file in Visual Studio 2013, and
+the project should build. If you run into any issues, let me know. 
+
+------------------------------------------------------------------------------
+ Running Instructions
+------------------------------------------------------------------------------
+
+Just execute the compiled executable.
+
+./block_setup
+./block_setup (seed)
+
+The output is currently more for any debugging purposes. A graphical output
+feature is coming. The program only outputs the generated configuration for
+Zone B and Zone C because Zone A is uniform and is pointless to generate.
+
+------------------------------------------------------------------------------
+ About input.txt
+------------------------------------------------------------------------------
+
+This file houses the "database" of available blocks.
+
+The format is as follows:
+(size) (color)\n
+
+Valid sizes are large and small.
+Valid colors are red, blue, yellow, and green.
+
+The current parsing mechanism currently is not very robust, so extraneous input
+could result in undefined program behavior.
+
+The provided input.txt is based upon the pictured blocks in the published rules
+document.

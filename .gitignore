@@ -1,7 +1,9 @@
 .build
 .holder
+*.o
 *.pyc
 *~
 *.swp
 .DS_Store
 head/lastrun.log
+block_setup/Debug/*
