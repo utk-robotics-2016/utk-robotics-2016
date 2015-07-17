@@ -140,6 +140,36 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'rl'");
         }
     }
+    else if(args[0].equals(String("go"))) {
+        if(numArgs == 4) {
+            int speed = args[2].toInt();
+
+            boolean dir = LOW;
+            if(args[3].equals(String("ccw"))) {
+                dir = HIGH;
+            }
+
+            if(args[1].equals(String("1"))) {
+                analogWrite(CH1_PWM, speed);
+                digitalWrite(CH1_DIR, dir);
+                Serial.println("ok");
+            }else if(args[1].equals(String("2"))) {
+                analogWrite(CH2_PWM, speed);
+                digitalWrite(CH2_DIR, dir);
+                Serial.println("ok");
+            }else if(args[1].equals(String("3"))) {
+                analogWrite(CH3_PWM, speed);
+                digitalWrite(CH3_DIR, dir);
+                Serial.println("ok");
+            }else if(args[1].equals(String("4"))) {
+                analogWrite(CH4_PWM, speed);
+                digitalWrite(CH4_DIR, dir);
+                Serial.println("ok");
+            }
+        } else {
+            Serial.println("error: usage - 'go [1/2/3/4] [speed] [cw/ccw]'");
+        }
+    }
     else {
         // Unrecognized command
         Serial.println("error: unrecognized command");
