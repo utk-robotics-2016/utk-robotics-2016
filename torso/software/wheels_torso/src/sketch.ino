@@ -25,6 +25,19 @@ const char CH4_CUR = 41;
 void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
+    // Init Rover 5 pins
+    pinMode(CH1_PWM,OUTPUT);
+    pinMode(CH1_DIR,OUTPUT);
+    pinMode(CH1_CUR,INPUT);
+    pinMode(CH2_PWM,OUTPUT);
+    pinMode(CH2_DIR,OUTPUT);
+    pinMode(CH2_CUR,INPUT);
+    pinMode(CH3_PWM,OUTPUT);
+    pinMode(CH3_DIR,OUTPUT);
+    pinMode(CH3_CUR,INPUT);
+    pinMode(CH4_PWM,OUTPUT);
+    pinMode(CH4_DIR,OUTPUT);
+    pinMode(CH4_CUR,INPUT);
 
     // Init serial
     Serial.begin(115200);
