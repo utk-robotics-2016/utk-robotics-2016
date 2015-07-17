@@ -21,17 +21,25 @@ class Spine:
             self.ser[devname] = serial.Serial(port, 115200, timeout=t_out)
         self.delim = delim
         self.compass_tare = 0
+        self.loglevel = 0
         # Hook in SIGINT abort handler for clean aborts
         signal.signal(signal.SIGINT, self.signal_handler)
         # Read in enough bytes to clear the buffer
         for devname in self.ser.keys():
             self.ser[devname].read(1000)
 
+    def set_log_level(self, level):
+        self.loglevel = level
+
     def send(self, devname, command):
+        if self.loglevel:
+            print "Sending '%s' to '%s'" % (command, devname)
         self.ser[devname].write(command + self.delim)
         echo = self.ser[devname].readline()
         assert echo == '> ' + command + '\r\n'
         response = self.ser[devname].readline()
+        if self.loglevel:
+            print "Response: '%s'" % response[:-2]
         # Be sure to chop off newline. We don't need it.
         return response[:-2]
 
