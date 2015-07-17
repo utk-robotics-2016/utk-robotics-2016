@@ -2,6 +2,7 @@
 import time
 import signal
 import sys
+import os
 
 # Third-party
 import serial
@@ -14,11 +15,21 @@ DEF_PORTS = {
     'teensy': '/dev/teensy',
 }
 
+class SerialLockException(Exception):
+    pass
+
 class Spine:
     def __init__(self, t_out=1, delim='\n'):
         self.ser = {}
         for devname, port in DEF_PORTS.iteritems():
+            fndevname = port.split('/dev/')[1]
+            lockfn = '/var/lock/LCK..%s' % fndevname
+            if os.path.isfile(lockfn):
+                self.close()
+                raise SerialLockException("Lockfile %s exists. It's possible that someone is using this serial port. If not, remove this lock file. Closing and raising error." % lockfn)
             self.ser[devname] = serial.Serial(port, 115200, timeout=t_out)
+            with open(lockfn, 'w') as f:
+                f.write('-1')
         self.delim = delim
         self.compass_tare = 0
         self.loglevel = 0
@@ -137,5 +148,9 @@ class Spine:
 
     def close(self):
         for devname in self.ser.keys():
+            port = DEF_PORTS[devname]
+            fndevname = port.split('/dev/')[1]
+            lockfn = '/var/lock/LCK..%s' % fndevname
             self.ser[devname].close()
+            os.remove(lockfn)
             print 'Closed serial connection %s.' % self.ser[devname].port
