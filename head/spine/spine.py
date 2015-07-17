@@ -18,6 +18,17 @@ DEF_PORTS = {
 class SerialLockException(Exception):
     pass
 
+class get_spine:
+    def __enter__(self):
+        self.s = Spine()
+        self.s.startup()
+        return self.s
+
+    def __exit__(self, type, value, traceback):
+        #self.s.stop()
+        self.s.close()
+
+
 class Spine:
     def __init__(self, t_out=1, delim='\n'):
         self.ser = {}
@@ -31,13 +42,7 @@ class Spine:
             with open(lockfn, 'w') as f:
                 f.write('-1')
         self.delim = delim
-        self.compass_tare = 0
         self.loglevel = 0
-        # Hook in SIGINT abort handler for clean aborts
-        signal.signal(signal.SIGINT, self.signal_handler)
-        # Read in enough bytes to clear the buffer
-        for devname in self.ser.keys():
-            self.ser[devname].read(1000)
 
     def set_log_level(self, level):
         self.loglevel = level
@@ -139,12 +144,6 @@ class Spine:
             # Don't waste time after the last flash
             if i != 2:
                 time.sleep(0.05)
-
-    def signal_handler(self, signal, frame):
-        print '\nCleaning up after unclean exit...'
-        self.stop()
-        self.close()
-        sys.exit(0)
 
     def close(self):
         for devname in self.ser.keys():
