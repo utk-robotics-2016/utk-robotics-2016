@@ -30,17 +30,22 @@ class get_spine:
 
 
 class Spine:
-    def __init__(self, t_out=1, delim='\n'):
+    def __init__(self, t_out=1, delim='\n', **kwargs):
         self.ser = {}
-        for devname, port in DEF_PORTS.iteritems():
-            fndevname = port.split('/dev/')[1]
-            lockfn = '/var/lock/LCK..%s' % fndevname
-            if os.path.isfile(lockfn):
-                self.close()
-                raise SerialLockException("Lockfile %s exists. It's possible that someone is using this serial port. If not, remove this lock file. Closing and raising error." % lockfn)
+        self.use_lock = kwargs.get('use_lock', True)
+        self.lock_dir = kwargs.get('lock_dir', '/var/lock/')
+        self.ports = kwargs.get('ports', DEF_PORTS)
+        for devname, port in self.ports.iteritems():
+            if self.use_lock:
+                fndevname = port.split('/dev/')[1]
+                lockfn = '%sLCK..%s' % (self.lock_dir, fndevname)
+                if os.path.isfile(lockfn):
+                    self.close()
+                    raise SerialLockException("Lockfile %s exists. It's possible that someone is using this serial port. If not, remove this lock file. Closing and raising error." % lockfn)
             self.ser[devname] = serial.Serial(port, 115200, timeout=t_out)
-            with open(lockfn, 'w') as f:
-                f.write('-1')
+            if self.use_lock:
+                with open(lockfn, 'w') as f:
+                    f.write('-1')
         self.delim = delim
         self.loglevel = 0
 
@@ -147,9 +152,11 @@ class Spine:
 
     def close(self):
         for devname in self.ser.keys():
-            port = DEF_PORTS[devname]
-            fndevname = port.split('/dev/')[1]
-            lockfn = '/var/lock/LCK..%s' % fndevname
+            port = self.ports[devname]
+            if self.use_lock:
+                fndevname = port.split('/dev/')[1]
+                lockfn = '%sLCK..%s' % (self.lock_dir, fndevname)
             self.ser[devname].close()
-            os.remove(lockfn)
+            if self.use_lock:
+                os.remove(lockfn)
             print 'Closed serial connection %s.' % self.ser[devname].port

@@ -146,6 +146,66 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'le [on/off]'");
         }
     }
+    else if(args[0].equals(String("ma"))) { //move laterally left
+      digitalWrite(CH2_DIR,HIGH);
+      analogWrite(CH2_PWM,128);
+      digitalWrite(CH3_DIR,LOW);
+      analogWrite(CH3_PWM,128);
+      digitalWrite(CH1_DIR,HIGH);
+      analogWrite(CH1_PWM,128);
+      digitalWrite(CH4_DIR,LOW);
+      analogWrite(CH4_PWM,128);    
+      delay(100);
+      analogWrite(CH1_PWM,0);
+      analogWrite(CH2_PWM,0);
+      analogWrite(CH3_PWM,0);  
+      analogWrite(CH4_PWM,0);
+    }
+    else if(args[0].equals(String("md"))) { //move laterally right
+        digitalWrite(CH2_DIR,LOW);
+      analogWrite(CH2_PWM,128);
+      digitalWrite(CH3_DIR,HIGH);
+      analogWrite(CH3_PWM,128);
+      digitalWrite(CH1_DIR,LOW);
+      analogWrite(CH1_PWM,128);
+      digitalWrite(CH4_DIR,HIGH);
+      analogWrite(CH4_PWM,128);    
+      delay(100);
+      analogWrite(CH1_PWM,0);
+      analogWrite(CH2_PWM,0);
+      analogWrite(CH3_PWM,0);  
+      analogWrite(CH4_PWM,0);
+    }
+    else if(args[0].equals(String("mw"))) { //move laterally forward
+      digitalWrite(CH2_DIR,LOW);
+      analogWrite(CH2_PWM,128);
+      digitalWrite(CH3_DIR,LOW);
+      analogWrite(CH3_PWM,128);
+      digitalWrite(CH1_DIR,HIGH);
+      analogWrite(CH1_PWM,128);
+      digitalWrite(CH4_DIR,HIGH);
+      analogWrite(CH4_PWM,128);    
+      delay(100);
+      analogWrite(CH1_PWM,0);
+      analogWrite(CH2_PWM,0);
+      analogWrite(CH3_PWM,0);  
+      analogWrite(CH4_PWM,0); 
+    } 
+    else if(args[0].equals(String("ms"))) { //move laterally backward
+        digitalWrite(CH2_DIR,HIGH);
+      analogWrite(CH2_PWM,128);
+      digitalWrite(CH3_DIR,HIGH);
+      analogWrite(CH3_PWM,128);
+      digitalWrite(CH1_DIR,LOW);
+      analogWrite(CH1_PWM,128);
+      digitalWrite(CH4_DIR,LOW);
+      analogWrite(CH4_PWM,128);    
+      delay(100);
+      analogWrite(CH1_PWM,0);
+      analogWrite(CH2_PWM,0);
+      analogWrite(CH3_PWM,0);  
+      analogWrite(CH4_PWM,0);
+    }
     else if(args[0].equals(String("rl"))) { // read led
         if(numArgs == 1) {
             Serial.println(ledState);
