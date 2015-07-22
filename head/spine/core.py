@@ -3,12 +3,15 @@ import time
 import signal
 import sys
 import os
+import logging
 
 # Third-party
 import serial
 
 # Project specific
 import mecanum
+
+logger = logging.getLogger(__name__)
 
 DEF_PORTS = {
     'mega': '/dev/mega',
@@ -25,7 +28,7 @@ class get_spine:
         return self.s
 
     def __exit__(self, type, value, traceback):
-        #self.s.stop()
+        self.s.stop()
         self.s.close()
 
 
@@ -35,6 +38,7 @@ class Spine:
         self.use_lock = kwargs.get('use_lock', True)
         self.lock_dir = kwargs.get('lock_dir', '/var/lock/')
         self.ports = kwargs.get('ports', DEF_PORTS)
+        first = True
         for devname, port in self.ports.iteritems():
             if self.use_lock:
                 fndevname = port.split('/dev/')[1]
@@ -42,10 +46,17 @@ class Spine:
                 if os.path.isfile(lockfn):
                     self.close()
                     raise SerialLockException("Lockfile %s exists. It's possible that someone is using this serial port. If not, remove this lock file. Closing and raising error." % lockfn)
+            logger.info('Connecting to %s.' % port)
             self.ser[devname] = serial.Serial(port, 115200, timeout=t_out)
             if self.use_lock:
                 with open(lockfn, 'w') as f:
                     f.write('-1')
+                logger.info('Created lock at %s.' % lockfn)
+            if first:
+                first = False
+            else:
+                logger.info('Waiting for connection to stabilize.')
+                time.sleep(1)
         self.delim = delim
         self.loglevel = 0
 
@@ -53,14 +64,12 @@ class Spine:
         self.loglevel = level
 
     def send(self, devname, command):
-        if self.loglevel:
-            print "Sending '%s' to '%s'" % (command, devname)
+        logger.debug("Sending %s to '%s'" % (repr(command), devname))
         self.ser[devname].write(command + self.delim)
         echo = self.ser[devname].readline()
         assert echo == '> ' + command + '\r\n'
         response = self.ser[devname].readline()
-        if self.loglevel:
-            print "Response: '%s'" % response[:-2]
+        logger.debug("Response: %s" % repr(response[:-2]))
         # Be sure to chop off newline. We don't need it.
         return response[:-2]
 
@@ -157,6 +166,7 @@ class Spine:
                 fndevname = port.split('/dev/')[1]
                 lockfn = '%sLCK..%s' % (self.lock_dir, fndevname)
             self.ser[devname].close()
+            logger.info('Closed serial connection %s.' % self.ser[devname].port)
             if self.use_lock:
                 os.remove(lockfn)
-            print 'Closed serial connection %s.' % self.ser[devname].port
+                logger.info('Removed lock at %s.' % lockfn)
