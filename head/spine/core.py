@@ -28,7 +28,7 @@ class get_spine:
         return self.s
 
     def __exit__(self, type, value, traceback):
-        #self.s.stop()
+        self.s.stop()
         self.s.close()
 
 
