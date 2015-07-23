@@ -1,8 +1,5 @@
-# Python modules
-import time
 # Local modules
-from head.spine import spine, pixelmove
-from head.spine.zones import to_zone
+from head.spine import spine
 from head.find_lines import current_lines
 
 # Change this port if not on LINUX
@@ -27,8 +24,8 @@ for i in range(n):
         print t, (x2 - x1)
         values[t].append(x2 - x1)
         s.move_for(t, .4, -90, 0)
-        #lf = current_lines()
-        #pixelmove.correct_baseline_error(s, lf.dist_to_baseline, lf.baseline_theta)
+        # lf = current_lines()
+        # pixelmove.correct_baseline_error(s, lf.dist_to_baseline, lf.baseline_theta)
 
 for key, value in values.items():
     averages[key] = float(sum(value)) / len(value)

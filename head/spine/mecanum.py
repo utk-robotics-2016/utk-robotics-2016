@@ -9,7 +9,7 @@ import math
 kf = 1.0
 ks = 1.0
 kt = 1.0
-#wmax = 1 + math.sqrt(2)
+# wmax = 1 + math.sqrt(2)
 wmax = kt + math.sqrt(2) * max(kf, ks)
 
 

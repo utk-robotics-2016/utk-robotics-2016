@@ -3,9 +3,9 @@ from __future__ import print_function
 from math import pi, exp
 import time
 import operator
-import logging
+# import logging
 
-from head.spine.kinematics import revkin, shoulderToElbow, elbowToWrist, shoulderPos
+from head.spine.kinematics import revkin
 from head.spine.Vec3d import Vec3d
 
 wristToCup = 10  # Distance in centimeters from wrist center to cup tip
@@ -111,7 +111,7 @@ class Arm(object):
         endargs = to_servos(cuppos, wrist, wristrotate)
         interpolate(lambda *args: self.set_servos(*args),
                     startargs, endargs, seconds, smoothing)
-        #interpolate(lambda *args: print(repr(args)), startargs, endargs, seconds, smoothing)
+        # interpolate(lambda *args: print(repr(args)), startargs, endargs, seconds, smoothing)
 
     def move_to_abs(self, servopos, seconds=1, smoothing='sigmoid'):
         startargs = self.servos

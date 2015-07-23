@@ -14,7 +14,7 @@ class Joystick:
 
     def __init__(self):
         pygame.joystick.init()
-        numJoys = pygame.joystick.get_count()
+        # numJoys = pygame.joystick.get_count()
         self.joystick = pygame.joystick.Joystick(0)
         self.joystick.init()
 
