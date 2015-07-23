@@ -18,10 +18,13 @@ DEF_PORTS = {
     'teensy': '/dev/teensy',
 }
 
+
 class SerialLockException(Exception):
     pass
 
+
 class get_spine:
+
     def __enter__(self):
         self.s = Spine()
         self.s.startup()
@@ -33,6 +36,7 @@ class get_spine:
 
 
 class Spine:
+
     def __init__(self, t_out=1, delim='\n', **kwargs):
         self.ser = {}
         self.use_lock = kwargs.get('use_lock', True)
@@ -45,7 +49,8 @@ class Spine:
                 lockfn = '%sLCK..%s' % (self.lock_dir, fndevname)
                 if os.path.isfile(lockfn):
                     self.close()
-                    raise SerialLockException("Lockfile %s exists. It's possible that someone is using this serial port. If not, remove this lock file. Closing and raising error." % lockfn)
+                    raise SerialLockException(
+                        "Lockfile %s exists. It's possible that someone is using this serial port. If not, remove this lock file. Closing and raising error." % lockfn)
             logger.info('Connecting to %s.' % port)
             self.ser[devname] = serial.Serial(port, 115200, timeout=t_out)
             if self.use_lock:
@@ -99,7 +104,7 @@ class Spine:
             else:
                 direction = 'fw'
         # Reassign wheel numbers to accomodate them being switched
-        w_id = [2,4,1,3][w_id-1]
+        w_id = [2, 4, 1, 3][w_id - 1]
         direction = {'fw': 'cw', 'rv': 'ccw'}[direction]
         command = 'go ' + str(w_id) + ' ' + str(speed) + ' ' + direction
         response = self.send('teensy', command)
@@ -166,7 +171,8 @@ class Spine:
                 fndevname = port.split('/dev/')[1]
                 lockfn = '%sLCK..%s' % (self.lock_dir, fndevname)
             self.ser[devname].close()
-            logger.info('Closed serial connection %s.' % self.ser[devname].port)
+            logger.info('Closed serial connection %s.' %
+                        self.ser[devname].port)
             if self.use_lock:
                 os.remove(lockfn)
                 logger.info('Removed lock at %s.' % lockfn)

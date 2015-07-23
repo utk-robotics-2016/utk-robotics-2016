@@ -24,14 +24,14 @@ for i in range(n):
         optical_move.x_move(s, t, 'left')
         lf = current_lines(True, False)
         x2 = lf.lines[0].intersect[0]
-        print t, (x2-x1)
-        values[t].append(x2-x1)
+        print t, (x2 - x1)
+        values[t].append(x2 - x1)
         optical_move.x_move(s, t, 'right')
         #lf = current_lines()
         #pixelmove.correct_baseline_error(s, lf.dist_to_baseline, lf.baseline_theta)
 
 for key, value in values.items():
-    averages[key] = float(sum(value))/len(value)
+    averages[key] = float(sum(value)) / len(value)
 print values
 print averages
 
