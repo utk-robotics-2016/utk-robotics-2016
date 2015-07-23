@@ -5,18 +5,20 @@ import logging
 # Local modules
 from head.spine.core import get_spine
 
-logging.basicConfig(format='%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s', level=logging.DEBUG, datefmt='%I:%M:%S')
+fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
+logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
 logger = logging.getLogger(__name__)
 
 with get_spine() as s:
     class Robot:
+
         def __init__(self):
             pass
 
         def start(self):
-            #raise ValueError()
-            s.move(1,180,0)
-            #s.set_wheel(1,100,'fw')
+            # raise ValueError()
+            s.move(1, 180, 0)
+            # s.set_wheel(1, 100, 'fw')
             time.sleep(1)
             logger.info("Done!")
 
