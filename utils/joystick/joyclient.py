@@ -78,7 +78,7 @@ class Main:
         heading *= 57.2957795
         heading = math.floor(heading + 0.5)
         heading *= -1
-        self.joyserver.move(self.rad, heading, -self.rot)
+        self.joyserver.move(self.rad, heading, self.rot)
         print 'data', self.buttons, self.axes
         print 'data', (self.rad, heading, -self.rot)
 
