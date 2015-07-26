@@ -1,5 +1,4 @@
 import math
-import sys
 import pygame
 from head.spine.Vec3d import Vec3d
 from copy import deepcopy
@@ -7,10 +6,11 @@ from copy import deepcopy
 import Pyro4
 
 RATE = 10
-SERV_URL = "PYRO:obj_3e87cc29fced47e9b7bff2d25e1756e6@ieeebeagle.nomads.utk.edu:9091"
-# Currently 10cm in front of arm center
+SERV_URL = "PYRO:obj_39cb775c1bc84e87851b2901d1f44217@ieeebeagle.nomads.utk.edu:9091"
+# Currently 10cm in front of arm center and 10cm up
 DEF_ARM_POS = Vec3d(0, 10, 10)
 ARM_SPEED = 10
+
 
 def limitToRange(a, b, c):
     if a < b:
@@ -94,7 +94,7 @@ class Main:
                 self.joyserver.arm_park(2)
             else:
                 self.arm_mode = True
-                self.joyserver.move(0,0,0)
+                self.joyserver.move(0, 0, 0)
                 self.arm_pos = DEF_ARM_POS
         if self.buttonpressed[1]:
             if self.arm_mode:
@@ -105,9 +105,9 @@ class Main:
 
         if self.arm_mode:
             prev_arm_pos = deepcopy(self.arm_pos)
-            self.arm_pos += self.axes[4] * Vec3d(0,0,-ARM_SPEED) / RATE
-            self.arm_pos += self.axes[1] * Vec3d(0,-ARM_SPEED,0) / RATE
-            self.arm_pos += self.axes[0] * Vec3d(ARM_SPEED,0,0) / RATE
+            self.arm_pos += self.axes[4] * Vec3d(0, 0, -ARM_SPEED) / RATE
+            self.arm_pos += self.axes[1] * Vec3d(0, -ARM_SPEED, 0) / RATE
+            self.arm_pos += self.axes[0] * Vec3d(ARM_SPEED, 0, 0) / RATE
             try:
                 self.joyserver.arm_set_pos(self.arm_pos, -.2*(self.axes[2]+1), 180)
             except (ValueError, AssertionError):
@@ -121,10 +121,9 @@ class Main:
             heading = math.floor(heading + 0.5)
             heading *= -1
             self.joyserver.move(self.rad, heading, self.rot)
-            # print 'data', (self.rad, heading, -self.rot)
-        self.joyserver.set_suction(int(self.axes[5]*90+90))
-        # print 'data', self.buttons, self.axes
-        print 'data', self.buttonpressed
+            print 'data', (self.rad, heading, -self.rot)
+        self.joyserver.set_suction(int(self.axes[5] * 90 + 90))
+        print 'data', self.buttons, self.axes
 
 
 m = Main()
