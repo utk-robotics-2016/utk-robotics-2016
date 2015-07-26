@@ -7,7 +7,7 @@ from copy import deepcopy
 import Pyro4
 
 RATE = 10
-SERV_URL = "PYRO:obj_39cb775c1bc84e87851b2901d1f44217@ieeebeagle.nomads.utk.edu:9091"
+SERV_URL = "PYRO:obj_3e87cc29fced47e9b7bff2d25e1756e6@ieeebeagle.nomads.utk.edu:9091"
 # Currently 10cm in front of arm center
 DEF_ARM_POS = Vec3d(0, 10, 10)
 ARM_SPEED = 10
@@ -31,7 +31,6 @@ class Main:
         # you have to change the URI below to match your own host/port.
         self.joyserver = Pyro4.Proxy(SERV_URL)
         self.arm_mode = False
-        self.last_arm_button = 0
 
     def setupGame(self):
         self.clock = pygame.time.Clock()
@@ -44,6 +43,8 @@ class Main:
         self.numButtons = self.joystick.get_numbuttons()
         self.numAxes = self.joystick.get_numaxes()
         self.buttons = [0] * self.numButtons
+        self.last_buttons = [0] * self.numButtons
+        self.buttonpressed = [False] * self.numButtons
         self.axes = [0] * self.numButtons
         self.axes[2] = -1
         self.axes[5] = -1
@@ -69,8 +70,10 @@ class Main:
     def compute(self):
         for i in xrange(self.numButtons):
             self.buttons[i] = self.joystick.get_button(i)
+            self.buttonpressed[i] = self.buttons[i] and not self.last_buttons[i]
         for i in xrange(self.numAxes):
             self.axes[i] = self.joystick.get_axis(i)
+        self.last_buttons = list(self.buttons)
 
         # for i in [0,1,3]:
         #     if abs(self.axes[i]) < 0.05:
@@ -85,13 +88,7 @@ class Main:
         self.x = self.rad * math.cos(self.ang)
         self.y = self.rad * math.sin(self.ang)
 
-        if self.buttons[0] and not self.last_arm_button:
-            buttonpressed = True
-        else:
-            buttonpressed = False
-        self.last_arm_button = self.buttons[0]
-
-        if buttonpressed:
+        if self.buttonpressed[0]:
             if self.arm_mode:
                 self.arm_mode = False
                 self.joyserver.arm_park(2)
@@ -99,6 +96,12 @@ class Main:
                 self.arm_mode = True
                 self.joyserver.move(0,0,0)
                 self.arm_pos = DEF_ARM_POS
+        if self.buttonpressed[1]:
+            if self.arm_mode:
+                self.arm_mode = False
+            else:
+                self.arm_mode = True
+                self.joyserver.move(0,0,0)
 
         if self.arm_mode:
             prev_arm_pos = deepcopy(self.arm_pos)
@@ -106,7 +109,7 @@ class Main:
             self.arm_pos += self.axes[1] * Vec3d(0,-ARM_SPEED,0) / RATE
             self.arm_pos += self.axes[0] * Vec3d(ARM_SPEED,0,0) / RATE
             try:
-                self.joyserver.arm_set_pos(self.arm_pos, 0, 180)
+                self.joyserver.arm_set_pos(self.arm_pos, -.2*(self.axes[2]+1), 180)
             except (ValueError, AssertionError):
                 # If we tried to set the arm to a position that it can't reach
                 self.arm_pos = prev_arm_pos
@@ -118,9 +121,10 @@ class Main:
             heading = math.floor(heading + 0.5)
             heading *= -1
             self.joyserver.move(self.rad, heading, self.rot)
-            print 'data', (self.rad, heading, -self.rot)
+            # print 'data', (self.rad, heading, -self.rot)
         self.joyserver.set_suction(int(self.axes[5]*90+90))
-        print 'data', self.buttons, self.axes
+        # print 'data', self.buttons, self.axes
+        print 'data', self.buttonpressed
 
 
 m = Main()
