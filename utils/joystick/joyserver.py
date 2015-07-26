@@ -26,11 +26,9 @@ with get_spine() as s:
             print 'suction', suction
             s.set_suction(suction)
 
-
     daemon = Pyro4.Daemon(host='0.0.0.0', port=9091)
     uri = daemon.register(JoyServer())
 
-    #print "The daemon runs on port:", daemon.port
     print "The object's uri is:", uri
     print "The object's remote uri is:", str(uri).replace('0.0.0.0', 'ieeebeagle.nomads.utk.edu')
 
