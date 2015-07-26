@@ -1,11 +1,12 @@
 import math
 import sys
 import pygame
+from head.spine.Vec3d import Vec3d
 
 import Pyro4
 
 RATE = 10
-SERV_URL = "PYRO:obj_dd319a0cd93242a586878c89a8a95a4e@ieeebeagle.nomads.utk.edu:9091"
+SERV_URL = "PYRO:obj_6755559595c24d6786ad7a4594576a77@ieeebeagle.nomads.utk.edu:9091"
 
 def limitToRange(a, b, c):
     if a < b:
@@ -25,6 +26,7 @@ class Main:
 
         # you have to change the URI below to match your own host/port.
         self.joyserver = Pyro4.Proxy(SERV_URL)
+        self.arm_mode = False
 
     def setupGame(self):
         self.clock = pygame.time.Clock()
@@ -38,6 +40,8 @@ class Main:
         self.numAxes = self.joystick.get_numaxes()
         self.buttons = [0] * self.numButtons
         self.axes = [0] * self.numButtons
+        self.axes[2] = -1
+        self.axes[5] = -1
 
     def runGame(self):
         self.gameRunning = 1
@@ -72,15 +76,29 @@ class Main:
         self.x = self.rad * math.cos(self.ang)
         self.y = self.rad * math.sin(self.ang)
 
-        heading = self.ang + math.pi / 2
-        if heading > math.pi:
-            heading -= 2 * math.pi
-        heading *= 57.2957795
-        heading = math.floor(heading + 0.5)
-        heading *= -1
-        self.joyserver.move(self.rad, heading, -self.rot)
+        if self.buttons[0]:
+            if not self.arm_mode:
+                self.arm_mode = True
+                # Move 10cm in front of the base
+                self.joyserver.arm_set_pos(Vec3d(0,10,0), 0, 0)
+        else:
+            if self.arm_mode:
+                self.arm_mode = False
+                self.joyserver.arm_park(2)
+
+        if self.arm_mode:
+            pass
+        else:
+            heading = self.ang + math.pi / 2
+            if heading > math.pi:
+                heading -= 2 * math.pi
+            heading *= 57.2957795
+            heading = math.floor(heading + 0.5)
+            heading *= -1
+            self.joyserver.move(self.rad, heading, self.rot)
+            print 'data', (self.rad, heading, -self.rot)
+        self.joyserver.set_suction(int(self.axes[5]*90+90))
         print 'data', self.buttons, self.axes
-        print 'data', (self.rad, heading, -self.rot)
 
 
 m = Main()
