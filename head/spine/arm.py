@@ -3,10 +3,12 @@ from __future__ import print_function
 from math import pi, exp
 import time
 import operator
-# import logging
+import logging
 
 from head.spine.kinematics import revkin
 from head.spine.Vec3d import Vec3d
+
+logger = logging.getLogger(__name__)
 
 wristToCup = 10  # Distance in centimeters from wrist center to cup tip
 
@@ -86,8 +88,21 @@ def interpolate(f, startargs, endargs, seconds, smoothing):
         f(*currargs)
         curr_time = time.time()
         iters += 1
-    print(iters)
+    logger.info("Arm interpolation iterations: %d", iters)
     f(*endargs)
+
+
+class get_arm:
+
+    def __init__(self, s):
+        self.s = s
+
+    def __enter__(self):
+        self.arm = Arm(self.s)
+        return self.arm
+
+    def __exit__(self, type, value, traceback):
+        self.arm.park()
 
 
 class Arm(object):
