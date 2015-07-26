@@ -96,13 +96,14 @@ class Spine:
         assert 0 <= speed <= 255
         # TODO: convert these to fw and bw
         assert direction in ['fw', 'rv']
-        if w_id in [3, 4]:
+        # Let W1, W2, W3, and W4 be the front left, front right, rear left, and rear right wheels, respectively.
+        w_id = [2, 3, 1, 4][w_id - 1]
+        if w_id in [1, 4]:
             if direction == 'fw':
                 direction = 'rv'
             else:
                 direction = 'fw'
         # Reassign wheel numbers to accomodate them being switched
-        w_id = [2, 4, 1, 3][w_id - 1]
         direction = {'fw': 'cw', 'rv': 'ccw'}[direction]
         command = 'go ' + str(w_id) + ' ' + str(speed) + ' ' + direction
         response = self.send('teensy', command)

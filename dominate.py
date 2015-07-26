@@ -17,8 +17,9 @@ with get_spine() as s:
 
         def start(self):
             # raise ValueError()
-            s.move(1, 0, 0)
-            time.sleep(3)
+            s.move(1, 180, 0)
+            # s.set_wheel(1, 100, 'fw')
+            time.sleep(1)
             logger.info("Done!")
 
     bot = Robot()

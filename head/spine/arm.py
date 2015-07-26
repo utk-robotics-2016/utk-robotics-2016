@@ -41,7 +41,8 @@ def wrist_r2p(r):
 WRISTROTATECENTER = 90
 SUCTIONCENTER = 90
 
-PARKED = [90, 170, 180, 30, 0]
+# Starts at base
+PARKED = [180, 170, 180, 30, 180]
 
 # CENTER is defined as 0 radians
 

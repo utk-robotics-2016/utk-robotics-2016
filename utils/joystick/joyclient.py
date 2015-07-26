@@ -1,16 +1,23 @@
 import math
-import sys
 import pygame
+from head.spine.Vec3d import Vec3d
+from copy import deepcopy
 
-import Pyro.core
+import Pyro4
 
-import joy
-
-SERV_URL = "PYROLOC://localhost:7766/joyserver"
 RATE = 10
-if len(sys.argv) > 1 and sys.argv[1] == 'remote':
-    SERV_URL = "PYROLOC://utkieee.nomads.utk.edu:7766/joyserver"
-    RATE = 5
+SERV_URL = "PYRO:obj_39cb775c1bc84e87851b2901d1f44217@ieeebeagle.nomads.utk.edu:9091"
+# Currently 10cm in front of arm center and 10cm up
+DEF_ARM_POS = Vec3d(0, 10, 10)
+ARM_SPEED = 10
+
+
+def limitToRange(a, b, c):
+    if a < b:
+        a = b
+    if a > c:
+        a = c
+    return a
 
 
 class Main:
@@ -22,16 +29,24 @@ class Main:
             (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
 
         # you have to change the URI below to match your own host/port.
-        self.joyserver = Pyro.core.getProxyForURI(SERV_URL)
-
-        self.objects = []
+        self.joyserver = Pyro4.Proxy(SERV_URL)
+        self.arm_mode = False
+        self.last_arm_button = 0
 
     def setupGame(self):
         self.clock = pygame.time.Clock()
         self.FPS = RATE
-        self.joy = joy.Joystick()
+        pygame.joystick.init()
+        # numJoys = pygame.joystick.get_count()
+        self.joystick = pygame.joystick.Joystick(0)
+        self.joystick.init()
 
-        self.objects.append(self.joy)
+        self.numButtons = self.joystick.get_numbuttons()
+        self.numAxes = self.joystick.get_numaxes()
+        self.buttons = [0] * self.numButtons
+        self.axes = [0] * self.numButtons
+        self.axes[2] = -1
+        self.axes[5] = -1
 
     def runGame(self):
         self.gameRunning = 1
@@ -47,30 +62,65 @@ class Main:
             if event.type == pygame.QUIT:
                 self.gameRunning = 0
 
-        pygame.display.set_caption(
-            str(self.joy.x) + ', ' + str(self.joy.y) + ', ' + str(self.joy.rad))
-
     def draw(self):
         self.screen.fill((255, 255, 255))
-
-        for o in self.objects:
-            o.draw(self.screen)
-
         pygame.display.flip()
 
     def compute(self):
-        i = 0
-        while i < len(self.objects):
-            self.objects[i].compute()
-            i += 1
+        for i in xrange(self.numButtons):
+            self.buttons[i] = self.joystick.get_button(i)
+        for i in xrange(self.numAxes):
+            self.axes[i] = self.joystick.get_axis(i)
 
-        heading = self.joy.ang + math.pi / 2
-        if heading > math.pi:
-            heading -= 2 * math.pi
-        heading *= 57.2957795
-        heading = math.floor(heading + 0.5)
-        heading *= -1
-        self.joyserver.move(self.joy.rad, heading, -self.joy.rot)
+        # for i in [0,1,3]:
+        #     if abs(self.axes[i]) < 0.05:
+        #         self.axes[i] = 0
+
+        self.x = self.axes[3]
+        self.y = self.axes[1]
+        self.rot = self.axes[0]
+        self.rad = math.hypot(self.x, self.y)
+        self.rad = limitToRange(self.rad, 0, 1)
+        self.ang = math.atan2(self.y, self.x)
+        self.x = self.rad * math.cos(self.ang)
+        self.y = self.rad * math.sin(self.ang)
+
+        if self.buttons[0] and not self.last_arm_button:
+            buttonpressed = True
+        else:
+            buttonpressed = False
+        self.last_arm_button = self.buttons[0]
+
+        if buttonpressed:
+            if self.arm_mode:
+                self.arm_mode = False
+                self.joyserver.arm_park(2)
+            else:
+                self.arm_mode = True
+                self.joyserver.move(0, 0, 0)
+                self.arm_pos = DEF_ARM_POS
+
+        if self.arm_mode:
+            prev_arm_pos = deepcopy(self.arm_pos)
+            self.arm_pos += self.axes[4] * Vec3d(0, 0, -ARM_SPEED) / RATE
+            self.arm_pos += self.axes[1] * Vec3d(0, -ARM_SPEED, 0) / RATE
+            self.arm_pos += self.axes[0] * Vec3d(ARM_SPEED, 0, 0) / RATE
+            try:
+                self.joyserver.arm_set_pos(self.arm_pos, 0, 180)
+            except (ValueError, AssertionError):
+                # If we tried to set the arm to a position that it can't reach
+                self.arm_pos = prev_arm_pos
+        else:
+            heading = self.ang + math.pi / 2
+            if heading > math.pi:
+                heading -= 2 * math.pi
+            heading *= 57.2957795
+            heading = math.floor(heading + 0.5)
+            heading *= -1
+            self.joyserver.move(self.rad, heading, self.rot)
+            print 'data', (self.rad, heading, -self.rot)
+        self.joyserver.set_suction(int(self.axes[5] * 90 + 90))
+        print 'data', self.buttons, self.axes
 
 
 m = Main()
