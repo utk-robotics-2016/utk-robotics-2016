@@ -101,7 +101,7 @@ class Main:
                 self.arm_mode = False
             else:
                 self.arm_mode = True
-                self.joyserver.move(0,0,0)
+                self.joyserver.move(0, 0, 0)
 
         if self.arm_mode:
             prev_arm_pos = deepcopy(self.arm_pos)
@@ -109,7 +109,7 @@ class Main:
             self.arm_pos += self.axes[1] * Vec3d(0, -ARM_SPEED, 0) / RATE
             self.arm_pos += self.axes[0] * Vec3d(ARM_SPEED, 0, 0) / RATE
             try:
-                self.joyserver.arm_set_pos(self.arm_pos, -.2*(self.axes[2]+1), 180)
+                self.joyserver.arm_set_pos(self.arm_pos, -.2 * (self.axes[2] + 1), 180)
             except (ValueError, AssertionError):
                 # If we tried to set the arm to a position that it can't reach
                 self.arm_pos = prev_arm_pos

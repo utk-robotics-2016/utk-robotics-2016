@@ -20,16 +20,16 @@ with get_spine() as s:
 
             def start(self):
                 # raise ValueError()
-                #s.move(1, 180, 0)
-                arm.move_to(Vec3d(0,10,3),0,180)
+                # s.move(1, 180, 0)
+                arm.move_to(Vec3d(0, 10, 3), 0, 180)
                 time.sleep(2)
-                arm.move_to(Vec3d(0,10,1.5),0,180)
+                arm.move_to(Vec3d(0, 10, 1.5), 0, 180)
                 time.sleep(2)
-                arm.move_to(Vec3d(0,10,0),0,180)
+                arm.move_to(Vec3d(0, 10, 0), 0, 180)
                 time.sleep(2)
-                arm.move_to(Vec3d(0,10,1.5),0,180)
+                arm.move_to(Vec3d(0, 10, 1.5), 0, 180)
                 time.sleep(2)
-                arm.move_to(Vec3d(0,10,3),0,180)
+                arm.move_to(Vec3d(0, 10, 3), 0, 180)
                 time.sleep(2)
                 logger.info("Done!")
 
