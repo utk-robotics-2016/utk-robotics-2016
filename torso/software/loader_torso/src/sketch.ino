@@ -1,18 +1,9 @@
-#include <Servo.h>
-
 // Globals
 int ledState = HIGH;
 // Command parsing
 const int MAX_ARGS = 6;
 String args[MAX_ARGS];
 int numArgs = 0;
-
-Servo base;
-Servo shoulder;
-Servo elbow;
-Servo wrist;
-Servo wristrotate;
-Servo suction;
 
 // Pin definitions
 const char LED = 13;
@@ -133,55 +124,6 @@ void parseAndExecuteCommand(String command) {
             Serial.println(ledState);
         } else {
             Serial.println("error: usage - 'rl'");
-        }
-    }
-    else if(args[0].equals(String("sa"))) { // set arm
-        if(numArgs == 6) {
-            int posbase = args[1].toInt();
-            int posshoulder = args[2].toInt();
-            int poselbow = args[3].toInt();
-            int poswrist = args[4].toInt();
-            int poswristrotate = args[5].toInt();
-            if (!base.attached()) {
-                base.attach(3);
-                shoulder.attach(5);
-                elbow.attach(6);
-                wrist.attach(9);
-                wristrotate.attach(10);
-            }
-            base.write(posbase);
-            shoulder.write(posshoulder);
-            elbow.write(poselbow);
-            wrist.write(poswrist);
-            wristrotate.write(poswristrotate);
-            Serial.println("ok");
-        } else {
-            Serial.println("error: usage - 'sa [base] [shoulder] [elbow] [wrist] [wristrotate]'");
-        }
-    }
-    else if(args[0].equals(String("ss"))) { // set suction
-        if(numArgs == 2) {
-            int pos= args[1].toInt();
-            if (!suction.attached()) {
-                suction.attach(11);
-            }
-            suction.write(pos);
-            Serial.println("ok");
-        } else {
-            Serial.println("error: usage - 'ss [pos]'");
-        }
-    }
-    else if(args[0].equals(String("ds"))) { // detach servos
-        if(numArgs == 1) {
-            base.detach();
-            shoulder.detach();
-            elbow.detach();
-            wrist.detach();
-            wristrotate.detach();
-            suction.detach();
-            Serial.println("ok");
-        } else {
-            Serial.println("error: usage - 'ds'");
         }
     }
     else {
