@@ -1,3 +1,6 @@
+#include <I2CEncoder.h>
+#include <Wire.h>
+
 // Globals
 int ledState = HIGH;
 // Command parsing
@@ -24,6 +27,9 @@ int pwmpin[2] = {5, 6}; // PWM input
 int cspin[2] = {2, 3}; // CS: Current sense ANALOG input
 int enpin[2] = {0, 1}; // EN: Status of switches output (Analog pin)
 
+// For encoders:
+I2CEncoder encoders[2];
+
 void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
@@ -47,6 +53,16 @@ void setup() {
         digitalWrite(inApin[i], LOW);
         digitalWrite(inBpin[i], LOW);
     }
+
+    Wire.begin();
+    // From the docs: you must call the init() of each encoder method in the
+    // order that they are chained together. The one plugged into the Arduino
+    // first, then the one plugged into that and so on until the last encoder.
+    encoders[0].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+    encoders[1].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+    // Ideally, moving forward should count as positive rotation.
+    // Make this happen:
+    encoders[0].setReversed(true);
 }
 
 void motorOff(int motor)
@@ -225,6 +241,33 @@ void parseAndExecuteCommand(String command) {
             Serial.println("ok");
         } else {
             Serial.println("error: usage - 'mos [0/1]'");
+        }
+    }
+    else if(args[0].equals(String("ep"))) { // encoder position (in rotations)
+        if(numArgs == 2) {
+            int enc = args[1].toInt();
+            double pos = encoders[enc].getPosition();
+            Serial.println(pos);
+        } else {
+            Serial.println("error: usage - 'ep [0/1]'");
+        }
+    }
+    else if(args[0].equals(String("erp"))) { // encoder raw position (in ticks)
+        if(numArgs == 2) {
+            int enc = args[1].toInt();
+            long pos = encoders[enc].getRawPosition();
+            Serial.println(pos);
+        } else {
+            Serial.println("error: usage - 'erp [0/1]'");
+        }
+    }
+    else if(args[0].equals(String("ez"))) { // encoder zero
+        if(numArgs == 2) {
+            int enc = args[1].toInt();
+            encoders[enc].zero();
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'ez [0/1]'");
         }
     }
     else {
