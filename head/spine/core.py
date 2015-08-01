@@ -162,6 +162,28 @@ class Spine:
         else:
             return float(response)
 
+    def zero_loader_encoder(self, encoder_id):
+        assert encoder_id in [0, 1]
+        command = 'ez %d' % encoder_id
+        response = self.send('loadmega', command)
+        assert response == 'ok'
+
+    def set_loader_motor(self, m_id, speed, direction):
+        assert m_id in [0, 1]
+        assert 0 <= speed <= 1024
+        assert direction in ['fw', 'bw']
+        if m_id == 1:
+            direction = {'fw': 'bw', 'bw': 'fw'}[direction]
+        command = 'mod ' + str(m_id) + ' ' + str(speed) + ' ' + direction
+        response = self.send('loadmega', command)
+        assert response == 'ok'
+
+    def stop_loader_motor(self, m_id):
+        assert m_id in [0, 1]
+        command = 'mos ' + str(m_id)
+        response = self.send('loadmega', command)
+        assert response == 'ok'
+
     def startup(self):
         # Make sure we can ping the torso
         self.ping()
