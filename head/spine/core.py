@@ -31,6 +31,7 @@ class get_spine:
 
     def __exit__(self, type, value, traceback):
         self.s.stop()
+        self.s.detach_loader_servos()
         self.s.close()
 
 
@@ -63,6 +64,10 @@ class Spine:
                 time.sleep(1)
         self.delim = delim
         self.loglevel = 0
+
+        # Startup commands
+        for i in range(2):
+            self.zero_loader_encoder(i)
 
     def set_log_level(self, level):
         self.loglevel = level
@@ -148,6 +153,24 @@ class Spine:
         response = self.send(command)
         assert response == 'ok'
     '''
+
+    def set_loader_servos(self, right_pos, left_pos):
+        assert 0 <= right_pos <= 255
+        assert 0 <= left_pos <= 255
+        command = 'sls ' + str(right_pos) + ' ' + str(left_pos)
+        response = self.send('mega', command)
+        assert response == 'ok'
+
+    def detach_loader_servos(self):
+        command = 'dls'
+        response = self.send('mega', command)
+        assert response == 'ok'
+
+    def open_loader_flap(self):
+        self.set_loader_servos(85, 160)
+
+    def close_loader_flap(self):
+        self.set_loader_servos(175, 70)
 
     def get_loader_encoder(self, encoder_id, raw=False):
         assert encoder_id in [0, 1]

@@ -14,6 +14,10 @@ Servo wrist;
 Servo wristrotate;
 Servo suction;
 
+//Left is 12, right is 13
+Servo loader_right;
+Servo loader_left;
+
 // Pin definitions
 const char LED = 13;
 
@@ -147,7 +151,7 @@ void parseAndExecuteCommand(String command) {
                 shoulder.attach(5);
                 elbow.attach(6);
                 wrist.attach(9);
-                wristrotate.attach(10);
+                wristrotate.attach(13);
             }
             base.write(posbase);
             shoulder.write(posshoulder);
@@ -171,7 +175,24 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'ss [pos]'");
         }
     }
-    else if(args[0].equals(String("ds"))) { // detach servos
+    else if(args[0].equals(String("sls"))) { // set loader servos
+        if(numArgs == 3) {
+            int rightpos = args[1].toInt();
+            int leftpos = args[2].toInt();
+            if (!loader_right.attached()) {
+                loader_right.attach(10);
+            }
+            if (!loader_left.attached()) {
+                loader_left.attach(12);
+            }
+            loader_right.write(rightpos);
+            loader_left.write(leftpos);
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'sls [rightpos] [leftpos]'");
+        }
+    }
+    else if(args[0].equals(String("das"))) { // detach arm servos
         if(numArgs == 1) {
             base.detach();
             shoulder.detach();
@@ -179,6 +200,15 @@ void parseAndExecuteCommand(String command) {
             wrist.detach();
             wristrotate.detach();
             suction.detach();
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'ds'");
+        }
+    }
+    else if(args[0].equals(String("dls"))) { // detach loader servos
+        if(numArgs == 1) {
+            loader_right.detach();
+            loader_left.detach();
             Serial.println("ok");
         } else {
             Serial.println("error: usage - 'ds'");
