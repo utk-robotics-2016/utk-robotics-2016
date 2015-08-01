@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 DEF_PORTS = {
     'mega': '/dev/mega',
     'teensy': '/dev/teensy',
+    'loadmega': '/dev/loadmega',
 }
 
 
@@ -123,7 +124,7 @@ class Spine:
         response = self.send('mega', command)
         assert response == 'ok'
 
-    def detach_servos(self):
+    def detach_arm_servos(self):
         command = 'ds'
         response = self.send('mega', command)
         assert response == 'ok'
@@ -147,6 +148,19 @@ class Spine:
         response = self.send(command)
         assert response == 'ok'
     '''
+
+    def get_loader_encoder(self, encoder_id, raw=False):
+        assert encoder_id in [0, 1]
+        if raw:
+            command = 'erp '
+        else:
+            command = 'ep '
+        command += str(encoder_id)
+        response = self.send('loadmega', command)
+        if raw:
+            return long(response)
+        else:
+            return float(response)
 
     def startup(self):
         # Make sure we can ping the torso

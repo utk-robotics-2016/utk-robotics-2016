@@ -137,7 +137,7 @@ class Arm(object):
 
     def park(self, seconds=2):
         self.move_to_abs(PARKED, seconds)
-        self.s.detach_servos()
+        self.s.detach_arm_servos()
 
 
 # to_location(shoulderPos+Vec3d(0,elbowToWrist,shoulderToElbow-wristToCup),0,0)
