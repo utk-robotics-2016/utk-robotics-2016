@@ -36,6 +36,9 @@ class get_spine:
 
 
 class Spine:
+    '''
+    Testing
+    '''
 
     def __init__(self, t_out=1, delim='\n', **kwargs):
         self.ser = {}
