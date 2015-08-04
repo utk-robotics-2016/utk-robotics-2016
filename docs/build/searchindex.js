@@ -1,0 +1,1 @@
+Search.setIndex({envversion:46,filenames:["index"],objects:{},objnames:{},objtypes:{},terms:{content:0,index:0,modul:0,page:0,search:0},titles:["Welcome to UTK Robotics 2016&#8217;s documentation!"],titleterms:{document:0,indic:0,robot:0,tabl:0,utk:0,welcom:0}})
