@@ -8,5 +8,5 @@ def get_battery_voltage():
     r1 = 10000.0
     r2 = 2200.0
     vout = 1.8 * adc_val / 1799.0
-    vbat = vout / (r2/(r1+r2))
+    vbat = vout / (r2 / (r1 + r2))
     return vbat

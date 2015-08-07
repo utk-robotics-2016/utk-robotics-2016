@@ -1,5 +1,4 @@
 # Python modules
-import time
 import logging
 
 # Local modules
