@@ -1,4 +1,5 @@
-#include <Servo.h>
+#include <I2CEncoder.h>
+#include <Wire.h>
 
 // Globals
 int ledState = HIGH;
@@ -7,19 +8,27 @@ const int MAX_ARGS = 6;
 String args[MAX_ARGS];
 int numArgs = 0;
 
-Servo base;
-Servo shoulder;
-Servo elbow;
-Servo wrist;
-Servo wristrotate;
-Servo suction;
-
-//Left is 12, right is 13
-Servo loader_right;
-Servo loader_left;
-
 // Pin definitions
 const char LED = 13;
+
+// For motor driver:
+#define BRAKEVCC 0
+#define FW   1
+#define BW  2
+#define BRAKEGND 3
+#define CS_THRESHOLD 100
+
+/*  VNH2SP30 pin definitions
+ xxx[0] controls '1' outputs
+ xxx[1] controls '2' outputs */
+int inApin[2] = {7, 4};  // INA: Clockwise input
+int inBpin[2] = {8, 9}; // INB: Counter-clockwise input
+int pwmpin[2] = {5, 6}; // PWM input
+int cspin[2] = {2, 3}; // CS: Current sense ANALOG input
+int enpin[2] = {0, 1}; // EN: Status of switches output (Analog pin)
+
+// For encoders:
+I2CEncoder encoders[2];
 
 void setup() {
     // Init LED pin
@@ -30,6 +39,76 @@ void setup() {
 
     // Display ready LED
     digitalWrite(LED,HIGH);
+
+    // Initialize digital pins as outputs
+    for (int i=0; i<2; i++)
+    {
+        pinMode(inApin[i], OUTPUT);
+        pinMode(inBpin[i], OUTPUT);
+        pinMode(pwmpin[i], OUTPUT);
+    }
+    // Initialize braked
+    for (int i=0; i<2; i++)
+    {
+        digitalWrite(inApin[i], LOW);
+        digitalWrite(inBpin[i], LOW);
+    }
+
+    Wire.begin();
+    // From the docs: you must call the init() of each encoder method in the
+    // order that they are chained together. The one plugged into the Arduino
+    // first, then the one plugged into that and so on until the last encoder.
+    encoders[0].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+    encoders[1].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+    // Ideally, moving forward should count as positive rotation.
+    // Make this happen:
+    encoders[0].setReversed(true);
+}
+
+void motorOff(int motor)
+{
+    digitalWrite(inApin[motor], LOW);
+    digitalWrite(inBpin[motor], LOW);
+    analogWrite(pwmpin[motor], 0);
+}
+
+/* motorGo() will set a motor going in a specific direction
+ the motor will continue going in that direction, at that speed
+ until told to do otherwise.
+ 
+ motor: this should be either 0 or 1, will selet which of the two
+ motors to be controlled
+ 
+ direct: Should be between 0 and 3, with the following result
+ 0: Brake to VCC
+ 1: Clockwise
+ 2: CounterClockwise
+ 3: Brake to GND
+ 
+ pwm: should be a value between ? and 1023, higher the number, the faster
+ it'll go
+ */
+void motorGo(uint8_t motor, uint8_t direct, uint8_t pwm)
+{
+  if (motor <= 1)
+  {
+    if (direct <=4)
+    {
+      // Set inA[motor]
+      if (direct <=1)
+        digitalWrite(inApin[motor], HIGH);
+      else
+        digitalWrite(inApin[motor], LOW);
+
+      // Set inB[motor]
+      if ((direct==0)||(direct==2))
+        digitalWrite(inBpin[motor], HIGH);
+      else
+        digitalWrite(inBpin[motor], LOW);
+
+      analogWrite(pwmpin[motor], pwm);
+    }
+  }
 }
 
 /* The loop is set up in two parts. First the Arduino does the work it needs to
@@ -139,79 +218,56 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'rl'");
         }
     }
-    else if(args[0].equals(String("sa"))) { // set arm
-        if(numArgs == 6) {
-            int posbase = args[1].toInt();
-            int posshoulder = args[2].toInt();
-            int poselbow = args[3].toInt();
-            int poswrist = args[4].toInt();
-            int poswristrotate = args[5].toInt();
-            if (!base.attached()) {
-                base.attach(3);
-                shoulder.attach(5);
-                elbow.attach(6);
-                wrist.attach(9);
-                wristrotate.attach(13);
+    else if(args[0].equals(String("mod"))) { // motor drive
+        if(numArgs == 4) {
+            int speed = args[2].toInt();
+            int mot = args[1].toInt();
+            int dir = FW;
+
+            if(args[3].equals(String("bw"))) {
+                dir = BW;
             }
-            base.write(posbase);
-            shoulder.write(posshoulder);
-            elbow.write(poselbow);
-            wrist.write(poswrist);
-            wristrotate.write(poswristrotate);
+
+            motorGo(mot, dir, speed);
             Serial.println("ok");
         } else {
-            Serial.println("error: usage - 'sa [base] [shoulder] [elbow] [wrist] [wristrotate]'");
+            Serial.println("error: usage - 'mod [0/1] [speed] [fw/bw]'");
         }
     }
-    else if(args[0].equals(String("ss"))) { // set suction
+    else if(args[0].equals(String("mos"))) { // motor stop
         if(numArgs == 2) {
-            int pos= args[1].toInt();
-            if (!suction.attached()) {
-                suction.attach(11);
-            }
-            suction.write(pos);
+            int mot = args[1].toInt();
+            motorOff(mot);
             Serial.println("ok");
         } else {
-            Serial.println("error: usage - 'ss [pos]'");
+            Serial.println("error: usage - 'mos [0/1]'");
         }
     }
-    else if(args[0].equals(String("sls"))) { // set loader servos
-        if(numArgs == 3) {
-            int rightpos = args[1].toInt();
-            int leftpos = args[2].toInt();
-            if (!loader_right.attached()) {
-                loader_right.attach(10);
-            }
-            if (!loader_left.attached()) {
-                loader_left.attach(12);
-            }
-            loader_right.write(rightpos);
-            loader_left.write(leftpos);
-            Serial.println("ok");
+    else if(args[0].equals(String("ep"))) { // encoder position (in rotations)
+        if(numArgs == 2) {
+            int enc = args[1].toInt();
+            double pos = encoders[enc].getPosition();
+            Serial.println(pos);
         } else {
-            Serial.println("error: usage - 'sls [rightpos] [leftpos]'");
+            Serial.println("error: usage - 'ep [0/1]'");
         }
     }
-    else if(args[0].equals(String("das"))) { // detach arm servos
-        if(numArgs == 1) {
-            base.detach();
-            shoulder.detach();
-            elbow.detach();
-            wrist.detach();
-            wristrotate.detach();
-            suction.detach();
-            Serial.println("ok");
+    else if(args[0].equals(String("erp"))) { // encoder raw position (in ticks)
+        if(numArgs == 2) {
+            int enc = args[1].toInt();
+            long pos = encoders[enc].getRawPosition();
+            Serial.println(pos);
         } else {
-            Serial.println("error: usage - 'ds'");
+            Serial.println("error: usage - 'erp [0/1]'");
         }
     }
-    else if(args[0].equals(String("dls"))) { // detach loader servos
-        if(numArgs == 1) {
-            loader_right.detach();
-            loader_left.detach();
+    else if(args[0].equals(String("ez"))) { // encoder zero
+        if(numArgs == 2) {
+            int enc = args[1].toInt();
+            encoders[enc].zero();
             Serial.println("ok");
         } else {
-            Serial.println("error: usage - 'ds'");
+            Serial.println("error: usage - 'ez [0/1]'");
         }
     }
     else {

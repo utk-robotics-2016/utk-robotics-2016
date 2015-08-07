@@ -147,64 +147,84 @@ void parseAndExecuteCommand(String command) {
         }
     }
     else if(args[0].equals(String("ma"))) { //move laterally left
-      digitalWrite(CH2_DIR,HIGH);
-      analogWrite(CH2_PWM,128);
-      digitalWrite(CH3_DIR,LOW);
-      analogWrite(CH3_PWM,128);
-      digitalWrite(CH1_DIR,HIGH);
-      analogWrite(CH1_PWM,128);
-      digitalWrite(CH4_DIR,LOW);
-      analogWrite(CH4_PWM,128);    
-      delay(100);
-      analogWrite(CH1_PWM,0);
-      analogWrite(CH2_PWM,0);
-      analogWrite(CH3_PWM,0);  
-      analogWrite(CH4_PWM,0);
+        if(numArgs == 1) {
+            digitalWrite(CH2_DIR,HIGH);
+            analogWrite(CH2_PWM,128);
+            digitalWrite(CH3_DIR,LOW);
+            analogWrite(CH3_PWM,128);
+            digitalWrite(CH1_DIR,HIGH);
+            analogWrite(CH1_PWM,128);
+            digitalWrite(CH4_DIR,LOW);
+            analogWrite(CH4_PWM,128);
+            delay(100);
+            analogWrite(CH1_PWM,0);
+            analogWrite(CH2_PWM,0);
+            analogWrite(CH3_PWM,0);
+            analogWrite(CH4_PWM,0);
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'ma'");
+        }
     }
     else if(args[0].equals(String("md"))) { //move laterally right
-        digitalWrite(CH2_DIR,LOW);
-      analogWrite(CH2_PWM,128);
-      digitalWrite(CH3_DIR,HIGH);
-      analogWrite(CH3_PWM,128);
-      digitalWrite(CH1_DIR,LOW);
-      analogWrite(CH1_PWM,128);
-      digitalWrite(CH4_DIR,HIGH);
-      analogWrite(CH4_PWM,128);    
-      delay(100);
-      analogWrite(CH1_PWM,0);
-      analogWrite(CH2_PWM,0);
-      analogWrite(CH3_PWM,0);  
-      analogWrite(CH4_PWM,0);
+        if(numArgs == 1) {
+            digitalWrite(CH2_DIR,LOW);
+            analogWrite(CH2_PWM,128);
+            digitalWrite(CH3_DIR,HIGH);
+            analogWrite(CH3_PWM,128);
+            digitalWrite(CH1_DIR,LOW);
+            analogWrite(CH1_PWM,128);
+            digitalWrite(CH4_DIR,HIGH);
+            analogWrite(CH4_PWM,128);
+            delay(100);
+            analogWrite(CH1_PWM,0);
+            analogWrite(CH2_PWM,0);
+            analogWrite(CH3_PWM,0);
+            analogWrite(CH4_PWM,0);
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'md'");
+        }
     }
     else if(args[0].equals(String("mw"))) { //move laterally forward
-      digitalWrite(CH2_DIR,LOW);
-      analogWrite(CH2_PWM,128);
-      digitalWrite(CH3_DIR,LOW);
-      analogWrite(CH3_PWM,128);
-      digitalWrite(CH1_DIR,HIGH);
-      analogWrite(CH1_PWM,128);
-      digitalWrite(CH4_DIR,HIGH);
-      analogWrite(CH4_PWM,128);    
-      delay(100);
-      analogWrite(CH1_PWM,0);
-      analogWrite(CH2_PWM,0);
-      analogWrite(CH3_PWM,0);  
-      analogWrite(CH4_PWM,0); 
+        if(numArgs == 1) {
+            digitalWrite(CH2_DIR,LOW);
+            analogWrite(CH2_PWM,128);
+            digitalWrite(CH3_DIR,LOW);
+            analogWrite(CH3_PWM,128);
+            digitalWrite(CH1_DIR,HIGH);
+            analogWrite(CH1_PWM,128);
+            digitalWrite(CH4_DIR,HIGH);
+            analogWrite(CH4_PWM,128);
+            delay(100);
+            analogWrite(CH1_PWM,0);
+            analogWrite(CH2_PWM,0);
+            analogWrite(CH3_PWM,0);
+            analogWrite(CH4_PWM,0);
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'mw'");
+        }
     } 
     else if(args[0].equals(String("ms"))) { //move laterally backward
-        digitalWrite(CH2_DIR,HIGH);
-      analogWrite(CH2_PWM,128);
-      digitalWrite(CH3_DIR,HIGH);
-      analogWrite(CH3_PWM,128);
-      digitalWrite(CH1_DIR,LOW);
-      analogWrite(CH1_PWM,128);
-      digitalWrite(CH4_DIR,LOW);
-      analogWrite(CH4_PWM,128);    
-      delay(100);
-      analogWrite(CH1_PWM,0);
-      analogWrite(CH2_PWM,0);
-      analogWrite(CH3_PWM,0);  
-      analogWrite(CH4_PWM,0);
+        if(numArgs == 1) {
+            digitalWrite(CH2_DIR,HIGH);
+            analogWrite(CH2_PWM,128);
+            digitalWrite(CH3_DIR,HIGH);
+            analogWrite(CH3_PWM,128);
+            digitalWrite(CH1_DIR,LOW);
+            analogWrite(CH1_PWM,128);
+            digitalWrite(CH4_DIR,LOW);
+            analogWrite(CH4_PWM,128);
+            delay(100);
+            analogWrite(CH1_PWM,0);
+            analogWrite(CH2_PWM,0);
+            analogWrite(CH3_PWM,0);
+            analogWrite(CH4_PWM,0);
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'ms'");
+        }
     }
     else if(args[0].equals(String("rl"))) { // read led
         if(numArgs == 1) {
@@ -241,6 +261,47 @@ void parseAndExecuteCommand(String command) {
             }
         } else {
             Serial.println("error: usage - 'go [1/2/3/4] [speed] [cw/ccw]'");
+        }
+    }
+    else if(args[0].equals(String("ld"))) {
+        if(numArgs == 4) {
+            int speed = args[2].toInt();
+            boolean inPin1 = LOW;
+            boolean inPin2 = HIGH;
+
+            if(args[3].equals(String("ccw"))) {
+                inPin1 = HIGH;
+                inPin2 = LOW;
+            }
+
+            if(args[1].equals(String("lift"))) {
+                digitalWrite(LIFT_LOAD_IN1, inPin1);
+                digitalWrite(LIFT_LOAD_IN2, inPin2);
+                analogWrite(LIFT_LOAD_PWM, speed);
+                Serial.println("ok");
+            }else if(args[1].equals(String("track"))) {
+                digitalWrite(TRACK_LOAD_IN1, inPin1);
+                digitalWrite(TRACK_LOAD_IN2, inPin2);
+                analogWrite(TRACK_LOAD_PWM, speed);
+                Serial.println("ok");
+            }
+        } else {
+            Serial.println("error: usage - 'ld [lift/track] [speed] [cw/ccw]'");
+        }
+    }
+    else if(args[0].equals(String("ls"))) {
+        if(numArgs == 2) {
+            if(args[1].equals(String("lift"))) {
+                digitalWrite(LIFT_LOAD_IN1, LOW);
+                digitalWrite(LIFT_LOAD_IN2, LOW);
+                Serial.println("ok");
+            }else if(args[1].equals(String("track"))) {
+                digitalWrite(TRACK_LOAD_IN1, LOW);
+                digitalWrite(TRACK_LOAD_IN2, LOW);
+                Serial.println("ok");
+            }
+        } else {
+            Serial.println("error: usage - 'ls [lift/track]'");
         }
     }
     else {

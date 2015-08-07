@@ -7,3 +7,4 @@
 .DS_Store
 head/lastrun.log
 block_setup/Debug/*
+docs/build
