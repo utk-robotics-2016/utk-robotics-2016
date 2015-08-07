@@ -1,5 +1,5 @@
-import time
 import operator
+import time
 import logging
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ class Loader(object):
         # Measured in rotations forward from the position of not extended
         self.flap_extension = 0
 
-    def extend(self, pos):
+    def extend(self, pos, **kwargs):
         encoders = [self.s.get_loader_encoder(i) for i in range(2)]
 
         if pos > encoders[0] and pos > encoders[1]:
@@ -29,8 +29,12 @@ class Loader(object):
         for i in range(2):
             self.s.set_loader_motor(i, 500, direction)
             motorrunning.append(True)
+        starttime = time.time()
 
         while True in motorrunning:
+            if time.time() - starttime > kwargs.get('e_stop', 4):
+                self.s.stop_loader_motor(0)
+                self.s.stop_loader_motor(1)
             for i in range(2):
                 if motorrunning[i]:
                     encval = self.s.get_loader_encoder(i)
@@ -43,3 +47,17 @@ class Loader(object):
 
     def open_flap(self):
         self.s.open_loader_flap()
+
+    def load(self):
+        self.open_flap()
+        time.sleep(2)
+        # self.extend(6.5)
+        self.extend(6)
+        time.sleep(2)
+        self.close_flap()
+        time.sleep(2)
+        self.extend(0)
+        time.sleep(2)
+        self.open_flap()
+        time.sleep(2)
+        self.s.detach_loader_servos()

@@ -172,11 +172,11 @@ class Spine:
     def open_loader_flap(self):
         # self.set_loader_servos(85, 160)
         off = 90
-        self.set_loader_servos(self.calibrated_right-off, self.calibrated_left+off)
+        self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
 
     def close_loader_flap(self):
         off = -10
-        self.set_loader_servos(self.calibrated_right-off, self.calibrated_left+off)
+        self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
         # self.set_loader_servos(175+15, 70-15)
 
     def get_loader_encoder(self, encoder_id, raw=False):
