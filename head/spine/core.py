@@ -352,15 +352,22 @@ class Spine:
         response = self.send('mega', command)
         assert response == 'ok'
 
-    def open_loader_flap(self):
-        '''Set the loader servos to open the flap.
-        '''
-        self.set_loader_servos(85, 160)
+    calibrated_right = 175
+    calibrated_left = 87
 
-    def close_loader_flap(self):
+    def open_loader_flap(self):
         '''Set the loader servos to close the flap.
         '''
-        self.set_loader_servos(175, 70)
+        # self.set_loader_servos(85, 160)
+        off = 90
+        self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
+
+    def close_loader_flap(self):
+        '''Set the loader servos to open the flap.
+        '''
+        off = -10
+        self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
+        # self.set_loader_servos(175+15, 70-15)
 
     def get_loader_encoder(self, encoder_id, raw=False):
         '''Get the current encoder position (in rotations) on one of the
