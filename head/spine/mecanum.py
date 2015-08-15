@@ -14,6 +14,7 @@ wmax = kt + math.sqrt(2) * max(kf, ks)
 
 
 def w(x, y, z):
+    '''Internal use function.'''
     return [
         kf * y + ks * x + kt * z,
         kf * y - ks * x - kt * z,
@@ -23,6 +24,7 @@ def w(x, y, z):
 
 
 def w_from_vectors(speed, direction, angular):
+    '''Internal use function.'''
     x = speed * math.cos((90 - direction) * 0.0174532925)
     y = speed * math.sin((90 - direction) * 0.0174532925)
     z = angular
@@ -30,6 +32,23 @@ def w_from_vectors(speed, direction, angular):
 
 
 def move(speed, direction, angular):
+    '''For a given speed, direction, and angular rotation, calculate wheel
+    speeds.
+
+    :param speed:
+        Speed of translational movement. 1 is full speed, 0 is no speed, -1
+        is backwards. You should not exceed an absolute value of 1.
+    :type speed: ``float``
+    :param direction:
+        Direction of translational movement, in degrees. 0 is straight ahead.
+        You should also be able to provide -180 or 180 to move backwards.
+    :type direction: ``float``
+    :param angular:
+        Continuous value from -1 to 1 where 0 is no angular rotation at all.
+        If 0, the robot's heading will not change while moving.
+    :type angular: ``float``
+    '''
+
     # Convert speeds to integers 0 - 255 with direction
     w = w_from_vectors(speed, direction, angular)
     normalized = []
