@@ -41,14 +41,14 @@ with get_spine() as s:
             logger.info("Move to front of blocks")
             s.move(1, -90, 0)
             time.sleep(1.2)
-            
+
             logger.info("Align to wall")
             s.move(1, 0, 0)
             time.sleep(1)
-            
+
             s.stop()
             self.ldr.load()
-            
+
             logger.info("Resetting to start state")
 
         def start(self):
@@ -58,4 +58,3 @@ with get_spine() as s:
 
     bot = Robot()
     bot.start()
-
