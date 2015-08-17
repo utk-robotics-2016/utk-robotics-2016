@@ -9,14 +9,15 @@ Welcome to UTK Robotics 2016's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 6
+
+   head.rst
 
 
 
 Indices and tables
 ==================
 
-* :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
+* :ref:`genindex`
 

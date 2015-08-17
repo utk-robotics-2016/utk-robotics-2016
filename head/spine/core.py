@@ -23,12 +23,27 @@ class SerialLockException(Exception):
 
     This happens when a lockfile already exists in the lock location, usually
     in ``/var/lock``. It's possible that someone is using this serial port. If
-    not, the fix is to simply remove the lock using rm.
+    not, the fix is to simply remove the lock using `rm`.
     '''
     pass
 
 
 class get_spine:
+    '''A controlled execution environment for Spine.
+
+    This controlled execution environment will provide a reference to a spine
+    object in addition to cleanly handling execution completion, keyboard
+    interrupts, and other unexpected interruptions such as exceptions. What does
+    this mean practically? Whenever your code stops running, this environment
+    will make sure that the main robot motors stop and that the serial ports get
+    properly closed. Because this environment offers an easy way to avoid
+    common issues, it is recommended to use this environment rather than by
+    instantiating a Spine object directly.
+
+    For more information on controlled execution environments and Python's
+    `with` statement, please see
+    `this article <http://effbot.org/zone/python-with-statement.htm>`_.
+    '''
 
     def __enter__(self):
         self.s = Spine()
@@ -70,7 +85,7 @@ class Spine:
           Location of the lock files. Defaults to ``/var/lock/``.
         * **ports** (``dict``) --
           A dictionary of the ports and serial devices they are connected to.
-          See DEF_PORTS in :module:`head.spine.core` for the default and an
+          See DEF_PORTS in the module `head.spine.core` for the default and an
           example of a valid setting.
     '''
 
@@ -161,6 +176,17 @@ class Spine:
         assert response == 'ok'
 
     def move_for(self, delay, *args):
+        '''Same as :func:`move`, but includes a seconds delay and stops the
+        robot once finished.
+
+        :param delay:
+            Seconds to move for.
+        :type delay: ``int``
+
+        :Arguments:
+            The arguments following `delay` will be passed directly to the
+            :func:`move` function.
+        '''
         self.move(*args)
         time.sleep(delay)
         self.stop()
@@ -206,7 +232,7 @@ class Spine:
 
         :warning:
             You probably do not want to call this method directly. Please see
-            the documentation on the Arm class which can greately simplify the
+            the documentation on the Arm class which can greatly simplify the
             process of programming for the arm. It can help with the translation
             between cartesian coordinates and servo values, and it can also
             handle the interpolation between arm positions.
@@ -238,11 +264,37 @@ class Spine:
         assert response == 'ok'
 
     def detach_arm_servos(self):
+        '''Cause the arm servos to go limp.
+
+        :warning:
+            You probably do not want to call this method directly. Please see
+            the documentation on the Arm class which can greatly simplify the
+            process of programming for the arm.
+
+        Useful to park the arm servos when we are not using them. Called by the
+        Arm class's park() method.
+        '''
+
         command = 'ds'
         response = self.send('mega', command)
         assert response == 'ok'
 
     def move(self, speed, direction, angular):
+        '''Set the robot to move using the mecanum wheels.
+
+        :param speed:
+            Continuous value from 0 to 1 where 0 is stopped and 1 is full
+            speed.
+        :type speed: ``float``
+        :param direction:
+            Value from -180 to 180 where 0 is straight forward.
+        :type direction: ``int``
+        :param angular:
+            Continuous value from -1 to 1 where 0 is no angular rotation at all.
+            If 0, the robot's heading will not change while moving.
+        :type angular: ``float``
+        '''
+
         assert 0 <= speed <= 1
         assert -180 <= direction <= 180
         assert -1 <= angular <= 1
@@ -251,6 +303,7 @@ class Spine:
             self.set_wheel(w_id, wheel[0], wheel[1])
 
     def stop(self):
+        '''Stop all wheel motors.'''
         self.move(0, 0, 0)
 
     '''
@@ -263,6 +316,24 @@ class Spine:
     '''
 
     def set_loader_servos(self, right_pos, left_pos):
+        '''Set each loader servo to a position.
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        Programming with this command can be tricky since often the servos are
+        reverse to each other and they can also fight against each other when
+        they are set to different positions.
+
+        :param right_pos:
+            Position from 0 to 255 of the right loader servo.
+        :type right_pos: ``int``
+        :param left_pos:
+            Position from 0 to 255 of the left loader servo.
+        :type left_pos: ``int``
+        '''
         assert 0 <= right_pos <= 255
         assert 0 <= left_pos <= 255
         command = 'sls ' + str(right_pos) + ' ' + str(left_pos)
@@ -270,6 +341,13 @@ class Spine:
         assert response == 'ok'
 
     def detach_loader_servos(self):
+        '''Cause the loader servos to go limp.
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+        '''
         command = 'dls'
         response = self.send('mega', command)
         assert response == 'ok'
@@ -292,6 +370,23 @@ class Spine:
         # self.set_loader_servos(175+15, 70-15)
 
     def get_loader_encoder(self, encoder_id, raw=False):
+        '''Get the current encoder position (in rotations) on one of the
+        encoders.
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        :param encoder_id:
+            Should be the same as the motor ID.
+        :type encoder_id: ``int``
+        :param raw:
+            Return the raw encoder value rather than the encoder value converted
+            to rotations.
+        :type raw: ``bool``
+        '''
+
         assert encoder_id in [0, 1]
         if raw:
             command = 'erp '
@@ -305,12 +400,43 @@ class Spine:
             return float(response)
 
     def zero_loader_encoder(self, encoder_id):
+        '''Reset the current encoder position to zero.
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        :param encoder_id:
+            Should be the same as the motor ID.
+        :type encoder_id: ``int``
+        '''
         assert encoder_id in [0, 1]
         command = 'ez %d' % encoder_id
         response = self.send('loadmega', command)
         assert response == 'ok'
 
     def set_loader_motor(self, m_id, speed, direction):
+        '''Change the speed of a loader motor.
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        :param m_id:
+            The motor ID to change the speed for. There are currently two motors
+            controlling each side of the loader. Each motor should be labeled
+            with its ID.
+        :type m_id: ``int``
+        :param speed:
+            The speed from 0 to 1024 to set the motor to.
+        :type speed: ``int``
+        :param direction:
+            'fw' should be extending out, 'bw' should be retracting.
+        :type direction: ``string``
+        '''
+
         assert m_id in [0, 1]
         assert 0 <= speed <= 1024
         assert direction in ['fw', 'bw']
@@ -321,12 +447,32 @@ class Spine:
         assert response == 'ok'
 
     def stop_loader_motor(self, m_id):
+        '''Stop one of the loader motors.
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        :param m_id:
+            The motor ID to stop. There are currently two motors controlling
+            each side of the loader. Each motor should be labeled with its ID.
+        :type m_id: ``int``
+        '''
+
         assert m_id in [0, 1]
         command = 'mos ' + str(m_id)
         response = self.send('loadmega', command)
         assert response == 'ok'
 
     def startup(self):
+        '''Ping Arduino boards and briefly flash their LEDs.
+
+        This command is useful to run at the beginning of scripts to test each
+        Arduino board all at once. Since we have multiple microcontroller
+        boards, it is possible for them to encounter their own problems. This
+        command will cause the script to fail early.
+        '''
         # Make sure we can ping the torso
         self.ping()
 
