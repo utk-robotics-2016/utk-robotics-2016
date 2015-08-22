@@ -16,6 +16,7 @@ Submodules
    head.spine.optical_move
    head.spine.pixelmove
    head.spine.time_pixelmove
+   head.spine.voltage
 
 Module contents
 ---------------
