@@ -302,6 +302,32 @@ class Spine:
         for w_id, wheel in enumerate(wheels, start=1):
             self.set_wheel(w_id, wheel[0], wheel[1])
 
+    def move_no_mec(self, rightspeed, leftspeed):
+        '''Set the robot to move without the mecanum wheels.
+
+        :param rightspeed:
+            0 to 255. Speed of right motors.
+        :type speed: ``int``
+        :param leftspeed:
+            0 to 255. Speed of left motors.
+        :type speed: ``int``
+        '''
+
+        assert -255 <= rightspeed <= 255
+        assert -255 <= leftspeed <= 255
+        rightdir = 'fw'
+        leftdir = 'fw'
+        if rightspeed < 0:
+            rightdir = 'rv'
+            rightspeed = abs(rightspeed)
+        if leftspeed < 0:
+            leftdir = 'rv'
+            leftspeed = abs(leftspeed)
+        self.set_wheel(1, leftspeed, leftdir)
+        self.set_wheel(2, rightspeed, rightdir)
+        self.set_wheel(3, leftspeed, leftdir)
+        self.set_wheel(4, rightspeed, rightdir)
+
     def stop(self):
         '''Stop all wheel motors.'''
         self.move(0, 0, 0)
