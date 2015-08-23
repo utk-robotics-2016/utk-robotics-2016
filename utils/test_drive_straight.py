@@ -19,7 +19,7 @@ with get_spine() as s:
             self.ldr = Loader(s)
 
         def start(self):
-            for i in np.arange(0,1,0.05):
+            for i in np.arange(0, 1, 0.05):
                 s.move(i, 0, 0)
             time.sleep(6)
             logger.info("Done!")

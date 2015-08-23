@@ -12,12 +12,10 @@ logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
 logger = logging.getLogger(__name__)
 
 
-def movesmooth(rightspeed, leftspeed, duration):
-    accelto = max(rightspeed, leftspeed)
 def keyframe(f, middleargs, seconds, startargs, endargs):
     ramptime = 1
-    if seconds < ramptime*2:
-        ramptime = float(seconds)/2
+    if seconds < ramptime * 2:
+        ramptime = float(seconds) / 2
     start_time = time.time()
     start_difference = map(operator.sub, middleargs, startargs)
     end_difference = map(operator.sub, endargs, middleargs)
@@ -26,11 +24,11 @@ def keyframe(f, middleargs, seconds, startargs, endargs):
     while (curr_time - start_time) < seconds:
         elapsed = curr_time - start_time
         if elapsed < ramptime:
-            fraction = elapsed/ramptime
+            fraction = elapsed / ramptime
             toadd = [v * fraction for v in start_difference]
             currargs = map(operator.add, startargs, toadd)
-        elif elapsed > (seconds-ramptime):
-            fraction = (elapsed-(seconds-ramptime))/ramptime
+        elif elapsed > (seconds - ramptime):
+            fraction = (elapsed - (seconds - ramptime)) / ramptime
             toadd = [v * fraction for v in end_difference]
             currargs = map(operator.add, middleargs, toadd)
         else:
@@ -49,9 +47,9 @@ with get_spine() as s:
 
         def move_to_corner(self):
             logger.info("Moving out from corner")
-            keyframe(s.move_no_mec, (40, 200), 2.5, (0,0), (200,30))
-            keyframe(s.move_no_mec, (200,30), 1, (200, 30), (0,0))
-            keyframe(s.move_no_mec, (100,100), 3, (0,0), (0,0))
+            keyframe(s.move_no_mec, (40, 200), 2.5, (0, 0), (200, 30))
+            keyframe(s.move_no_mec, (200, 30), 1, (200, 30), (0, 0))
+            keyframe(s.move_no_mec, (100, 100), 3, (0, 0), (0, 0))
             # keyframe(s.move_no_mec, (100, 100), 1, (0,0), (0,0))
             # s.move_no_mec(40, 200)
             # time.sleep(1)
