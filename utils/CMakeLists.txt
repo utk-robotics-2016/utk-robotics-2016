@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( ColorTracking )
+find_package( OpenCV )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( ColorTracking ColorTracking.cpp Block.cpp)
+target_link_libraries( ColorTracking ${OpenCV_LIBS} )
