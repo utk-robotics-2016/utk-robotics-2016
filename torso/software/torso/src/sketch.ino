@@ -12,7 +12,6 @@ Servo shoulder;
 Servo elbow;
 Servo wrist;
 Servo wristrotate;
-Servo suction;
 
 //Left is 12, right is 13
 Servo loader_right;
@@ -163,18 +162,6 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'sa [base] [shoulder] [elbow] [wrist] [wristrotate]'");
         }
     }
-    else if(args[0].equals(String("ss"))) { // set suction
-        if(numArgs == 2) {
-            int pos= args[1].toInt();
-            if (!suction.attached()) {
-                suction.attach(11);
-            }
-            suction.write(pos);
-            Serial.println("ok");
-        } else {
-            Serial.println("error: usage - 'ss [pos]'");
-        }
-    }
     else if(args[0].equals(String("sls"))) { // set loader servos
         if(numArgs == 3) {
             int rightpos = args[1].toInt();
@@ -199,7 +186,6 @@ void parseAndExecuteCommand(String command) {
             elbow.detach();
             wrist.detach();
             wristrotate.detach();
-            suction.detach();
             Serial.println("ok");
         } else {
             Serial.println("error: usage - 'ds'");

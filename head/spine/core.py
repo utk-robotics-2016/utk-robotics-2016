@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 DEF_PORTS = {
     'mega': '/dev/mega',
     'teensy': '/dev/teensy',
-    'loadmega': '/dev/loadmega',
+    # When enabling this line, make sure to re-enable the zero_loader_encoder
+    # line in Spine.__init__
+    # 'loadmega': '/dev/loadmega', # Currently not on robot
 }
 
 
@@ -117,8 +119,10 @@ class Spine:
         self.delim = delim
 
         # Startup commands
+        '''
         for i in range(2):
             self.zero_loader_encoder(i)
+        '''
 
     def send(self, devname, command):
         '''Send a command to a device and return the result.
@@ -275,7 +279,7 @@ class Spine:
         Arm class's park() method.
         '''
 
-        command = 'ds'
+        command = 'das'
         response = self.send('mega', command)
         assert response == 'ok'
 
