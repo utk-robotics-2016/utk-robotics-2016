@@ -33,8 +33,10 @@ ELBOWUP = ELBOWCENTER - 90
 def elbow_r2p(r):
     return ELBOWCENTER - (r / (pi / 2)) * (ELBOWUP - ELBOWCENTER)
 
-WRISTCENTER = 30+82  # more positive flexes up
+WRISTCENTER = 30 + 82  # more positive flexes up
 WRISTDOWN = WRISTCENTER - 82
+
+
 def wrist_r2p(r):
     return WRISTCENTER - (r / (pi / 2)) * (WRISTDOWN - WRISTCENTER)
 

@@ -19,16 +19,27 @@ Servo loader_left;
 
 // Pin definitions
 const char LED = 13;
+const char ARM_LIMIT = 7;
+const char SUCTION = 47;
+const char RELEASE_SUCTION = 46;
 
 void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
+
+    pinMode(SUCTION, OUTPUT);
+    pinMode(RELEASE_SUCTION, OUTPUT);
+    pinMode(ARM_LIMIT, INPUT);
 
     // Init serial
     Serial.begin(115200);
 
     // Display ready LED
     digitalWrite(LED,HIGH);
+
+    // Initialize suction values
+    digitalWrite(SUCTION,LOW);
+    digitalWrite(RELEASE_SUCTION,LOW);
 }
 
 /* The loop is set up in two parts. First the Arduino does the work it needs to
@@ -198,6 +209,43 @@ void parseAndExecuteCommand(String command) {
             Serial.println("ok");
         } else {
             Serial.println("error: usage - 'ds'");
+        }
+    }
+    else if(args[0].equals(String("ss"))) { // set suction
+        if(numArgs == 2) {
+            if(args[1].equals(String("on"))) {
+                digitalWrite(SUCTION,HIGH);
+                Serial.println("ok");
+            } else if(args[1].equals(String("off"))) {
+                digitalWrite(SUCTION,LOW);
+                Serial.println("ok");
+            } else {
+                Serial.println("error: usage - 'ss [on/off]'");
+            }
+        } else {
+            Serial.println("error: usage - 'ss [on/off]'");
+        }
+    }
+    else if(args[0].equals(String("srs"))) { // set release suction
+        if(numArgs == 2) {
+            if(args[1].equals(String("on"))) {
+                digitalWrite(RELEASE_SUCTION,HIGH);
+                Serial.println("ok");
+            } else if(args[1].equals(String("off"))) {
+                digitalWrite(RELEASE_SUCTION,LOW);
+                Serial.println("ok");
+            } else {
+                Serial.println("error: usage - 'srs [on/off]'");
+            }
+        } else {
+            Serial.println("error: usage - 'srs [on/off]'");
+        }
+    }
+    else if(args[0].equals(String("ral"))) { // read arm limit switch
+        if(numArgs == 1) {
+            Serial.println(digitalRead(ARM_LIMIT));
+        } else {
+            Serial.println("error: usage - 'ral'");
         }
     }
     else {
