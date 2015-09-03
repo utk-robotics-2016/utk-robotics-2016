@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 DEF_PORTS = {
     'mega': '/dev/mega',
     'teensy': '/dev/teensy',
-    'loadmega': '/dev/loadmega',
+    # When enabling this line, make sure to re-enable the zero_loader_encoder
+    # line in Spine.__init__
+    # 'loadmega': '/dev/loadmega', # Currently not on robot
 }
 
 
@@ -117,8 +119,10 @@ class Spine:
         self.delim = delim
 
         # Startup commands
+        '''
         for i in range(2):
             self.zero_loader_encoder(i)
+        '''
 
     def send(self, devname, command):
         '''Send a command to a device and return the result.
@@ -251,17 +255,42 @@ class Spine:
         assert response == 'ok'
 
     def set_suction(self, suction):
-        '''Sets the suction power for the arm gripper.
+        '''Sets the suction motor to on or off.
+
+        The vacuum can accumulate suction such that suction exists even after
+        the vacuum is turned off. Use set_release_suctio() to get rid of this
+        residual vacuum.
 
         :param suction:
-            0 to 180 where 180 is the most suction. Set back to 0 to release
-            suction.
-        :type suction: ``int``
+            True for on, False for off.
+        :type suction: ``bool``
         '''
-        assert 0 <= suction <= 180
-        command = 'ss %d' % suction
+        command = 'ss %s' % {True: 'on', False: 'off'}[suction]
         response = self.send('mega', command)
         assert response == 'ok'
+
+    def set_release_suction(self, release_suction):
+        '''Sets the suction release solenoid valve to open or closed.
+
+        The valve must be closed in order to pick up a block. In order to
+        release accumulated suction, set the solenoid valve to open.
+
+        :param release_suction:
+            True for open, False for closed.
+        :type suction: ``bool``
+        '''
+        command = 'srs %s' % {True: 'on', False: 'off'}[release_suction]
+        response = self.send('mega', command)
+        assert response == 'ok'
+
+    def read_arm_limit(self):
+        '''Reads the limit switch mounted near the arm suction cup.
+
+        :return: Boolean for if the suction limit switch is pressed down.
+        '''
+        command = 'ral'
+        response = self.send('mega', command)
+        return {'0': True, '1': False}[response]
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
@@ -275,7 +304,7 @@ class Spine:
         Arm class's park() method.
         '''
 
-        command = 'ds'
+        command = 'das'
         response = self.send('mega', command)
         assert response == 'ok'
 

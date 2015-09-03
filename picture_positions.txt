@@ -1,0 +1,11 @@
+left
+arm.move_to(Vec3d(-9, 8.5, 14), 0, 180)
+
+right block size
+arm.move_to(Vec3d(4, 11, 14), 0, 180)
+
+new left position:
+arm.move_to(Vec3d(-6, 4, 17), 0.08*3.14, 180)
+
+new right position:
+arm.move_to(Vec3d(2, 4, 17), 0.08*3.14, 180)
