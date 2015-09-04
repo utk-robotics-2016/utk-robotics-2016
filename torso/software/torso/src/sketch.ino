@@ -22,6 +22,8 @@ const char LED = 13;
 const char ARM_LIMIT = 7;
 const char SUCTION = 47;
 const char RELEASE_SUCTION = 46;
+const char RIGHT_LINE_SENSOR = 2; // Analog
+const char LEFT_LINE_SENSOR = 3; // Analog
 
 void setup() {
     // Init LED pin
@@ -246,6 +248,17 @@ void parseAndExecuteCommand(String command) {
             Serial.println(digitalRead(ARM_LIMIT));
         } else {
             Serial.println("error: usage - 'ral'");
+        }
+    }
+    else if(args[0].equals(String("rls"))) { // read line sensors
+        if(numArgs == 1) {
+            String out = "";
+            out += analogRead(RIGHT_LINE_SENSOR);
+            out += " ";
+            out += analogRead(LEFT_LINE_SENSOR);
+            Serial.println(out);
+        } else {
+            Serial.println("error: usage - 'rls'");
         }
     }
     else {
