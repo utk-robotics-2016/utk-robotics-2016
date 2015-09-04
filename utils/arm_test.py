@@ -14,10 +14,12 @@ logger = logging.getLogger(__name__)
 SPEED = 1
 FULL_BLOCK_FORWARD = 11
 HEIGHT_TO_CLEAR_LOADER = 12
-RIGHT_DROP_XY = (16,0)
-BOTTOM_LEVEL_HEIGHT = -1 # height of the top surface of the bottom level
-BLOCK_WIDTH_IN_CM = 1.5*2.54
-TOP_LEVEL_HEIGHT = BOTTOM_LEVEL_HEIGHT+BLOCK_WIDTH_IN_CM # height of the top surface of the top level
+RIGHT_DROP_XY = (16, 0)
+# height of the top surface of the bottom level
+BOTTOM_LEVEL_HEIGHT = -1
+BLOCK_WIDTH_IN_CM = 1.5 * 2.54
+# height of the top surface of the top level
+TOP_LEVEL_HEIGHT = BOTTOM_LEVEL_HEIGHT + BLOCK_WIDTH_IN_CM
 
 with get_spine() as s:
     with get_arm(s) as arm:
@@ -29,8 +31,8 @@ with get_spine() as s:
             def pick_block(self, col, level):
                 # lateral, forward, height
                 def get_lateral(thecol):
-                    far_left_lateral = 11.145 # col index 0
-                    far_right_lateral = -13.858 # col index 7
+                    far_left_lateral = 11.145  # col index 0
+                    far_right_lateral = -13.858  # col index 7
                     lateral_inc = (far_right_lateral - far_left_lateral) / 7
                     return far_left_lateral + lateral_inc * thecol
                 lateral = get_lateral(col)
@@ -41,19 +43,24 @@ with get_spine() as s:
                     level_height = TOP_LEVEL_HEIGHT
                 else:
                     raise ValueError
-                arm.move_to(Vec3d(lateral, FULL_BLOCK_FORWARD, level_height+4), 0, 180, SPEED)
+                arm.move_to(Vec3d(lateral, FULL_BLOCK_FORWARD,
+                            level_height + 4), 0, 180, SPEED)
                 s.set_suction(True)
-                arm.move_to(Vec3d(lateral, FULL_BLOCK_FORWARD, level_height-1), 0, 180, SPEED)
+                arm.move_to(Vec3d(lateral, FULL_BLOCK_FORWARD,
+                            level_height - 1), 0, 180, SPEED)
                 time.sleep(0.5)
                 if col == 7:
-                    lateral = get_lateral(col-1)
+                    lateral = get_lateral(col - 1)
                     logging.info(lateral)
-                    arm.move_to(Vec3d(lateral, FULL_BLOCK_FORWARD, level_height+4), 0, 180, SPEED)
+                    arm.move_to(Vec3d(lateral, FULL_BLOCK_FORWARD,
+                                level_height + 4), 0, 180, SPEED)
                     logging.info(lateral)
-                arm.move_to(Vec3d(lateral, FULL_BLOCK_FORWARD, HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
+                arm.move_to(Vec3d(lateral, FULL_BLOCK_FORWARD,
+                            HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
 
             def drop_block_right(self):
-                arm.move_to(Vec3d(RIGHT_DROP_XY[0], RIGHT_DROP_XY[1], HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
+                arm.move_to(Vec3d(RIGHT_DROP_XY[0], RIGHT_DROP_XY[1],
+                            HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
                 s.set_suction(False)
                 s.set_release_suction(True)
                 time.sleep(0.5)
