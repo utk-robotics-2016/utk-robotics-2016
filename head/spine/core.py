@@ -222,6 +222,7 @@ class Spine:
         assert direction in ['fw', 'rv']
         # Let W1, W2, W3, and W4 be the front left, front right, rear left, and rear right wheels, respectively.
         w_id = [2, 3, 1, 4][w_id - 1]
+        # Now let W1, W2, W3, and W4 be the rear left, front left, front right, rear right wheels, respectively.
         if w_id in [1, 4]:
             if direction == 'fw':
                 direction = 'rv'
@@ -293,6 +294,26 @@ class Spine:
         command = 'ral'
         response = self.send('mega', command)
         return {'0': True, '1': False}[response]
+
+    def read_line_sensors(self):
+        '''Reads the right and the left line sensors mounted on the front.
+
+        :return: Dictionary of line sensor values.
+        '''
+        command = 'rls'
+        response = self.send('mega', command)
+        response = response.split(' ')
+        return {'right': int(response[0]), 'left': int(response[1])}
+
+    def read_limit_switches(self):
+        '''Reads the right and the left limit_switches mounted on the front.
+
+        :return: Dictionary of limit switch values.
+        '''
+        command = 'rsw'
+        response = self.send('mega', command)
+        response = response.split(' ')
+        return {'right': int(response[0]), 'left': int(response[1])}
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
