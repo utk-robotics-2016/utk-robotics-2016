@@ -3,7 +3,7 @@
  * File: util.h
  * Author: Parker Mitchell
  *
- * Description: Header fiel for util.cpp
+ * Description: Header file for util.cpp
  ****************************************************************************/
 
 #include <cstdlib>

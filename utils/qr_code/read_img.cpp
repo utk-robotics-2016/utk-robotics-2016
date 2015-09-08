@@ -13,38 +13,45 @@
 ----------------------------------------------------------------------------*/
 void get_codes_from_image( vector <string> &results, string filename )
 {
-    ImageScanner scanner;
-    Magick::Blob blob;
-    Magick::Image magick( filename.c_str() );
+    ImageScanner scanner;   /* Zbar image scanner object    */
+    Magick::Blob blob;      /* image data from Magick       */
+    const void *raw;        /* raw image data               */
+    int width, height;      /* image dimensions             */
+    Magick::Image *magick;  /* ImageMagick object           */
+    Image *image;           /* Zbar image object            */
+
+    /* create the Image Magick object based on filename */
+    magick = new Magick::Image( filename.c_str() );
 
     /* create a scanner and configure it */
     scanner.set_config( ZBAR_NONE, ZBAR_CFG_ENABLE, 1 );
 
-    /* get image data from ImageMagick */
-    int width = magick.columns();
-    int height = magick.rows();
+    /* get image dimensions from ImageMagick */
+    width = magick->columns();
+    height = magick->rows();
 
-    /* extract the raw data */
-    magick.modifyImage();
-    magick.write( &blob, "GRAY", 8 );
-    const void *raw = blob.data();
+    /* extract the raw data - convert to greyscale, 8-bit depth */
+    magick->modifyImage();
+    magick->write( &blob, "GRAY", 8 );
+    raw = blob.data();
 
-    /* wrap image data */
-    Image image( width, height, "Y800", raw, width * height );
+    /* drop image data into Zbar image object */
+    image = new Image( width, height, "Y800", raw, width * height );
 
     /* scan the image for QR codes / barcodes */
-    int n = scanner.scan( image );
+    scanner.scan( *image );
 
     /* get the results for each recognized code */
-    for( Image::SymbolIterator symbol = image.symbol_begin();
-         symbol != image.symbol_end();
+    for( Image::SymbolIterator symbol = image->symbol_begin();
+         symbol != image->symbol_end();
          ++symbol )
     {
         results.push_back( symbol->get_data() );
     }
 
     /* clean up */
-    image.set_data(NULL, 0);
+    delete image;
+    delete magick;
 }
 
 int main (int argc, char **argv)
