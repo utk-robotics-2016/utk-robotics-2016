@@ -9,10 +9,15 @@
 #include <vector>
 #include <Magick++.h>
 #include <zbar.h>
+#include <opencv2/opencv.hpp>
 #include "util.h"
 
 using namespace std;
-using namespace zbar;
+using namespace cv;
+
+/* webcam capture dimensions */
+#define WEBCAM_CAPTURE_WIDTH  ( 1280 )
+#define WEBCAM_CAPTURE_HEIGHT ( 720  )
 
 /* gets the data from qr codes embeded in the raw image data */
 void get_codes( vector<string> &results, void *raw_data, int width, int height );
