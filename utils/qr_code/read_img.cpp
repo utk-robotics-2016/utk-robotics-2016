@@ -61,26 +61,26 @@ void get_codes( vector<string> &results, void *raw_data, int width, int height )
 ----------------------------------------------------------------------------*/
 void get_cam_img( void *raw_data, int &width, int &height )
 {
-    VideoCapture cam(0);
-    Mat frame;
-    Mat greyscale;
+    //VideoCapture cam(0);
+    //Mat frame;
+    //Mat greyscale;
 
     /* get dimensions */
-    width =  cam.get( CV_CAP_PROP_FRAME_WIDTH );
-    height =  cam.get( CV_CAP_PROP_FRAME_HEIGHT );
+    //width =  cam.get( CV_CAP_PROP_FRAME_WIDTH );
+    //height =  cam.get( CV_CAP_PROP_FRAME_HEIGHT );
 
     /* check if we could get a capture */
-    if( !cam.read( frame ) )
-    {
-        raw_data = NULL;
-        return;
-    }
+    //if( !cam.read( frame ) )
+    //{
+    //    raw_data = NULL;
+    //    return;
+    //}
 
     /* convert to greysale */
-    cvtColor( frame, greyscale, CV_BGR2GRAY );
+    //cvtColor( frame, greyscale, CV_BGR2GRAY );
 
     /* get the raw image data */
-    raw_data = (char *) greyscale.data;
+    //raw_data = (char *) greyscale.data;
 }
 
 int main ( int argc, char **argv )
