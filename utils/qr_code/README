@@ -24,3 +24,8 @@ Just run the makefile on a Linux machine.
 
 The QR codes for competition are provided as .png files in the images
 directory. These have been verified to work properly.
+
+Note about OpenCV... Please ensure that you run the following command:
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
+This allows it to find the appropriate OpenCV libraries at runtime. 
