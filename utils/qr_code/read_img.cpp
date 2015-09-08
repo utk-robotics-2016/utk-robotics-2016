@@ -61,32 +61,33 @@ void get_codes( vector<string> &results, void *raw_data, int width, int height )
 ----------------------------------------------------------------------------*/
 void get_cam_img( void *raw_data, int &width, int &height )
 {
-    //VideoCapture cam(0);
-    //Mat frame;
-    //Mat greyscale;
+    VideoCapture cam(0);
+    Mat frame;
+    Mat greyscale;
 
     /* get dimensions */
-    //width =  cam.get( CV_CAP_PROP_FRAME_WIDTH );
-    //height =  cam.get( CV_CAP_PROP_FRAME_HEIGHT );
+    width =  cam.get( CV_CAP_PROP_FRAME_WIDTH );
+    height =  cam.get( CV_CAP_PROP_FRAME_HEIGHT );
 
     /* check if we could get a capture */
-    //if( !cam.read( frame ) )
-    //{
-    //    raw_data = NULL;
-    //    return;
-    //}
+    if( !cam.read( frame ) )
+    {
+        raw_data = NULL;
+        return;
+    }
 
     /* convert to greysale */
-    //cvtColor( frame, greyscale, CV_BGR2GRAY );
+    cvtColor( frame, greyscale, CV_BGR2GRAY );
 
     /* get the raw image data */
-    //raw_data = (char *) greyscale.data;
+    raw_data = (char *) greyscale.data;
 }
 
 int main ( int argc, char **argv )
 {
     int i;                      /* loop iterator        */
     int height, width;          /* image dimensions     */
+    string param;               /* passed parameter     */
     void *raw_data;             /* raw image data       */
     Magick::Blob blob;          /* image in blob format */
     vector <string> qr_data;    /* decoded qr codes     */
@@ -97,14 +98,25 @@ int main ( int argc, char **argv )
         error( TRUE, "Usage: read_img imagefile" );
     }
 
+    /* get command line arg as c++ style string */
+    param = argv[ 1 ];
+
     /* initalize image magick c++ library */
     Magick::InitializeMagick( NULL );
 
     /* process the image into the raw data */
-    read_img( argv[ 1 ], blob, width, height );
-    raw_data = (void *) blob.data();
+    if( param == "webcam" )
+    {
+        get_cam_img( raw_data, width, height );   
+    }
+    else
+    {
+        read_img( param, blob, width, height );
+        raw_data = (void *) blob.data();
+    }
 
     /* process the qr codes */
+    if( raw_data == NULL ) error( TRUE, "Could not read from webcam" );
     get_codes( qr_data, raw_data, width, height );
 
     /* output all of the recognized codes */

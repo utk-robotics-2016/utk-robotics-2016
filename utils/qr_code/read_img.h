@@ -9,11 +9,13 @@
 #include <vector>
 #include <Magick++.h>
 #include <zbar.h>
-//include <opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include "util.h"
 
 using namespace std;
-//using namespace cv;
+using namespace cv;
 
 /* webcam capture dimensions */
 #define WEBCAM_CAPTURE_WIDTH  ( 1280 )
