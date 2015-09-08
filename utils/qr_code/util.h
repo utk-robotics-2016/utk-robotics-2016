@@ -9,7 +9,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstdarg>
-#include <cstring>
 #include <string>
 
 using namespace std;

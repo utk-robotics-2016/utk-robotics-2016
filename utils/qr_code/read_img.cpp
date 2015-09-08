@@ -9,40 +9,34 @@
 #include "read_img.h"
 
 /*----------------------------------------------------------------------------
- Reads image data from a file into the raw data with dimensions
+ Extracts QR code data from an image file and returns the data in a vector
 ----------------------------------------------------------------------------*/
-void read_img( string filename, Magick::Blob &blob, int &width, int &height )
+void get_codes_from_image( vector <string> &results, string filename )
 {
+    ImageScanner scanner;   /* Zbar image scanner object    */
+    Magick::Blob blob;      /* image data from Magick       */
+    const void *raw;        /* raw image data               */
+    int width, height;      /* image dimensions             */
     Magick::Image *magick;  /* ImageMagick object           */
+    Image *image;           /* Zbar image object            */
 
-    /* load the file into an ImageMagick object */
+    /* create the Image Magick object based on filename */
     magick = new Magick::Image( filename.c_str() );
+
+    /* create a scanner and configure it */
+    scanner.set_config( ZBAR_NONE, ZBAR_CFG_ENABLE, 1 );
 
     /* get image dimensions from ImageMagick */
     width = magick->columns();
     height = magick->rows();
 
-    /* convert image to grayscale, 8-bit depth and get raw data */
+    /* extract the raw data - convert to greyscale, 8-bit depth */
     magick->modifyImage();
     magick->write( &blob, "GRAY", 8 );
-
-    /* enough magick for now */
-    delete magick;
-}
-
-/*----------------------------------------------------------------------------
- Extracts QR code data from an image
-----------------------------------------------------------------------------*/
-void get_codes( vector<string> &results, void *raw_data, int width, int height )
-{
-    ImageScanner scanner;   /* Zbar image scanner object    */
-    Image *image;           /* Zbar image object            */
-
-    /* configure the Zbar scanner */
-    scanner.set_config( ZBAR_NONE, ZBAR_CFG_ENABLE, 1 );
+    raw = blob.data();
 
     /* drop image data into Zbar image object */
-    image = new Image( width, height, "Y800", raw_data, width * height );
+    image = new Image( width, height, "Y800", raw, width * height );
 
     /* scan the image for QR codes / barcodes */
     scanner.scan( *image );
@@ -55,24 +49,15 @@ void get_codes( vector<string> &results, void *raw_data, int width, int height )
         results.push_back( symbol->get_data() );
     }
 
+    /* clean up */
     delete image;
-}
-
-/*----------------------------------------------------------------------------
- Captures an image from the webcam - gets raw image data + dimensions
-----------------------------------------------------------------------------*/
-void get_cam_img( void *raw_data, int &width, int &height )
-{
-    return;
+    delete magick;
 }
 
 int main (int argc, char **argv)
 {
     int i;
     vector <string> qr_data;
-    void *raw_data;
-    int height, width;
-    Magick::Blob blob;
 
     /* Check that a file was passed - provide usage statement if not */
     if( argc != 2 )
@@ -84,8 +69,7 @@ int main (int argc, char **argv)
     Magick::InitializeMagick( NULL );
 
     /* process the image and extract the codes */
-    read_img( argv[ 1 ], blob, width, height );
-    get_codes( qr_data, (void *) blob.data(), width, height );
+    get_codes_from_image( qr_data, argv[ 1 ] );
 
     /* output all of the recognized codes */
     for( i = 0; i < qr_data.size(); i++ )

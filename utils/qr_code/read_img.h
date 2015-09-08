@@ -14,11 +14,5 @@
 using namespace std;
 using namespace zbar;
 
-/* gets the data from qr codes embeded in the raw image data */
-void get_codes( vector<string> &results, void *raw_data, int width, int height );
-
-/* read an image from a file into the raw data with dimensions */
-void read_img( string filename, Magick::Blob &blob, int &width, int &height );
-
-/* captures an image from the webcam */
-void get_cam_img( void *raw_data, int &width, int &height );
+/* reads the data from qr codes into the results vector */
+void get_codes_from_image( vector <string> &results, string filename );
