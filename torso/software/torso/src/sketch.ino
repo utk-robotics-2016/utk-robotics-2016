@@ -12,7 +12,6 @@ Servo shoulder;
 Servo elbow;
 Servo wrist;
 Servo wristrotate;
-Servo suction;
 
 //Left is 12, right is 13
 Servo loader_right;
@@ -20,16 +19,29 @@ Servo loader_left;
 
 // Pin definitions
 const char LED = 13;
+const char ARM_LIMIT = 7;
+const char SUCTION = 47;
+const char RELEASE_SUCTION = 46;
+const char RIGHT_LINE_SENSOR = 2; // Analog
+const char LEFT_LINE_SENSOR = 3; // Analog
 
 void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
+
+    pinMode(SUCTION, OUTPUT);
+    pinMode(RELEASE_SUCTION, OUTPUT);
+    pinMode(ARM_LIMIT, INPUT);
 
     // Init serial
     Serial.begin(115200);
 
     // Display ready LED
     digitalWrite(LED,HIGH);
+
+    // Initialize suction values
+    digitalWrite(SUCTION,LOW);
+    digitalWrite(RELEASE_SUCTION,LOW);
 }
 
 /* The loop is set up in two parts. First the Arduino does the work it needs to
@@ -163,18 +175,6 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'sa [base] [shoulder] [elbow] [wrist] [wristrotate]'");
         }
     }
-    else if(args[0].equals(String("ss"))) { // set suction
-        if(numArgs == 2) {
-            int pos= args[1].toInt();
-            if (!suction.attached()) {
-                suction.attach(11);
-            }
-            suction.write(pos);
-            Serial.println("ok");
-        } else {
-            Serial.println("error: usage - 'ss [pos]'");
-        }
-    }
     else if(args[0].equals(String("sls"))) { // set loader servos
         if(numArgs == 3) {
             int rightpos = args[1].toInt();
@@ -199,7 +199,6 @@ void parseAndExecuteCommand(String command) {
             elbow.detach();
             wrist.detach();
             wristrotate.detach();
-            suction.detach();
             Serial.println("ok");
         } else {
             Serial.println("error: usage - 'ds'");
@@ -212,6 +211,54 @@ void parseAndExecuteCommand(String command) {
             Serial.println("ok");
         } else {
             Serial.println("error: usage - 'ds'");
+        }
+    }
+    else if(args[0].equals(String("ss"))) { // set suction
+        if(numArgs == 2) {
+            if(args[1].equals(String("on"))) {
+                digitalWrite(SUCTION,HIGH);
+                Serial.println("ok");
+            } else if(args[1].equals(String("off"))) {
+                digitalWrite(SUCTION,LOW);
+                Serial.println("ok");
+            } else {
+                Serial.println("error: usage - 'ss [on/off]'");
+            }
+        } else {
+            Serial.println("error: usage - 'ss [on/off]'");
+        }
+    }
+    else if(args[0].equals(String("srs"))) { // set release suction
+        if(numArgs == 2) {
+            if(args[1].equals(String("on"))) {
+                digitalWrite(RELEASE_SUCTION,HIGH);
+                Serial.println("ok");
+            } else if(args[1].equals(String("off"))) {
+                digitalWrite(RELEASE_SUCTION,LOW);
+                Serial.println("ok");
+            } else {
+                Serial.println("error: usage - 'srs [on/off]'");
+            }
+        } else {
+            Serial.println("error: usage - 'srs [on/off]'");
+        }
+    }
+    else if(args[0].equals(String("ral"))) { // read arm limit switch
+        if(numArgs == 1) {
+            Serial.println(digitalRead(ARM_LIMIT));
+        } else {
+            Serial.println("error: usage - 'ral'");
+        }
+    }
+    else if(args[0].equals(String("rls"))) { // read line sensors
+        if(numArgs == 1) {
+            String out = "";
+            out += analogRead(RIGHT_LINE_SENSOR);
+            out += " ";
+            out += analogRead(LEFT_LINE_SENSOR);
+            Serial.println(out);
+        } else {
+            Serial.println("error: usage - 'rls'");
         }
     }
     else {

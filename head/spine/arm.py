@@ -32,7 +32,8 @@ ELBOWUP = ELBOWCENTER - 90
 
 def elbow_r2p(r):
     return ELBOWCENTER - (r / (pi / 2)) * (ELBOWUP - ELBOWCENTER)
-WRISTCENTER = 95  # more positive flexes up
+
+WRISTCENTER = 30 + 82  # more positive flexes up
 WRISTDOWN = WRISTCENTER - 82
 
 
@@ -44,7 +45,7 @@ WRISTROTATECENTER = 90
 SUCTIONCENTER = 90
 
 # Starts at base
-PARKED = [180, 170, 180, 30, 180]
+PARKED = [180, 170, 180, 60, 180]
 
 # CENTER is defined as 0 radians
 
@@ -123,6 +124,8 @@ class Arm(object):
         self.s.set_arm(list(args))
 
     def move_to(self, cuppos, wrist, wristrotate, seconds=1, smoothing='sigmoid'):
+        '''Wrist measurement is in radians!!!'''
+        assert wrist < pi
         startargs = self.servos
         endargs = to_servos(cuppos, wrist, wristrotate)
         interpolate(lambda *args: self.set_servos(*args),
