@@ -5,6 +5,7 @@
  *
  * Description: Header file for read_img.cpp
  ****************************************************************************/
+#define NULL 0
 
 #include <vector>
 #include <zbar.h>
