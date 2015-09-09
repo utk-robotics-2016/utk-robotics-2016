@@ -53,6 +53,10 @@ void get_codes( vector<string> &results, void *raw_data, int width, int height )
         results.push_back( symbol->get_data() );
     }
 
+    /* report if codes were found */
+    dbg_msg( "%d codes found", results.size() );
+
+    /* clean up */
     delete image;
 }
 
@@ -61,62 +65,68 @@ void get_codes( vector<string> &results, void *raw_data, int width, int height )
 ----------------------------------------------------------------------------*/
 void get_cam_img( void *raw_data, int &width, int &height )
 {
-    VideoCapture cam(0);
-    Mat frame;
-    Mat greyscale;
+    VideoCapture cam( 0 );  /* OpenCV Video Capture         */
+    Mat frame;              /* image captured from webcam   */
+    Mat grayscale;          /* image converted to grayscale */
 
     /* get dimensions */
-    width =  cam.get( CV_CAP_PROP_FRAME_WIDTH );
-    height =  cam.get( CV_CAP_PROP_FRAME_HEIGHT );
+    width = cam.get( CV_CAP_PROP_FRAME_WIDTH );
+    height = cam.get( CV_CAP_PROP_FRAME_HEIGHT );
 
     /* check if we could get a capture */
     if( !cam.read( frame ) )
     {
+        dbg_msg( "Could not read from webcam" );
         raw_data = NULL;
         return;
     }
 
     /* convert to greysale */
-    cvtColor( frame, greyscale, CV_BGR2GRAY );
+    cvtColor( frame, grayscale, CV_BGR2GRAY );
 
     /* get the raw image data */
-    raw_data = (char *) greyscale.data;
+    raw_data = (char *) grayscale.data;
 }
 
 int main ( int argc, char **argv )
 {
-    int i;                      /* loop iterator        */
-    int height, width;          /* image dimensions     */
-    string param;               /* passed parameter     */
-    void *raw_data;             /* raw image data       */
-    Magick::Blob blob;          /* image in blob format */
-    vector <string> qr_data;    /* decoded qr codes     */
+    int i;                      /* loop iterator            */
+    int height, width;          /* image dimensions         */
+    string param;               /* passed parameter         */
+    void *raw_data;             /* raw image data           */
+    Magick::Blob blob;          /* image in blob format     */
+    vector <string> qr_data;    /* decoded qr codes         */
 
     /* Check that a file was passed - provide usage statement if not */
     if( argc != 2 )
     {
-        error( TRUE, "Usage: read_img imagefile" );
+        error( TRUE, "Usage: read_img (imagefile | 'webcam')" );
     }
 
     /* get command line arg as c++ style string */
     param = argv[ 1 ];
 
-    /* initalize image magick c++ library */
-    Magick::InitializeMagick( NULL );
-
     /* process the image into the raw data */
     if( param == "webcam" )
     {
-        get_cam_img( raw_data, width, height );   
+        /* obtain the image from the webcam */
+        dbg_msg( "Attempting to get data from webcam using OpenCV" );
+        get_cam_img( raw_data, width, height );
     }
     else
     {
+        /* initalize image magick c++ library and use it to get image data */
+        dbg_msg( "Using ImageMagick to read QR codes from image file %s", param.c_str() );
+        Magick::InitializeMagick( NULL );
         read_img( param, blob, width, height );
         raw_data = (void *) blob.data();
     }
 
     /* process the qr codes */
-    if( raw_data == NULL ) error( TRUE, "Could not read from webcam" );
+    if( raw_data == NULL )
+    {
+        error( TRUE, "Could not read image data" );
+    }
     get_codes( qr_data, raw_data, width, height );
 
     /* output all of the recognized codes */
