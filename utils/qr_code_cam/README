@@ -1,0 +1,31 @@
+******************************************************************************
+* UTK Robotics 2015-2016                                                     *
+* README: QR Code Reader Utility                                             *
+******************************************************************************
+
+------------------------------------------------------------------------------
+ Required Libraries
+------------------------------------------------------------------------------
+This utility requires a few libraries in order to compile.
+
+ - ImageMagick with the Magick++ C++ development headers
+ - Magic++-config utility in order to generate need compilation flags
+ - ZBar library with C++ headers
+
+------------------------------------------------------------------------------
+ Compilation Directions
+------------------------------------------------------------------------------
+Just run the makefile on a Linux machine.
+
+------------------------------------------------------------------------------
+ Running Instructions
+------------------------------------------------------------------------------
+./read_img image_file
+
+The QR codes for competition are provided as .png files in the images
+directory. These have been verified to work properly.
+
+Note about OpenCV... Please ensure that you run the following command:
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
+This allows it to find the appropriate OpenCV libraries at runtime. 
