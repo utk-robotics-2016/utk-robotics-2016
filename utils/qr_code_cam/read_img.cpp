@@ -47,6 +47,11 @@ void get_cam_img( void *raw_data, int &width, int &height )
     Mat frame;              /* image captured from webcam   */
     Mat grayscale;          /* image converted to grayscale */
 
+    if( !cam.isOpened() )
+    {
+        error( TRUE, "Cannot open webcam" );
+    }
+
     /* get dimensions */
     width = cam.get( CV_CAP_PROP_FRAME_WIDTH );
     height = cam.get( CV_CAP_PROP_FRAME_HEIGHT );
@@ -64,6 +69,7 @@ void get_cam_img( void *raw_data, int &width, int &height )
 
     /* get the raw image data */
     raw_data = (char *) grayscale.data;
+    cam.release();
 }
 
 int main ( int argc, char **argv )
