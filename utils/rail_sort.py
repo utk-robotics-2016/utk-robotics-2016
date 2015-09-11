@@ -19,8 +19,21 @@ with get_spine() as s:
             def __init__(self):
                 self.bp = BlockPicker(s, arm)
 
-            def move_to_zone(self, currzone, destzone):
-                raw_input('Move me to zone %d' % (destzone))
+            def move_to_zone(self, currzone, destzone, method='deadreckon'):
+                if method == 'manual':
+                    raw_input('Move me to zone %d' % (destzone))
+                elif method == 'deadreckon':
+                    if currzone == 3 and destzone == 0:
+                        # Bump up against barge
+                        s.move_for(5, 0.8, 0, 0.1)
+                        # Bump against railroad
+                        s.move_for(1, 0.6, -70, 0)
+                        # Move away from railroad
+                        s.move_for(1, 0.6, 70, 0)
+                    elif currzone != -1:
+                        s.move_for(2, 0.6, -180, -0.09)
+                else:
+                    raise ValueError
 
             def detect_blocks(self):
                 blocks = []
