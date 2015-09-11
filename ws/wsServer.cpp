@@ -64,11 +64,12 @@ static struct libwebsocket_protocols protocols[] = {
 void read_send() {
     string input;
 
-    unsigned char *buf = (unsigned char*) malloc(LWS_SEND_BUFFER_PRE_PADDING
-                                + input.size() + LWS_SEND_BUFFER_POST_PADDING);
 
     //Read the line from STDIN
     while (getline(cin, input)) {
+        unsigned char *buf = (unsigned char*) malloc(LWS_SEND_BUFFER_PRE_PADDING
+                                    + input.size() + LWS_SEND_BUFFER_POST_PADDING);
+
         strcpy((char*)&buf[LWS_SEND_BUFFER_PRE_PADDING], input.c_str());
 
         for (auto& client : clients) {
@@ -76,15 +77,26 @@ void read_send() {
                                input.size(), LWS_WRITE_TEXT);
         }
 
+        free(buf);
     }
-
-    free(buf);
 }
 
 int main(int argc, char** argv)
 {
-    //server url will be http://localhost:9000
     int port = 9000;
+    if (argc == 2)
+        port = atoi(argv[1]);
+    else if (argc > 2){
+        cerr << "usage: wsServer [port=9000]" << endl;
+        cerr << "                 port must be >= 1024" << endl;
+        exit(1);
+    }
+    if (port == 0 || port < 1024) {
+        cerr << "usage: wsServer [port=9000]" << endl;
+        cerr << "                 port must be >= 1024" << endl;
+        exit(1);
+    }
+
     struct libwebsocket_context *context;
     lws_set_log_level(0, NULL);
 
