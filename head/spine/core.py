@@ -295,6 +295,7 @@ class Spine:
         response = self.send('mega', command)
         return {'0': True, '1': False}[response]
 
+<<<<<<< HEAD
     def read_line_sensors(self):
         '''Reads the right and the left line sensors mounted on the front.
 
@@ -314,6 +315,16 @@ class Spine:
         response = self.send('mega', command)
         response = response.split(' ')
         return {'right': int(response[0]), 'left': int(response[1])}
+
+    def read_ir_a(self):
+        '''Reads Sharp GP2D12 IR Rangefinder mounted between two wheels on the lower chassis
+
+        :return: Double for the distance value in centimeters
+        '''
+
+        command = 'ira'
+        response = self.send('mega', command)
+        return response[:-2]
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
