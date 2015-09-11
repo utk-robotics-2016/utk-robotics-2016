@@ -22,18 +22,18 @@ with get_spine() as s:
             time.sleep(0.25)
 
             logger.info("Move through tunnel and open flap")
-            s.move(1, 0, 0)
+            s.move(1, 10, 0)
             time.sleep(3)
             s.move(1, 20, 0)
-            self.ldr.open_flap()
-            time.sleep(2)
+            # self.ldr.open_flap()
+            time.sleep(2.5)
             s.move(0.5, 20, 0)
             time.sleep(0.5)
 
             logger.info("Align to corner")
             s.move(1, 90, 0)
             time.sleep(1)
-
+            '''
             logger.info("Moving back for space")
             s.move(1, 180, 0)
             time.sleep(0.2)
@@ -45,9 +45,10 @@ with get_spine() as s:
             logger.info("Align to wall")
             s.move(1, 0, 0)
             time.sleep(1)
+            '''
 
             s.stop()
-            self.ldr.load()
+            # self.ldr.load()
 
             logger.info("Resetting to start state")
 
