@@ -24,6 +24,8 @@ const char SUCTION = 47;
 const char RELEASE_SUCTION = 46;
 const char RIGHT_LINE_SENSOR = 2; // Analog
 const char LEFT_LINE_SENSOR = 3; // Analog
+const char RIGHT_LIMIT_SWITCH = 32;
+const char LEFT_LIMIT_SWITCH = 33;
 
 void setup() {
     // Init LED pin
@@ -32,6 +34,8 @@ void setup() {
     pinMode(SUCTION, OUTPUT);
     pinMode(RELEASE_SUCTION, OUTPUT);
     pinMode(ARM_LIMIT, INPUT);
+    pinMode(RIGHT_LIMIT_SWITCH, INPUT);
+    pinMode(LEFT_LIMIT_SWITCH, INPUT);
 
     // Init serial
     Serial.begin(115200);
@@ -163,7 +167,7 @@ void parseAndExecuteCommand(String command) {
                 shoulder.attach(5);
                 elbow.attach(6);
                 wrist.attach(9);
-                wristrotate.attach(13);
+                wristrotate.attach(11);
             }
             base.write(posbase);
             shoulder.write(posshoulder);
@@ -259,6 +263,17 @@ void parseAndExecuteCommand(String command) {
             Serial.println(out);
         } else {
             Serial.println("error: usage - 'rls'");
+        }
+    }
+    else if(args[0].equals(String("rsw"))) { // read limit switches
+        if(numArgs == 1) {
+            String out = "";
+            out += digitalRead(RIGHT_LIMIT_SWITCH);
+            out += " ";
+            out += digitalRead(LEFT_LIMIT_SWITCH);
+            Serial.println(out);
+        } else {
+            Serial.println("error: usage - 'rsw'");
         }
     }
     else {
