@@ -11,6 +11,6 @@ def get_battery_voltage():
 
     vadc = (adc_val + offset) / 1000
 
-    #vout = 1.8 * adc_val / 1799.0
+    # vout = 1.8 * adc_val / 1799.0
     vbat = (vadc) / (r2 / (r1 + r2))
     return vbat

@@ -4,7 +4,7 @@ import logging
 
 # Local modules
 from head.spine.core import get_spine
-from head.spine.loader import Loader
+# from head.spine.loader import Loader
 from head.spine.arm import get_arm
 from head.spine.voltage import get_battery_voltage
 from head.spine.Vec3d import Vec3d
@@ -24,7 +24,7 @@ with get_spine() as s:
                 print("Starting the '%s' test." % (f.__name__))
                 print("Prompt will be '%s'." % prompt)
                 ans = ''
-                while ans not in ['y','n']:
+                while ans not in ['y', 'n']:
                     ans = raw_input("Should we run the '%s' test? (y/n) " % (f.__name__))
 
                 if ans == 'n':
@@ -32,7 +32,7 @@ with get_spine() as s:
 
                 f()
                 ans = ''
-                while ans not in ['y','n','rerun']:
+                while ans not in ['y', 'n', 'rerun']:
                     ans = raw_input("%s (y/n/rerun) " % (prompt))
                 if ans == 'y':
                     return False
@@ -44,8 +44,8 @@ with get_spine() as s:
             # right side
             arm.move_to(Vec3d(0, 10, 0), 0, 180)
             time.sleep(3)
-            arm.move_to(Vec3d(0, 10, 0), 3.14/6, 180)
-            arm.move_to(Vec3d(0, 10, 0), -3.14/6, 180)
+            arm.move_to(Vec3d(0, 10, 0), 3.14 / 6, 180)
+            arm.move_to(Vec3d(0, 10, 0), -3.14 / 6, 180)
             arm.move_to(Vec3d(0, 10, 0), 0, 0)
             arm.move_to(Vec3d(0, 10, 0), 0, 180)
             arm.park()

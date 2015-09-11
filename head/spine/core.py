@@ -295,7 +295,6 @@ class Spine:
         response = self.send('mega', command)
         return {'0': True, '1': False}[response]
 
-<<<<<<< HEAD
     def read_line_sensors(self):
         '''Reads the right and the left line sensors mounted on the front.
 
