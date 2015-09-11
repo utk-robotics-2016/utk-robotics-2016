@@ -2,12 +2,15 @@
 import time
 import os
 import logging
+import json
+from subprocess import Popen, PIPE
 
 # Third-party
 import serial
 
 # Project specific
 import mecanum
+import voltage
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +122,7 @@ class Spine:
                 logger.info('Waiting for connection to stabilize.')
                 time.sleep(1)
         self.delim = delim
+        self.wsServer = Popen(['wsServer', '9000'], stdout=PIPE, stdin=PIPE)
 
         # Startup commands
         '''
@@ -321,7 +325,7 @@ class Spine:
         response = self.send('mega', command)
         assert response == 'ok'
 
-    def move(self, speed, direction, angular):
+    def move(self, speed, direction, angular, *args):
         '''Set the robot to move using the mecanum wheels.
 
         :param speed:
@@ -343,6 +347,8 @@ class Spine:
         wheels = mecanum.move(speed, direction, angular)
         for w_id, wheel in enumerate(wheels, start=1):
             self.set_wheel(w_id, wheel[0], wheel[1])
+        if len(args) >= 1 and args[0] is True:
+            self.writeWs({"type": "Wheels", "powers": wheels})
 
     def move_no_mec(self, rightspeed, leftspeed):
         '''Set the robot to move without the mecanum wheels.
@@ -533,6 +539,13 @@ class Spine:
         response = self.send('loadmega', command)
         assert response == 'ok'
 
+    def writeWs(self, obj):
+        self.wsServer.stdin.write(json.dumps(obj) + "\n")
+        logger.debug("Wrote: " + json.dumps(obj))
+
+    def write_battery_voltage(self):
+        self.writeWs({"type": "Battery", "val": voltage.get_battery_voltage()})
+
     def startup(self):
         '''Ping Arduino boards and briefly flash their LEDs.
 
@@ -576,3 +589,4 @@ class Spine:
             if self.use_lock:
                 os.remove(lockfn)
                 logger.info('Removed lock at %s.' % lockfn)
+        self.wsServer.terminate()

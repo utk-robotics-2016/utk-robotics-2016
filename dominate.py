@@ -1,6 +1,7 @@
 # Python modules
 import time
 import logging
+import thread
 
 # Local modules
 from head.spine.core import get_spine
@@ -14,18 +15,19 @@ with get_spine() as s:
     class Robot:
 
         def __init__(self):
-            self.ldr = Loader(s)
+            self.ldr = None #Loader(s)
+            self.running = True
 
         def move_to_corner(self):
             logger.info("Moving out from corner")
-            s.move(1, -90, 0)
-            time.sleep(0.25)
-
+            s.move(1, -90, 0, True)
+            time.sleep(3)
+            '''
             logger.info("Move through tunnel and open flap")
             s.move(1, 0, 0)
             time.sleep(3)
             s.move(1, 20, 0)
-            self.ldr.open_flap()
+            #self.ldr.open_flap()
             time.sleep(2)
             s.move(0.5, 20, 0)
             time.sleep(0.5)
@@ -47,14 +49,24 @@ with get_spine() as s:
             time.sleep(1)
 
             s.stop()
-            self.ldr.load()
+            #self.ldr.load()
 
             logger.info("Resetting to start state")
+            '''
+            s.move(0, 0, 0, True)
 
         def start(self):
+            time.sleep(1.5)
+            thread.start_new_thread(self.battery_thread, ())
             self.move_to_corner()
 
+            self.running = False
             logger.info("Done!")
+
+        def battery_thread(self):
+            while self.running:
+                s.write_battery_voltage()
+                time.sleep(1)
 
     bot = Robot()
     bot.start()
