@@ -54,7 +54,7 @@ class get_spine:
 
     def __exit__(self, type, value, traceback):
         self.s.stop()
-        self.s.detach_loader_servos()
+        # self.s.detach_loader_servos()
         self.s.set_release_suction(False)
         self.s.set_suction(False)
         self.s.close()
