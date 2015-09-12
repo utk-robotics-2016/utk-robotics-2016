@@ -296,14 +296,13 @@ class Spine:
 
     def read_ir_a(self):
         '''Reads Sharp GP2D12 IR Rangefinder mounted between two wheels on the lower chassis
-        
+
         :return: Double for the distance value in centimeters
         '''
 
         command = 'ira'
         response = self.send('mega', command)
         return float(response[:-2])
-        
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
