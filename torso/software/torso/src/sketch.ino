@@ -27,6 +27,7 @@ const char RIGHT_LINE_SENSOR = 2; // Analog
 const char LEFT_LINE_SENSOR = 3; // Analog
 const char RIGHT_LIMIT_SWITCH = 32;
 const char LEFT_LIMIT_SWITCH = 33;
+const char COURSE_MIRROR_LIMIT_SWITCH = 45;
 const char IR_A = 4; // Analog
 
 void setup() {
@@ -41,6 +42,7 @@ void setup() {
     pinMode(ARM_LIMIT, INPUT);
     pinMode(RIGHT_LIMIT_SWITCH, INPUT);
     pinMode(LEFT_LIMIT_SWITCH, INPUT);
+    pinMode(COURSE_MIRROR_LIMIT_SWITCH, INPUT);
 
     // Init serial
     Serial.begin(115200);
@@ -279,6 +281,8 @@ void parseAndExecuteCommand(String command) {
             out += digitalRead(RIGHT_LIMIT_SWITCH);
             out += " ";
             out += digitalRead(LEFT_LIMIT_SWITCH);
+            out += " ";
+            out += digitalRead(COURSE_MIRROR_LIMIT_SWITCH);
             Serial.println(out);
         } else {
             Serial.println("error: usage - 'rsw'");

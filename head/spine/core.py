@@ -149,7 +149,12 @@ class Spine:
         logger.debug("Sending %s to '%s'" % (repr(command), devname))
         self.ser[devname].write(command + self.delim)
         echo = self.ser[devname].readline()
-        assert echo == '> ' + command + '\r\n'
+        try:
+            assert echo == '> ' + command + '\r\n'
+        except AssertionError:
+            logger.warning('Echo error to %s.' % repr(devname))
+            logger.warning('Actual echo was %s.' % repr(echo))
+            raise
         response = self.ser[devname].readline()
         logger.debug("Response: %s" % repr(response[:-2]))
         # Be sure to chop off newline. We don't need it.
@@ -305,15 +310,17 @@ class Spine:
         response = response.split(' ')
         return {'right': int(response[0]), 'left': int(response[1])}
 
-    def read_limit_switches(self):
-        '''Reads the right and the left limit_switches mounted on the front.
+    def read_switches(self):
+        '''Reads the switches mounted on the robot.
 
-        :return: Dictionary of limit switch values.
+        :return: Dictionary of switch values.
         '''
         command = 'rsw'
         response = self.send('mega', command)
         response = response.split(' ')
-        return {'right': int(response[0]), 'left': int(response[1])}
+        return {'right': int(response[0]),
+                'left': int(response[1]),
+                'course_mirror': int(response[2]),}
 
     def read_ir_a(self):
         '''Reads Sharp GP2D12 IR Rangefinder mounted between two wheels on the lower chassis
