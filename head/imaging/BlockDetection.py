@@ -2,6 +2,7 @@
 import logging
 import ColorPoint
 import numpy as np
+from datetime import datetime
 import cv2
 
 logger = logging.getLogger(__name__)
@@ -14,18 +15,22 @@ class BlockDetection:
             self.camera = cv2.VideoCapture(0)
 
     # Loads the frame from camera for the right side of the loader        
-    def grabRightFrame(self):
+    def grabRightFrame(self, saveImage=True):
         logger.info("Grabbing right frame")
-        retval, image = self.camera.read()
+        retval, image = self.camera.read()        
+        if saveImage:
+            cv2.imwrite("tmp/%s_right.jpg"%datetime.now(),image)
         rows,cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols/2,rows/2),-18,1)
         self.right_frame = cv2.warpAffine(image,M,(cols,rows))
         self.right_hsv, self.right_gray, self.right_laplacian= self.processFrame(self.right_frame)
 
     # Loads the frame from camera for the left side of the loader
-    def grabLeftFrame(self):
+    def grabLeftFrame(self, saveImage=True):
         logger.info("Grabbing left frame")
         retval, image = self.camera.read()
+        if saveImage:
+            cv2.imrite("tmp/%s_left.jpg"%datatime.now(),image)
         rows,cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols/2,rows/2),29,1)
         image = cv2.warpAffine(image,M,(cols,rows))
