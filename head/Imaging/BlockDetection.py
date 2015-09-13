@@ -1,17 +1,21 @@
 #!/usr/bin/env python
+import logging
 import ColorPoint
 import numpy as np
 import cv2
 
+logger = logging.getLogger(__name__)
 
 class BlockDetection:
     def __init__(self,live=1):
         self.live = live
         if live:
+            logger.info("Connecting to camera")
             self.camera = cv2.VideoCapture(0)
 
     # Loads the frame from camera for the right side of the loader        
     def grabRightFrame(self):
+        logger.info("Grabbing right frame")
         retval, image = self.camera.read()
         rows,cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols/2,rows/2),-18,1)
@@ -20,6 +24,7 @@ class BlockDetection:
 
     # Loads the frame from camera for the left side of the loader
     def grabLeftFrame(self):
+        logger.info("Grabbing left frame")
         retval, image = self.camera.read()
         rows,cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols/2,rows/2),29,1)
@@ -46,16 +51,12 @@ class BlockDetection:
     def processFrame(self,image):
         hsv = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
         gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+        
         #Grabs the horizontal edges
         sobely = cv2.Sobel(gray,cv2.CV_64F,0,1,ksize=3)
         sobely = np.absolute(sobely)
         sobely = np.uint8(sobely)
         ret, sobely = cv2.threshold(sobely,40,255,cv2.THRESH_BINARY_INV)
-        #contours, hierarchy = cv2.findContours(sobely,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-        #sobely = np.zeros((480, 640),np.uint8)
-        #for contour in contours:
-        #    if cv2.contourArea(contour) > 1000:
-        #        cv2.drawContours(sobely,contour,-1,255)
         return hsv, gray, sobely
 
     # Add mouse callback so that image will have mouse and color information displayed
@@ -308,4 +309,5 @@ class BlockDetection:
             if display:
                 cpTop.setY((cpTop.getY()+cpBottom.getY())/2)
                 self.markPoint(cpTop,0)
+        logger.info("Block Array: %s"%rv)
         return rv
