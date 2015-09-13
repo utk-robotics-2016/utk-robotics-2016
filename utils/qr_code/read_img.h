@@ -28,4 +28,4 @@ void get_codes( vector<string> &results, void *raw_data, int width, int height )
 void read_img( string filename, Magick::Blob &blob, int &width, int &height );
 
 /* captures an image from the webcam */
-void get_cam_img( void *raw_data, int &width, int &height );
+void get_cam_img( void *&raw_data, int &width, int &height );
