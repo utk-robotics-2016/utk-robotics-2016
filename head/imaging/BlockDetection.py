@@ -8,16 +8,17 @@ import cv2
 logger = logging.getLogger(__name__)
 
 class BlockDetection:
-    def __init__(self,live=1):
-        self.live = live
-        if live:
-            logger.info("Connecting to camera")
-            self.camera = cv2.VideoCapture(0)
+    def __init__(self):
+        logger.debug("Block Detection Initializing")
 
-    # Loads the frame from camera for the right side of the loader        
+    # Loads the frame from camera for the right side of the loader
     def grabRightFrame(self, saveImage=True):
+        logger.info("Connecting to camera")
+        self.camera = cv2.VideoCapture(0)
         logger.info("Grabbing right frame")
-        retval, image = self.camera.read()        
+        retval, image = self.camera.read()
+        logger.info("Disconnecting from camera")
+        self.camera.release()
         if saveImage:
             cv2.imwrite("/tmp/%s_right.jpg"%datetime.now(),image)
         rows,cols = image.shape[:2]
@@ -27,13 +28,17 @@ class BlockDetection:
 
     # Loads the frame from camera for the left side of the loader
     def grabLeftFrame(self, saveImage=True):
+        logger.info("Connecting to camera")
+        self.camera = cv2.VideoCapture(0)
         logger.info("Grabbing left frame")
         retval, image = self.camera.read()
+        logger.info("Disconnecting from camera")
+        self.camera.release()
         if saveImage:
-            cv2.imrite("/tmp/%s_left.jpg"%datatime.now(),image)
+            cv2.imwrite("/tmp/%s_left.jpg"%datetime.now(),image)
         rows,cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols/2,rows/2),29,1)
-        image = cv2.warpAffine(image,M,(cols,rows))
+        self.left_frame = cv2.warpAffine(image,M,(cols,rows))
         self.left_hsv, self.left_gray, self.left_laplacian = self.processFrame(self.left_frame)
 
     # Loads the frame from file for the right side of the loader

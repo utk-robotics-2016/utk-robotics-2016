@@ -6,7 +6,7 @@ import math
 class ColorPoint:
     """ Class that stores the color information of a pixel in an image"""
 
-    def __init__(self, point, rgb_image, hsv_image, blur=4):
+    def __init__(self, point, rgb_image, hsv_image, blur=2):
         self.p = point
         count = 0.0
         r = 0.0
@@ -15,10 +15,10 @@ class ColorPoint:
         h = 0.0
         s = 0.0
         v = 0.0
-        for i in range(point[1]-blur*10,point[1]+blur*10+1,40):
+        for i in range(point[1]-blur*10,point[1]+blur*10+1,20):
             if i < 0 or i > hsv_image.shape[0]:
                 continue
-            for j in range(point[0]-blur*10,point[0]+blur*10+1,40):
+            for j in range(point[0]-blur*10,point[0]+blur*10+1,20):
                 if j < 0 or j > hsv_image.shape[1]:
                     continue
                 count = count + 1

@@ -7,6 +7,7 @@ import logging
 
 from head.spine.kinematics import revkin
 from head.spine.Vec3d import Vec3d
+from head.imaging.BlockDetection import BlockDetection
 
 logger = logging.getLogger(__name__)
 
@@ -141,3 +142,11 @@ class Arm(object):
     def park(self, seconds=2):
         self.move_to_abs(PARKED, seconds)
         self.s.detach_arm_servos()
+
+    def detect_blocks(self):
+        bd = BlockDetection()
+        self.move_to(Vec3d(-6, 4, 17), 0.08*3.14, 180)
+        bd.grabLeftFrame()
+        self.move_to(Vec3d(2, 4, 17), 0.08*3.14, 180)
+        bd.grabRightFrame()
+        return bd.getBlocks(display=False)
