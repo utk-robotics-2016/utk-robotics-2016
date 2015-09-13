@@ -16,11 +16,11 @@ with get_spine() as s:
         def __init__(self):
             self.ldr = Loader(s)
             # Determine which course layout
-            if( s.read_switches()['course_mirror'])
+            if s.read_switches()['course_mirror'] == 1:
                 self.course = 'B'
                 # dir_mod stands for direction modifier
                 self.dir_mod = 1;
-            else
+            else:
                 self.course = 'A'
                 self.dir_mod = -1;
 

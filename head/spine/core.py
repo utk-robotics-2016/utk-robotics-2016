@@ -330,11 +330,7 @@ class Spine:
 
         command = 'ira'
         response = self.send('mega', command)
-<<<<<<< HEAD
         return float(response[:-2])
-=======
-        return response[:-2]
->>>>>>> 3489b7a5b9bb41b4c6e2250d6d9723c27a7702e7
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
