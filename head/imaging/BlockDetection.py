@@ -19,7 +19,7 @@ class BlockDetection:
         logger.info("Grabbing right frame")
         retval, image = self.camera.read()        
         if saveImage:
-            cv2.imwrite("tmp/%s_right.jpg"%datetime.now(),image)
+            cv2.imwrite("/tmp/%s_right.jpg"%datetime.now(),image)
         rows,cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols/2,rows/2),-18,1)
         self.right_frame = cv2.warpAffine(image,M,(cols,rows))
@@ -30,7 +30,7 @@ class BlockDetection:
         logger.info("Grabbing left frame")
         retval, image = self.camera.read()
         if saveImage:
-            cv2.imrite("tmp/%s_left.jpg"%datatime.now(),image)
+            cv2.imrite("/tmp/%s_left.jpg"%datatime.now(),image)
         rows,cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols/2,rows/2),29,1)
         image = cv2.warpAffine(image,M,(cols,rows))
