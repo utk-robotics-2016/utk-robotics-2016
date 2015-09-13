@@ -41,7 +41,7 @@ void get_codes( vector<string> &results, void *raw_data, int width, int height )
 /*----------------------------------------------------------------------------
  Captures an image from the webcam - gets raw image data + dimensions
 ----------------------------------------------------------------------------*/
-void get_cam_img( void *raw_data, int &width, int &height )
+void get_cam_img( void *&raw_data, int &width, int &height )
 {
     VideoCapture cam( 0 );  /* OpenCV Video Capture         */
     Mat frame;              /* image captured from webcam   */
@@ -68,7 +68,8 @@ void get_cam_img( void *raw_data, int &width, int &height )
     cvtColor( frame, grayscale, CV_BGR2GRAY );
 
     /* get the raw image data */
-    raw_data = (char *) grayscale.data;
+    raw_data = malloc( sizeof( char ) * grayscale.rows * grayscale.cols );
+    memcpy( raw_data, grayscale.data, sizeof( char ) * grayscale.rows * grayscale.cols );
     cam.release();
 }
 
@@ -96,6 +97,8 @@ int main ( int argc, char **argv )
     {
         printf( "symbol %d - data: %s\n", i, qr_data[ i ].c_str() );
     }
+
+    free( raw_data );
 
     return 0;
 }
