@@ -357,6 +357,7 @@ class Spine:
         :type speed: ``float``
         :param direction:
             Value from -180 to 180 where 0 is straight forward.
+            For reference, -90 is right, and 90 is left.
         :type direction: ``int``
         :param angular:
             Continuous value from -1 to 1 where 0 is no angular rotation at all.

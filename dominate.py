@@ -24,34 +24,49 @@ with get_spine() as s:
                 self.course = 'A'
                 self.dir_mod = -1;
 
-        def move_to_corner(self):
-            logger.info("Moving out from corner")
-            s.move(1, self.dir_mod * -90, 0)
-            time.sleep(0.25)
+        # moves with respect to the course layout
+        def move(self, speed, dir, angle):
+            s.move(speed, self.dir_mod * dir, angle)
 
-            logger.info("Move through tunnel and open flap")
-            s.move(1, self.dir_mod * 10, 0)
-            time.sleep(3)
-            s.move(1, self.dir_mod * 20, 0)
-            # self.ldr.open_flap()
-            time.sleep(2.5)
-            s.move(0.5, self.dir_mod * 20, 0)
-            time.sleep(0.5)
+        def move_to_corner(self):
+            if self.course == 'B':
+                logger.info("Moving out from corner")
+                self.move(1, -90, 0)
+                time.sleep(0.25)
+
+                logger.info("Move through tunnel and open flap")
+                self.move(1, 5, 0)
+                time.sleep(2.5)
+                self.move(1, 0, 0)
+                # self.ldr.open_flap()
+                time.sleep(2.5)
+                self.move(0.5, 20, 0)
+                time.sleep(0.5)
+            else:
+                logger.info("Move straight ahead")
+                self.move(1, 0, 0)
+                time.sleep(6)
 
             logger.info("Align to corner")
-            s.move(1, self.dir_mod * 90, 0)
-            time.sleep(1)
+            self.move(1, 90, 0)
+            time.sleep(.5)
+            self.move(1, 0, 0)
+            time.sleep(.5)
+            self.move(1, 90, 0)
+            time.sleep(.5)
+            self.move(1, 0, 0)
+            time.sleep(.5)
             '''
             logger.info("Moving back for space")
-            s.move(1, 180, 0)
+            self.move(1, 180, 0)
             time.sleep(0.2)
 
             logger.info("Move to front of blocks")
-            s.move(1, -90, 0)
+            self.move(1, -90, 0)
             time.sleep(1.2)
 
             logger.info("Align to wall")
-            s.move(1, 0, 0)
+            self.move(1, 0, 0)
             time.sleep(1)
             '''
 
