@@ -15,23 +15,31 @@ with get_spine() as s:
 
         def __init__(self):
             self.ldr = Loader(s)
+            # Determine which course layout
+            if( s.read_switches()['course_mirror'])
+                self.course = 'B'
+                # dir_mod stands for direction modifier
+                self.dir_mod = 1;
+            else
+                self.course = 'A'
+                self.dir_mod = -1;
 
         def move_to_corner(self):
             logger.info("Moving out from corner")
-            s.move(1, -90, 0)
+            s.move(1, self.dir_mod * -90, 0)
             time.sleep(0.25)
 
             logger.info("Move through tunnel and open flap")
-            s.move(1, 10, 0)
+            s.move(1, self.dir_mod * 10, 0)
             time.sleep(3)
-            s.move(1, 20, 0)
+            s.move(1, self.dir_mod * 20, 0)
             # self.ldr.open_flap()
             time.sleep(2.5)
-            s.move(0.5, 20, 0)
+            s.move(0.5, self.dir_mod * 20, 0)
             time.sleep(0.5)
 
             logger.info("Align to corner")
-            s.move(1, 90, 0)
+            s.move(1, self.dir_mod * 90, 0)
             time.sleep(1)
             '''
             logger.info("Moving back for space")
