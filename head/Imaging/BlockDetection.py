@@ -11,7 +11,7 @@ class BlockDetection:
             self.camera = cv2.VideoCapture(0)
 
     # Loads the frame from camera for the right side of the loader        
-    def grabRightFrame(self,filename):
+    def grabRightFrame(self):
         retval, image = self.camera.read()
         rows,cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols/2,rows/2),-18,1)
