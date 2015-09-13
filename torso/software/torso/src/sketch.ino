@@ -1,5 +1,5 @@
 #include <Servo.h>
-#include "includes/gp2d12_ir.h"
+/*#include "includes/gp2d12_ir.h"*/
 
 // Globals
 int ledState = HIGH;
@@ -34,7 +34,7 @@ void setup() {
     pinMode(LED, OUTPUT);
     
     // Init Sharp GP2D12 IR Rangefinder 
-    init_ir(IR_A);
+    /*init_ir(IR_A);*/
 
     pinMode(SUCTION, OUTPUT);
     pinMode(RELEASE_SUCTION, OUTPUT);
@@ -259,9 +259,9 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'ral'");
         }
     }
-    else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder & return in cm
-        read_ir(IR_A);
-    }
+    /*else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder & return in cm*/
+        /*read_ir(IR_A);*/
+    /*}*/
     else if(args[0].equals(String("rls"))) { // read line sensors
         if(numArgs == 1) {
             String out = "";
