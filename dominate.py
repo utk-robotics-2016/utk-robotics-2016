@@ -19,10 +19,10 @@ with get_spine() as s:
             if s.read_switches()['course_mirror'] == 1:
                 self.course = 'B'
                 # dir_mod stands for direction modifier
-                self.dir_mod = 1;
+                self.dir_mod = 1
             else:
                 self.course = 'A'
-                self.dir_mod = -1;
+                self.dir_mod = -1
 
         # moves with respect to the course layout
         def move(self, speed, dir, angle):
