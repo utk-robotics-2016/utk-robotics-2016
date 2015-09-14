@@ -15,13 +15,13 @@ with get_spine() as s:
 
         def __init__(self):
             self.ldr = Loader(s)
-            
+
             # keep track of what white square we are on
-            self.white_square = 0;
+            self.white_square = 0
 
             # set a threshold for white vs black values from the QTR sensor
             self.qtr_threshold = 800
-            
+
             # Determine which course layout
             if s.read_switches()['course_mirror'] == 1:
                 self.course = 'B'
@@ -109,4 +109,3 @@ with get_spine() as s:
         if bot.white_square < 3:
             bot.move(1, -78, 0)
             time.sleep(3)
-        
