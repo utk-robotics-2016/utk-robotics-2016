@@ -95,5 +95,5 @@ with get_spine() as s:
             logger.info("Done!")
 
     bot = Robot()
-    #bot.start()
+    bot.start()
     bot.strafe_until_white()
