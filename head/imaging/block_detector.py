@@ -50,9 +50,11 @@ class block_detector:
         retval, image = self.camera.read()
         logger.info("Disconnecting from camera")
         self.camera.release()
+        if saveImage:
+            cv2.imwrite("/tmp/%s_left.jpg"%datetime.now(),image)
         rows, cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols / 2,rows / 2), 29, 1)
-        image = cv2.warpAffine(image, M, (cols, rows))
+        self.left_frame = cv2.warpAffine(image, M, (cols, rows))
         self.left_hsv, self.left_gray, self.left_laplacian = self.process_frame(self.left_frame)
 
     # Loads the frame from file for the right side of the loader

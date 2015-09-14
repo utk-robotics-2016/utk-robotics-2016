@@ -143,10 +143,11 @@ class Arm(object):
         self.move_to_abs(PARKED, seconds)
         self.s.detach_arm_servos()
 
-    def detect_blocks(self):
+    def detect_blocks(self, level):
         bd = block_detector()
         self.move_to(Vec3d(-6, 4, 17), 0.08*3.14, 180)
         bd.grab_left_frame()
         self.move_to(Vec3d(2, 4, 17), 0.08*3.14, 180)
         bd.grab_right_frame()
-        return bd.getBlocks(top = True, display=False)
+        istop = level == 'top'
+        return bd.get_blocks(top=istop, display=False)
