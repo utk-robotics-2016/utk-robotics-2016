@@ -15,8 +15,13 @@ with get_spine() as s:
 
         def __init__(self):
             self.ldr = Loader(s)
+            
+            # keep track of what white square we are on
+            self.white_square = 0;
+
             # set a threshold for white vs black values from the QTR sensor
             self.qtr_threshold = 800
+            
             # Determine which course layout
             if s.read_switches()['course_mirror'] == 1:
                 self.course = 'B'
@@ -79,14 +84,15 @@ with get_spine() as s:
 
         def strafe_until_white(self):
             # move until we get to the white line
+            logger.info("Looking for white")
             self.move(1, -78, 0)
             while s.read_line_sensors()['left'] > self.qtr_threshold:
                 # do nothing
-                logger.info("Waiting for the line")
-                logger.info("Sensor is " + str(s.read_line_sensors()['left']));
                 time.sleep(0.01)
 
             # stop after we detect the line
+            logger.info("Found white")
+            self.white_square++
             s.stop()
 
         def start(self):
@@ -95,5 +101,11 @@ with get_spine() as s:
             logger.info("Done!")
 
     bot = Robot()
-    bot.start()
-    bot.strafe_until_white()
+    #bot.start()
+    while bot.white_square < 3:
+        bot.strafe_until_white()
+        logger.info("Found the white square #" + str(bot.white_square))
+        time.sleep(1)
+        bot.move(1, -78, 0)
+        time.sleep(3)
+        
