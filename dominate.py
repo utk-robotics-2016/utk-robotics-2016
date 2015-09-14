@@ -15,6 +15,8 @@ with get_spine() as s:
 
         def __init__(self):
             self.ldr = Loader(s)
+            # set a threshold for white vs black values from the QTR sensor
+            self.qtr_threshold = 800
             # Determine which course layout
             if s.read_switches()['course_mirror'] == 1:
                 self.course = 'B'
@@ -74,6 +76,10 @@ with get_spine() as s:
             # self.ldr.load()
 
             logger.info("Resetting to start state")
+
+        def strafe_until_white(self):
+            while read_line_sensors()['left'] > self.qtr_threshold:
+                self.move(1, -90, 0)
 
         def start(self):
             self.move_to_corner()
