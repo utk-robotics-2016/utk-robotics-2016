@@ -3,14 +3,15 @@
 * README: QR Code Reader Utility                                             *
 ******************************************************************************
 
+This utility reads an image from the webcam and processes it for QR codes.
+
 ------------------------------------------------------------------------------
  Required Libraries
 ------------------------------------------------------------------------------
 This utility requires a few libraries in order to compile.
 
- - ImageMagick with the Magick++ C++ development headers
- - Magic++-config utility in order to generate need compilation flags
  - ZBar library with C++ headers
+ - OpenCV library with C++ headers and Video4Linux support
 
 ------------------------------------------------------------------------------
  Compilation Directions
@@ -20,10 +21,7 @@ Just run the makefile on a Linux machine.
 ------------------------------------------------------------------------------
  Running Instructions
 ------------------------------------------------------------------------------
-./read_img image_file
-
-The QR codes for competition are provided as .png files in the images
-directory. These have been verified to work properly.
+./read_img
 
 Note about OpenCV... Please ensure that you run the following command:
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
