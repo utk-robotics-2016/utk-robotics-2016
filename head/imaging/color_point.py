@@ -40,8 +40,10 @@ class color_point:
     def set_xy(self, new_p):
         self.p = new_p
 
+    '''
     def set_xy(self, new_x, new_y):
         self.p = (new_x, new_y)
+    '''
 
     def get_x(self):
         return self.p[0]
@@ -61,8 +63,10 @@ class color_point:
     def set_hsv(self, new_hsv):
         self.hsv = new_hsv
 
+    '''
     def set_hsv(self, new_h, new_s, new_v):
         self.hsv = (new_h, new_s, new_v)
+    '''
 
     def get_h(self):
         return self.hsv[0]
@@ -88,8 +92,10 @@ class color_point:
     def setRGB(self, new_rgb):
         self.rgb = new_rgb
 
+    '''
     def setRGB(self, newR, newG, newB):
         self.rgb = (newR, newG, newB)
+    '''
 
     def get_r(self):
         return self.rgb[0]
