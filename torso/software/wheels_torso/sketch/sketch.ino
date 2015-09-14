@@ -1,4 +1,6 @@
 #include <Servo.h>
+#include <Wire.h>
+#include <I2CEncoder.h>
 
 // Globals
 int ledState = HIGH;
@@ -22,6 +24,13 @@ const char CH4_PWM = 14;
 const char CH4_DIR = 23;
 const char CH4_CUR = 41;
 
+// For encoders:
+I2CEncoder encoders[4];
+#define REAR_LEFT_ENC 0
+#define REAR_RIGHT_ENC 1
+#define FRONT_RIGHT_ENC 2
+#define FRONT_LEFT_ENC 3
+
 void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
@@ -41,9 +50,24 @@ void setup() {
 
     // Init serial
     Serial.begin(115200);
+    
+    Wire.begin();
+    // From the docs: you must call the init() of each encoder method in the
+    // order that they are chained together. The one plugged into the Arduino
+    // first, then the one plugged into that and so on until the last encoder.
+    encoders[REAR_LEFT_ENC].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+    encoders[REAR_RIGHT_ENC].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+    encoders[FRONT_RIGHT_ENC].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+    encoders[FRONT_LEFT_ENC].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+    // Ideally, moving forward should count as positive rotation.
+    // Make this happen:
+    encoders[REAR_RIGHT_ENC].setReversed(true);
+    encoders[FRONT_RIGHT_ENC].setReversed(true);
 
     // Display ready LED
     digitalWrite(LED,HIGH);
+    
+    
 }
 
 /* The loop is set up in two parts. First the Arduino does the work it needs to
@@ -263,45 +287,44 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'go [1/2/3/4] [speed] [cw/ccw]'");
         }
     }
-    else if(args[0].equals(String("ld"))) {
-        if(numArgs == 4) {
-            int speed = args[2].toInt();
-            boolean inPin1 = LOW;
-            boolean inPin2 = HIGH;
-
-            if(args[3].equals(String("ccw"))) {
-                inPin1 = HIGH;
-                inPin2 = LOW;
-            }
-
-            if(args[1].equals(String("lift"))) {
-                digitalWrite(LIFT_LOAD_IN1, inPin1);
-                digitalWrite(LIFT_LOAD_IN2, inPin2);
-                analogWrite(LIFT_LOAD_PWM, speed);
-                Serial.println("ok");
-            }else if(args[1].equals(String("track"))) {
-                digitalWrite(TRACK_LOAD_IN1, inPin1);
-                digitalWrite(TRACK_LOAD_IN2, inPin2);
-                analogWrite(TRACK_LOAD_PWM, speed);
-                Serial.println("ok");
-            }
+    else if(args[0].equals(String("ep"))) { // encoder position (in rotations)
+        if(numArgs == 1) {
+            String ret = "";
+            ret += encoders[REAR_LEFT_ENC].getPosition();
+            ret += " ";
+            ret += encoders[REAR_RIGHT_ENC].getPosition();
+            ret += " ";
+            ret += encoders[FRONT_RIGHT_ENC].getPosition();
+            ret += " ";
+            ret += encoders[FRONT_LEFT_ENC].getPosition();
+            Serial.println(ret);
         } else {
-            Serial.println("error: usage - 'ld [lift/track] [speed] [cw/ccw]'");
+            Serial.println("error: usage - 'ep'");
         }
     }
-    else if(args[0].equals(String("ls"))) {
-        if(numArgs == 2) {
-            if(args[1].equals(String("lift"))) {
-                digitalWrite(LIFT_LOAD_IN1, LOW);
-                digitalWrite(LIFT_LOAD_IN2, LOW);
-                Serial.println("ok");
-            }else if(args[1].equals(String("track"))) {
-                digitalWrite(TRACK_LOAD_IN1, LOW);
-                digitalWrite(TRACK_LOAD_IN2, LOW);
-                Serial.println("ok");
-            }
+    else if(args[0].equals(String("erp"))) { // encoder raw position (in ticks)
+        if(numArgs == 1) {
+            String ret = "";
+            ret += encoders[REAR_LEFT_ENC].getRawPosition();
+            ret += " ";
+            ret += encoders[REAR_RIGHT_ENC].getRawPosition();
+            ret += " ";
+            ret += encoders[FRONT_RIGHT_ENC].getRawPosition();
+            ret += " ";
+            ret += encoders[FRONT_LEFT_ENC].getRawPosition();
+            Serial.println(ret);
         } else {
-            Serial.println("error: usage - 'ls [lift/track]'");
+            Serial.println("error: usage - 'erp'");
+        }
+    }
+    else if(args[0].equals(String("ez"))) { // encoder zero
+        if(numArgs == 1) {
+            for(int i = 0; i < 4; i++) {
+                encoders[i].zero();
+            }
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'ez'");
         }
     }
     else {
