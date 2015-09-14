@@ -92,7 +92,7 @@ with get_spine() as s:
 
             # stop after we detect the line
             logger.info("Found white")
-            self.white_square++
+            self.white_square = self.white_square + 1
             s.stop()
 
         def start(self):
@@ -101,11 +101,12 @@ with get_spine() as s:
             logger.info("Done!")
 
     bot = Robot()
-    #bot.start()
+    bot.start()
     while bot.white_square < 3:
         bot.strafe_until_white()
         logger.info("Found the white square #" + str(bot.white_square))
         time.sleep(1)
-        bot.move(1, -78, 0)
-        time.sleep(3)
+        if bot.white_square < 3:
+            bot.move(1, -78, 0)
+            time.sleep(3)
         
