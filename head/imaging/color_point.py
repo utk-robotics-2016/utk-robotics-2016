@@ -1,12 +1,13 @@
 #!/usr/bin/env python
-import cv2
-import numpy as np
+# import cv2
+# import numpy as np
 import math
+
 
 class color_point:
     """ Class that stores the color information of a pixel in an image"""
 
-    def __init__(self, point, rgb_image, hsv_image, blur = 2 ):
+    def __init__(self, point, rgb_image, hsv_image, blur=2):
         self.p = point
         count = 0.0
         r = 0.0
@@ -15,10 +16,10 @@ class color_point:
         h = 0.0
         s = 0.0
         v = 0.0
-        for i in range(point[1] - blur * 10, point[1] + blur * 10 + 1, blur*10):
+        for i in range(point[1] - blur * 10, point[1] + blur * 10 + 1, blur * 10):
             if i < 0 or i > hsv_image.shape[0]:
                 continue
-            for j in range(point[0] - blur * 10, point[0] + blur * 10 + 1, blur*10):
+            for j in range(point[0] - blur * 10, point[0] + blur * 10 + 1, blur * 10):
                 if j < 0 or j > hsv_image.shape[1]:
                     continue
                 count = count + 1
@@ -28,26 +29,28 @@ class color_point:
                 h = h + hsv_image[point[1], point[0]][0]
                 s = s + hsv_image[point[1], point[0]][1]
                 v = v + hsv_image[point[1], point[0]][2]
-        self.hsv = (math.floor( h / count ), math.floor( s / count ), math.floor( v / count ))
-        self.rgb = (math.floor( r / count ), math.floor( g / count ), math.floor( b / count ))
+        self.hsv = (math.floor(h / count),
+                    math.floor(s / count), math.floor(v / count))
+        self.rgb = (math.floor(r / count),
+                    math.floor(g / count), math.floor(b / count))
 
     def get_xy(self):
         return self.p
 
-    def set_xy(new_p):
+    def set_xy(self, new_p):
         self.p = new_p
 
-    def set_xy(new_x, new_y):
+    def set_xy(self, new_x, new_y):
         self.p = (new_x, new_y)
 
     def get_x(self):
         return self.p[0]
 
     def set_x(self, new_x):
-       self.p[0] = new_x
+        self.p[0] = new_x
 
     def get_y(self):
-       return self.p[1]
+        return self.p[1]
 
     def set_y(self, new_y):
         self.p = (self.p[0], new_y)
@@ -86,7 +89,7 @@ class color_point:
         self.rgb = new_rgb
 
     def setRGB(self, newR, newG, newB):
-        self.rgb = (newR,newG,newB)
+        self.rgb = (newR, newG, newB)
 
     def get_r(self):
         return self.rgb[0]
@@ -107,16 +110,14 @@ class color_point:
         self.rgb[2] = new_b
 
     def color_distance(self, color1, color2):
-        return math.sqrt(math.pow(color2[0]-color1[0],2)+math.pow(color2[1]-color1[1],2)+math.pow(color2[2]-color1[2],2))
+        return math.sqrt(math.pow(color2[0] - color1[0], 2) + math.pow(color2[1] - color1[1], 2) + math.pow(color2[2] - color1[2], 2))
 
     def get_rgb_color(self):
-        rDistance = self.color_distance(self.rgb,(255,0,0))
-        gDistance = self.color_distance(self.rgb,(0,255,0))
-        bDistance = self.color_distance(self.rgb,(0,0,255))
-        yDistance = self.color_distance(self.rgb,(255,255,0))
+        rDistance = self.color_distance(self.rgb, (255, 0, 0))
+        gDistance = self.color_distance(self.rgb, (0, 255, 0))
+        bDistance = self.color_distance(self.rgb, (0, 0, 255))
+        yDistance = self.color_distance(self.rgb, (255, 255, 0))
 
-
-        
         if rDistance < gDistance and rDistance < bDistance and rDistance < yDistance:
             return 'R'
         elif gDistance < bDistance and gDistance < yDistance:

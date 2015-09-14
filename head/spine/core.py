@@ -320,7 +320,7 @@ class Spine:
         response = response.split(' ')
         return {'right': int(response[0]),
                 'left': int(response[1]),
-                'course_mirror': int(response[2]),}
+                'course_mirror': int(response[2])}
 
     def read_ir_a(self):
         '''Reads Sharp GP2D12 IR Rangefinder mounted between two wheels on the lower chassis

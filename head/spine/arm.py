@@ -82,9 +82,11 @@ def interpolate(f, startargs, endargs, seconds, smoothing):
         elapsed = curr_time - start_time
         fraction = elapsed / seconds
         if smoothing == 'linear':
-            sfunc = lambda x: linear(x)
+            def sfunc(x):
+                return linear(x)
         elif smoothing == 'sigmoid':
-            sfunc = lambda x: sigmoid(0.13, x)
+            def sfunc(x):
+                return sigmoid(0.13, x)
         toadd = [v * sfunc(fraction) for v in difference]
         currargs = map(operator.add, startargs, toadd)
         f(*currargs)
@@ -145,9 +147,9 @@ class Arm(object):
 
     def detect_blocks(self, level):
         bd = block_detector()
-        self.move_to(Vec3d(-6, 4, 17), 0.08*3.14, 180)
+        self.move_to(Vec3d(-6, 4, 17), 0.08 * 3.14, 180)
         bd.grab_left_frame()
-        self.move_to(Vec3d(2, 4, 17), 0.08*3.14, 180)
+        self.move_to(Vec3d(2, 4, 17), 0.08 * 3.14, 180)
         bd.grab_right_frame()
         istop = level == 'top'
         return bd.get_blocks(top=istop, display=False)
