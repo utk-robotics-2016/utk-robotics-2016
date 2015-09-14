@@ -78,8 +78,16 @@ with get_spine() as s:
             logger.info("Resetting to start state")
 
         def strafe_until_white(self):
-            while read_line_sensors()['left'] > self.qtr_threshold:
-                self.move(1, -90, 0)
+            # move until we get to the white line
+            self.move(1, -78, 0)
+            while s.read_line_sensors()['left'] > self.qtr_threshold:
+                # do nothing
+                logger.info("Waiting for the line")
+                logger.info("Sensor is " + str(s.read_line_sensors()['left']));
+                time.sleep(0.01)
+
+            # stop after we detect the line
+            s.stop()
 
         def start(self):
             self.move_to_corner()
@@ -87,4 +95,5 @@ with get_spine() as s:
             logger.info("Done!")
 
     bot = Robot()
-    bot.start()
+    #bot.start()
+    bot.strafe_until_white()
