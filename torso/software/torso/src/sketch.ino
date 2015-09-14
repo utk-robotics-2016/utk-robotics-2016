@@ -33,8 +33,8 @@ const char IR_A = 4; // Analog
 void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
-    
-    // Init Sharp GP2D12 IR Rangefinder 
+
+    // Init Sharp GP2D12 IR Rangefinder
     /*init_ir(IR_A);*/
 
     pinMode(SUCTION, OUTPUT);
