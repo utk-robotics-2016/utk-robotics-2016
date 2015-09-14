@@ -168,83 +168,61 @@ class block_detector:
 
     # marks point on an image
     def mark_point(self, cp, left_blocks):
+        text1 = "x=%d, y=%d" % (cp.get_x(), cp.get_y())
+        text2 = "H=%d, S=%d, V=%d" % (cp.get_h(), cp.get_s(), cp.get_v())
+        if cp.get_hsv_color() == 'R':
+            text3 = "Red"
+        elif cp.get_hsv_color() == 'Y':
+            text3 = "Yellow"
+        elif cp.get_hsv_color() == 'G':
+            text3 = "Green"
+        elif cp.get_hsv_color() == 'B':
+            text3 = "Blue"
+        else:
+            text3 = "Da Fuck...?"
+        text4 = "R=%d, G=%d, B=%d" % (cp.get_r(), cp.get_g(), cp.get_b())
+        if cp.get_rgb_color() == 'R':
+            text5 = "Red"
+        elif cp.get_rgb_color() == 'Y':
+            text5 = "Yellow"
+        elif cp.get_rgb_color() == 'G':
+            text5 = "Green"
+        elif cp.get_rgb_color() == 'B':
+            text5 = "Blue"
+        else:
+            text5 = "Da Fuck...?"
+
         if left_blocks:
             cv2.rectangle(self.left_frame, (cp.get_x() - 20, cp.get_y() - 20),
                           (cp.get_x() + 20, cp.get_y() + 20), (255, 0, 0))
+            cv2.circle(self.left_frame, (cp.get_x(),
+                                         cp.get_y()), 3, (0, 255, 0), 2)
+            cv2.putText(self.left_frame, text1, (cp.get_x() - 60,
+                                                cp.get_y() + 25), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+            cv2.putText(self.left_frame, text2, (cp.get_x() - 60,
+                                                cp.get_y() + 40), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+            cv2.putText(self.left_frame, text3, (cp.get_x() - 60,
+                                                cp.get_y() + 55), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+            cv2.putText(self.left_frame, text4, (cp.get_x() - 60,
+                                                cp.get_y() + 70), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+            cv2.putText(self.left_frame, text5, (cp.get_x() - 60,
+                                                cp.get_y() + 85), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
         else:
             cv2.rectangle(self.right_frame, (cp.get_x() - 20, cp.get_y() - 20),
                           (cp.get_x() + 20, cp.get_y() + 20), (255, 0, 0))
-
-        if left_blocks:
-            cv2.circle(self.left_frame, (cp.get_x(),
-                                         cp.get_y()), 3, (0, 255, 0), 2)
-        else:
             cv2.circle(self.right_frame, (cp.get_x(),
                                           cp.get_y()), 3, (0, 255, 0), 2)
-
-        text = "x=%d, y=%d" % (cp.get_x(), cp.get_y())
-        print text
-        if left_blocks:
-            cv2.putText(self.left_frame, text, (cp.get_x() - 60,
-                                                cp.get_y() + 25), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-        else:
-            cv2.putText(self.right_frame, text, (cp.get_x() - 60,
+            cv2.putText(self.right_frame, text1, (cp.get_x() - 60,
                                                  cp.get_y() + 25), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-
-        text = "H=%d, S=%d, V=%d" % (cp.get_h(), cp.get_s(), cp.get_v())
-        print text
-        if left_blocks:
-            cv2.putText(self.left_frame, text, (cp.get_x() - 60,
-                                                cp.get_y() + 40), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-        else:
-            cv2.putText(self.right_frame, text, (cp.get_x() - 60,
+            cv2.putText(self.right_frame, text2, (cp.get_x() - 60,
                                                  cp.get_y() + 40), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-
-        if cp.get_hsv_color() == 'R':
-            text = "Red"
-        elif cp.get_hsv_color() == 'Y':
-            text = "Yellow"
-        elif cp.get_hsv_color() == 'G':
-            text = "Green"
-        elif cp.get_hsv_color() == 'B':
-            text = "Blue"
-        else:
-            text = "Da Fuck...?"
-        print text
-        if left_blocks:
-            cv2.putText(self.left_frame, text, (cp.get_x() - 60,
-                                                cp.get_y() + 55), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-        else:
-            cv2.putText(self.right_frame, text, (cp.get_x() - 60,
+            cv2.putText(self.right_frame, text3, (cp.get_x() - 60,
                                                  cp.get_y() + 55), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-
-        text = "R=%d, G=%d, B=%d" % (cp.get_r(), cp.get_g(), cp.get_b())
-        print text
-        if left_blocks:
-            cv2.putText(self.left_frame, text, (cp.get_x() - 60,
-                                                cp.get_y() + 70), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-        else:
-            cv2.putText(self.right_frame, text, (cp.get_x() - 60,
+            cv2.putText(self.right_frame, text4, (cp.get_x() - 60,
                                                  cp.get_y() + 70), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-
-        if cp.get_rgb_color() == 'R':
-            text = "Red"
-        elif cp.get_rgb_color() == 'Y':
-            text = "Yellow"
-        elif cp.get_rgb_color() == 'G':
-            text = "Green"
-        elif cp.get_rgb_color() == 'B':
-            text = "Blue"
-        else:
-            text = "Da Fuck...?"
-        print text
-        if left_blocks:
-            cv2.putText(self.left_frame, text, (cp.get_x() - 60,
-                                                cp.get_y() + 85), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-        else:
-            cv2.putText(self.right_frame, text, (cp.get_x() - 60,
+            cv2.putText(self.right_frame, text5, (cp.get_x() - 60,
                                                  cp.get_y() + 85), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-        print '\n'
+
     # Determine the block colors and whether they are a full or half block.
     # This goes from the top left to the bottom right.
 
