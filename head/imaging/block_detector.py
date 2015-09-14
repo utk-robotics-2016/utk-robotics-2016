@@ -198,30 +198,30 @@ class block_detector:
             cv2.circle(self.left_frame, (cp.get_x(),
                                          cp.get_y()), 3, (0, 255, 0), 2)
             cv2.putText(self.left_frame, text1, (cp.get_x() - 60,
-                                                cp.get_y() + 25), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+                                                 cp.get_y() + 25), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
             cv2.putText(self.left_frame, text2, (cp.get_x() - 60,
-                                                cp.get_y() + 40), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+                                                 cp.get_y() + 40), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
             cv2.putText(self.left_frame, text3, (cp.get_x() - 60,
-                                                cp.get_y() + 55), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+                                                 cp.get_y() + 55), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
             cv2.putText(self.left_frame, text4, (cp.get_x() - 60,
-                                                cp.get_y() + 70), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+                                                 cp.get_y() + 70), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
             cv2.putText(self.left_frame, text5, (cp.get_x() - 60,
-                                                cp.get_y() + 85), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+                                                 cp.get_y() + 85), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
         else:
             cv2.rectangle(self.right_frame, (cp.get_x() - 20, cp.get_y() - 20),
                           (cp.get_x() + 20, cp.get_y() + 20), (255, 0, 0))
             cv2.circle(self.right_frame, (cp.get_x(),
                                           cp.get_y()), 3, (0, 255, 0), 2)
             cv2.putText(self.right_frame, text1, (cp.get_x() - 60,
-                                                 cp.get_y() + 25), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+                                                  cp.get_y() + 25), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
             cv2.putText(self.right_frame, text2, (cp.get_x() - 60,
-                                                 cp.get_y() + 40), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+                                                  cp.get_y() + 40), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
             cv2.putText(self.right_frame, text3, (cp.get_x() - 60,
-                                                 cp.get_y() + 55), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+                                                  cp.get_y() + 55), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
             cv2.putText(self.right_frame, text4, (cp.get_x() - 60,
-                                                 cp.get_y() + 70), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+                                                  cp.get_y() + 70), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
             cv2.putText(self.right_frame, text5, (cp.get_x() - 60,
-                                                 cp.get_y() + 85), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+                                                  cp.get_y() + 85), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
 
     # Determine the block colors and whether they are a full or half block.
     # This goes from the top left to the bottom right.
@@ -239,7 +239,8 @@ class block_detector:
             cp_bottom = color_point(
                 points[i * 2 + 1], self.left_frame, self.left_hsv)
             if self.check_half_block(cp_top, cp_bottom, 1):
-                rv = rv + cp_top.get_hsv_color() + "H " + cp_bottom.get_hsv_color() + "H "
+                rv = rv + cp_top.get_hsv_color() + "H " + \
+                    cp_bottom.get_hsv_color() + "H "
                 if display:
                     self.mark_point(cp_top, 1)
                     self.mark_point(cp_bottom, 1)
@@ -256,7 +257,8 @@ class block_detector:
             cp_bottom = color_point(
                 points[i * 2 + 1], self.right_frame, self.right_hsv)
             if self.check_half_block(cp_top, cp_bottom, 0):
-                rv = rv + cp_top.get_hsv_color() + "H " + cp_bottom.get_hsv_color() + "H "
+                rv = rv + cp_top.get_hsv_color() + "H " + \
+                    cp_bottom.get_hsv_color() + "H "
                 if display:
                     self.mark_point(cp_top, 0)
                     self.mark_point(cp_bottom, 0)
