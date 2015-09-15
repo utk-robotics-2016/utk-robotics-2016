@@ -483,7 +483,26 @@ void parse_args(String command)
             Serial.println("error: usage - 'vm [a/m]'");
         }
     }
-    else if(args[0].equals(String("vs"))) // set the desired velocites for the wheels
+    else if(args[0].equals(String("vss"))) // set the desired velocity for a single wheel
+    {
+        if(numArgs == 3)
+        {
+            int pidNum = args[1].toInt();
+            if(pidNum > 0 && pidNum < 5)
+            {
+                setpoint[pidNum] = args[2].toDouble();
+            }
+            else
+            {
+                Serial.println("error: usage - 'vss [1/2/3/4] [velocity]'");
+            }
+        }
+        else
+        {
+            Serial.println("error: usage - 'vss [1/2/3/4] [velocity]'");
+        }
+    }
+    else if(args[0].equals(String("vs"))) // set the desired velocities for the wheels
     {
         if(numArgs == 5)
         {
