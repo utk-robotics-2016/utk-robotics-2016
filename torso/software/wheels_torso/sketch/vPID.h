@@ -14,12 +14,16 @@ class vPID
   #define REVERSE  1
 
   //commonly used functions **************************************************************************
+    vPID();
     vPID(double*, double*, double*,        // * constructor.  links the PID to the Input, Output, and 
         double, double, double, int);     //   Setpoint.  Initial tuning parameters are also set here
+    
+    void init(   // Does all the same stuff as the constructor, but for arrays of PIDs
+        double, double, double, int);
 	
     void SetMode(int Mode);               // * sets PID to either Manual (0) or Auto (non-0)
 
-    bool Compute();                       // * performs the PID calculation.  it should be
+    double Compute(double input, double setpoint);                       // * performs the PID calculation.  it should be
                                           //   called every time loop() cycles. ON/OFF and
                                           //   calculation frequency can be set using SetMode
                                           //   SetSampleTime respectively
