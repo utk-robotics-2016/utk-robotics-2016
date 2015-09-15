@@ -1,13 +1,13 @@
 # Makefile for QR Code utility
 CC = g++
-CFLAGS = -g `Magick++-config --cppflags --cxxflags`
+CFLAGS = -O3
 
 # OpenCV requirements
 OPENCV_LD = -I/usr/local/include/opencv -I/user/local/include/opencv2
-OPENCV_LIBS = -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_stitching -lopencv_imgcodecs -lopencv_videoio
+OPENCV_LIBS = -lopencv_core -lopencv_imgproc -lopencv_videoio
 
-LDFLAGS = `Magick++-config --ldflags` -L/usr/local/lib/ $(OPENCV_LD)
-LIBS = -lzbar `Magick++-config --libs` $(OPENCV_LIBS)
+LDFLAGS = -L/usr/local/lib/ $(OPENCV_LD)
+LIBS = -lzbar $(OPENCV_LIBS)
 EXECTUABLES: read_img
 
 all: $(EXECUTABLES)

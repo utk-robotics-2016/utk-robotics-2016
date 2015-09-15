@@ -7,6 +7,7 @@ import logging
 
 from head.spine.kinematics import revkin
 from head.spine.Vec3d import Vec3d
+from head.imaging.block_detector import block_detector
 
 logger = logging.getLogger(__name__)
 
@@ -81,9 +82,11 @@ def interpolate(f, startargs, endargs, seconds, smoothing):
         elapsed = curr_time - start_time
         fraction = elapsed / seconds
         if smoothing == 'linear':
-            sfunc = lambda x: linear(x)
+            def sfunc(x):
+                return linear(x)
         elif smoothing == 'sigmoid':
-            sfunc = lambda x: sigmoid(0.13, x)
+            def sfunc(x):
+                return sigmoid(0.13, x)
         toadd = [v * sfunc(fraction) for v in difference]
         currargs = map(operator.add, startargs, toadd)
         f(*currargs)
@@ -142,9 +145,11 @@ class Arm(object):
         self.move_to_abs(PARKED, seconds)
         self.s.detach_arm_servos()
 
-
-# to_location(shoulderPos+Vec3d(0,elbowToWrist,shoulderToElbow-wristToCup),0,0)
-# to_location(shoulderPos+Vec3d(0,elbowToWrist+3,shoulderToElbow-wristToCup),0,0)
-# to_location(shoulderPos+Vec3d(3,elbowToWrist,shoulderToElbow-wristToCup),0,0)
-# to_location(shoulderPos+Vec3d(3,elbowToWrist,shoulderToElbow-wristToCup),pi/16,0)
-# to_location(shoulderPos+Vec3d(300,elbowToWrist,shoulderToElbow-wristToCup),0,0)
+    def detect_blocks(self, level):
+        bd = block_detector()
+        self.move_to(Vec3d(-6, 4, 17), 0.08 * 3.14, 180)
+        bd.grab_left_frame()
+        self.move_to(Vec3d(2, 4, 17), 0.08 * 3.14, 180)
+        bd.grab_right_frame()
+        istop = level == 'top'
+        return bd.get_blocks(top=istop, display=False)

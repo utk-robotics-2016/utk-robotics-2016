@@ -57,7 +57,7 @@ class get_spine:
 
     def __exit__(self, type, value, traceback):
         self.s.stop()
-        self.s.detach_loader_servos()
+        # self.s.detach_loader_servos()
         self.s.set_release_suction(False)
         self.s.set_suction(False)
         self.s.close()
@@ -153,7 +153,12 @@ class Spine:
         logger.debug("Sending %s to '%s'" % (repr(command), devname))
         self.ser[devname].write(command + self.delim)
         echo = self.ser[devname].readline()
-        assert echo == '> ' + command + '\r\n'
+        try:
+            assert echo == '> ' + command + '\r\n'
+        except AssertionError:
+            logger.warning('Echo error to %s.' % repr(devname))
+            logger.warning('Actual echo was %s.' % repr(echo))
+            raise
         response = self.ser[devname].readline()
         logger.debug("Response: %s" % repr(response[:-2]))
         # Be sure to chop off newline. We don't need it.
@@ -226,6 +231,7 @@ class Spine:
         assert direction in ['fw', 'rv']
         # Let W1, W2, W3, and W4 be the front left, front right, rear left, and rear right wheels, respectively.
         w_id = [2, 3, 1, 4][w_id - 1]
+        # Now let W1, W2, W3, and W4 be the rear left, front left, front right, rear right wheels, respectively.
         if w_id in [1, 4]:
             if direction == 'fw':
                 direction = 'rv'
@@ -298,16 +304,37 @@ class Spine:
         response = self.send('mega', command)
         return {'0': True, '1': False}[response]
 
+    def read_line_sensors(self):
+        '''Reads the right and the left line sensors mounted on the front.
+
+        :return: Dictionary of line sensor values.
+        '''
+        command = 'rls'
+        response = self.send('mega', command)
+        response = response.split(' ')
+        return {'right': int(response[0]), 'left': int(response[1])}
+
+    def read_switches(self):
+        '''Reads the switches mounted on the robot.
+
+        :return: Dictionary of switch values.
+        '''
+        command = 'rsw'
+        response = self.send('mega', command)
+        response = response.split(' ')
+        return {'right': int(response[0]),
+                'left': int(response[1]),
+                'course_mirror': int(response[2])}
+
     def read_ir_a(self):
         '''Reads Sharp GP2D12 IR Rangefinder mounted between two wheels on the lower chassis
-        
+
         :return: Double for the distance value in centimeters
         '''
 
         command = 'ira'
         response = self.send('mega', command)
         return float(response[:-2])
-        
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
@@ -334,6 +361,7 @@ class Spine:
         :type speed: ``float``
         :param direction:
             Value from -180 to 180 where 0 is straight forward.
+            For reference, -90 is right, and 90 is left.
         :type direction: ``int``
         :param angular:
             Continuous value from -1 to 1 where 0 is no angular rotation at all.
