@@ -18,8 +18,9 @@ BOTTOM_LEVEL_HEIGHT = -1
 BLOCK_WIDTH_IN_CM = 1.5 * 2.54
 # height of the top surface of the top level
 TOP_LEVEL_HEIGHT = BOTTOM_LEVEL_HEIGHT + BLOCK_WIDTH_IN_CM
-RAIL_DROP_XY = (16+5, 0)
-HEIGHT_TO_DROP_RAIL = HEIGHT_TO_CLEAR_LOADER-11
+RAIL_DROP_XY = (16 + 5, 0)
+HEIGHT_TO_DROP_RAIL = HEIGHT_TO_CLEAR_LOADER - 11
+
 
 class BlockPicker:
     def __init__(self, s, arm):
@@ -50,19 +51,19 @@ class BlockPicker:
         else:
             raise ValueError
         self.arm.move_to(Vec3d(lateral, forward,
-                    level_height + 4), 0, 180, SPEED)
+                         level_height + 4), 0, 180, SPEED)
         self.s.set_suction(True)
         self.arm.move_to(Vec3d(lateral, forward,
-                    level_height - 1), 0, 180, SPEED)
+                         level_height - 1), 0, 180, SPEED)
         time.sleep(0.5)
         if col == 7:
             lateral = get_lateral(col - 1)
             logging.info(lateral)
             self.arm.move_to(Vec3d(lateral, forward,
-                        level_height + 4), 0, 180, SPEED)
+                             level_height + 4), 0, 180, SPEED)
             logging.info(lateral)
         self.arm.move_to(Vec3d(lateral, forward,
-                    HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
+                         HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
 
     def drop_block_right(self, **kwargs):
         if kwargs.get('rail', False):
@@ -75,10 +76,10 @@ class BlockPicker:
         else:
             wrist = 0
         self.arm.move_to(Vec3d(RIGHT_DROP_XY[0], RIGHT_DROP_XY[1],
-                    HEIGHT_TO_CLEAR_LOADER), wrist, 180, SPEED)
+                         HEIGHT_TO_CLEAR_LOADER), wrist, 180, SPEED)
         if rail_drop:
             self.arm.move_to(Vec3d(RAIL_DROP_XY[0], RAIL_DROP_XY[1],
-                        HEIGHT_TO_DROP_RAIL), wrist, 180, SPEED)
+                             HEIGHT_TO_DROP_RAIL), wrist, 180, SPEED)
         self.s.set_suction(False)
         self.s.set_release_suction(True)
         time.sleep(0.5)

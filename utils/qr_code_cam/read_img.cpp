@@ -9,28 +9,6 @@
 #include "read_img.h"
 
 /*----------------------------------------------------------------------------
- Reads image data from a file into the raw data with dimensions
-----------------------------------------------------------------------------*/
-void read_img( string filename, Magick::Blob &blob, int &width, int &height )
-{
-    Magick::Image *magick;  /* ImageMagick object */
-
-    /* load the file into an ImageMagick object */
-    magick = new Magick::Image( filename.c_str() );
-
-    /* get image dimensions from ImageMagick */
-    width = magick->columns();
-    height = magick->rows();
-
-    /* convert image to grayscale, 8-bit depth and get raw data */
-    magick->modifyImage();
-    magick->write( &blob, "GRAY", 8 );
-
-    /* enough magick for now */
-    delete magick;
-}
-
-/*----------------------------------------------------------------------------
  Extracts QR code data from an image
 ----------------------------------------------------------------------------*/
 void get_codes( vector<string> &results, void *raw_data, int width, int height )
@@ -69,6 +47,11 @@ void get_cam_img( void *&raw_data, int &width, int &height )
     Mat frame;              /* image captured from webcam   */
     Mat grayscale;          /* image converted to grayscale */
 
+    if( !cam.isOpened() )
+    {
+        error( TRUE, "Cannot open webcam" );
+    }
+
     /* get dimensions */
     width = cam.get( CV_CAP_PROP_FRAME_WIDTH );
     height = cam.get( CV_CAP_PROP_FRAME_HEIGHT );
@@ -86,7 +69,7 @@ void get_cam_img( void *&raw_data, int &width, int &height )
 
     /* get the raw image data */
     raw_data = malloc( sizeof( char ) * grayscale.rows * grayscale.cols );
-    memcpy( raw_data, grayscale.data, sizeof( char ) * grayscale.rows * grayscale.cols);
+    memcpy( raw_data, grayscale.data, sizeof( char ) * grayscale.rows * grayscale.cols );
     cam.release();
 }
 
@@ -96,33 +79,11 @@ int main ( int argc, char **argv )
     int height, width;          /* image dimensions         */
     string param;               /* passed parameter         */
     void *raw_data;             /* raw image data           */
-    Magick::Blob blob;          /* image in blob format     */
     vector <string> qr_data;    /* decoded qr codes         */
 
-    /* Check that a file was passed - provide usage statement if not */
-    if( argc != 2 )
-    {
-        error( TRUE, "Usage: read_img (imagefile | 'webcam')" );
-    }
-
-    /* get command line arg as c++ style string */
-    param = argv[ 1 ];
-
-    /* process the image into the raw data */
-    if( param == "webcam" )
-    {
-        /* obtain the image from the webcam */
-        dbg_msg( "Attempting to get data from webcam using OpenCV" );
-        get_cam_img( raw_data, width, height );
-    }
-    else
-    {
-        /* initalize image magick c++ library and use it to get image data */
-        dbg_msg( "Using ImageMagick to read QR codes from image file %s", param.c_str() );
-        Magick::InitializeMagick( NULL );
-        read_img( param, blob, width, height );
-        raw_data = (void *) blob.data();
-    }
+    /* obtain the image from the webcam */
+    dbg_msg( "Attempting to get data from webcam using OpenCV" );
+    get_cam_img( raw_data, width, height );
 
     /* process the qr codes */
     if( raw_data == NULL )
@@ -137,8 +98,7 @@ int main ( int argc, char **argv )
         printf( "symbol %d - data: %s\n", i, qr_data[ i ].c_str() );
     }
 
-    /* be tidy -- don't leak memory */
-    if( raw_data != NULL && param == "webcam" ) free( raw_data );
+    free( raw_data );
 
     return 0;
 }

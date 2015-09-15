@@ -320,7 +320,7 @@ class Spine:
         response = response.split(' ')
         return {'right': int(response[0]),
                 'left': int(response[1]),
-                'course_mirror': int(response[2]),}
+                'course_mirror': int(response[2])}
 
     def read_ir_a(self):
         '''Reads Sharp GP2D12 IR Rangefinder mounted between two wheels on the lower chassis
@@ -330,7 +330,7 @@ class Spine:
 
         command = 'ira'
         response = self.send('mega', command)
-        return response[:-2]
+        return float(response[:-2])
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
@@ -357,6 +357,7 @@ class Spine:
         :type speed: ``float``
         :param direction:
             Value from -180 to 180 where 0 is straight forward.
+            For reference, -90 is right, and 90 is left.
         :type direction: ``int``
         :param angular:
             Continuous value from -1 to 1 where 0 is no angular rotation at all.

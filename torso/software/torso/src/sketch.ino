@@ -33,8 +33,8 @@ const char IR_A = 4; // Analog
 void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
-    
-    // Init Sharp GP2D12 IR Rangefinder 
+
+    // Init Sharp GP2D12 IR Rangefinder
     /*init_ir(IR_A);*/
 
     pinMode(SUCTION, OUTPUT);
@@ -261,8 +261,11 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'ral'");
         }
     }
-    /*else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder & return in cm*/
-        /*read_ir(IR_A);*/
+    /*else if(args[0].equals(String("irac"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (CLOSE RANGE, i.e. <=17cm)*/
+        /*read_ir(IR_A,0xFF);*/
+    /*}*/
+    /*else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (Not Close Range, i.e. >17cm)*/
+        /*read_ir(IR_A,0x00);*/
     /*}*/
     else if(args[0].equals(String("rls"))) { // read line sensors
         if(numArgs == 1) {
