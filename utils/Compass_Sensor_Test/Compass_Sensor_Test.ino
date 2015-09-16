@@ -85,7 +85,7 @@ void loop(){
   //lcd.print("  z: ");
   //lcd.println(z);
   lcd.print("Rng:");
-  lcd.print(read_ir(A1));
+  lcd.print(read_ir(A1,0x00));
 
 
   delay(250);

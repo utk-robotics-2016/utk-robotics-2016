@@ -34,9 +34,6 @@ void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
 
-    // Init Sharp GP2D12 IR Rangefinder
-    /*init_ir(IR_A);*/
-
     pinMode(SUCTION, OUTPUT);
     pinMode(RELEASE_SUCTION, OUTPUT);
     pinMode(ARM_LIMIT, INPUT);
@@ -53,6 +50,9 @@ void setup() {
     // Initialize suction values
     digitalWrite(SUCTION,LOW);
     digitalWrite(RELEASE_SUCTION,LOW);
+    
+    // Init Sharp GP2D12 IR Rangefinder
+    init_ir(IR_A);
 }
 
 /* The loop is set up in two parts. First the Arduino does the work it needs to
@@ -261,12 +261,15 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'ral'");
         }
     }
-    /*else if(args[0].equals(String("irac"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (CLOSE RANGE, i.e. <=17cm)*/
-        /*read_ir(IR_A,0xFF);*/
-    /*}*/
-    /*else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (Not Close Range, i.e. >17cm)*/
-        /*read_ir(IR_A,0x00);*/
-    /*}*/
+    else if(args[0].equals(String("irac"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (CLOSE RANGE, i.e. <=17cm)
+        Serial.println(read_ir(IR_A,0xFF));
+    }
+    else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (Not Close Range, i.e. >17cm)
+        Serial.println(read_ir(IR_A,0x00));
+    }
+    else if(args[0].equals(String("irar"))) { // read Sharp GP2D12 IR Rangefinder RAW ADC
+        Serial.println(read_ir_raw(IR_A));
+    }   
     else if(args[0].equals(String("rls"))) { // read line sensors
         if(numArgs == 1) {
             String out = "";

@@ -23,16 +23,34 @@ void init_ir(byte ir_analog_pin) {
     analogReference(DEFAULT);
     analogRead(ir_analog_pin);
     
-    Serial.println("ok");
+    //Serial.println("ok");
     
     return;
+}
+
+int read_ir_raw(byte ir_analog_pin) { //Read raw IR
+    int tmp = 0;
+    
+    analogRead(ir_analog_pin); //Throw out junk data
+    
+    delay(5);
+    
+    tmp += analogRead(ir_analog_pin); delay(2); tmp += analogRead(ir_analog_pin); delay(2); tmp += analogRead(ir_analog_pin);
+    
+    tmp = tmp/3;
+    
+    return tmp;
 }
 
 double read_ir(byte ir_analog_pin, char close_range) {  // "Close Range!?!" -Central Officer Bradford
     int tmp = 0;
     double adc_volts = 0.0;
     
-    tmp += analogRead(ir_analog_pin); tmp += analogRead(ir_analog_pin); tmp += analogRead(ir_analog_pin);
+    analogRead(ir_analog_pin); //Throw out junk data
+    
+    delay(5);
+    
+    tmp += analogRead(ir_analog_pin); delay(2); tmp += analogRead(ir_analog_pin); delay(2); tmp += analogRead(ir_analog_pin);
     adc_volts = (tmp / 3) * 0.00488;    //  Average the readings and bump up to proper voltage values (5V / 1024)
     
     //Serial.print("IR Read Volt:"); Serial.print(adc_volts); Serial.print(" Dist(cm): ");
@@ -57,7 +75,7 @@ double read_ir(byte ir_analog_pin, char close_range) {  // "Close Range!?!" -Cen
         prev_dist = (-11.07*log(adc_volts)+1.344);
     }
     
-    Serial.println(prev_dist);
+    //Serial.println(prev_dist);
     
     return prev_dist;
 }
