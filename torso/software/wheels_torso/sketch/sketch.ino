@@ -28,10 +28,10 @@ const char CH4_CUR = 41;
 
 // For encoders:
 I2CEncoder encoders[4];
-#define REAR_LEFT_ENC 0
-#define REAR_RIGHT_ENC 1
-#define FRONT_RIGHT_ENC 2
-#define FRONT_LEFT_ENC 3
+#define REAR_RIGHT_ENC 0
+#define REAR_LEFT_ENC 1
+#define FRONT_LEFT_ENC 2
+#define FRONT_RIGHT_ENC 3
 
 double lastPositions[4];
 unsigned long lastTimes[4];
@@ -68,14 +68,14 @@ void setup()
   // From the docs: you must call the init() of each encoder method in the
   // order that they are chained together. The one plugged into the Arduino
   // first, then the one plugged into that and so on until the last encoder.
-  encoders[REAR_LEFT_ENC].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
   encoders[REAR_RIGHT_ENC].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
-  encoders[FRONT_RIGHT_ENC].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+  encoders[REAR_LEFT_ENC].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
   encoders[FRONT_LEFT_ENC].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+  encoders[FRONT_RIGHT_ENC].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
   // Ideally, moving forward should count as positive rotation.
   // Make this happen:
-  encoders[REAR_RIGHT_ENC].setReversed(true);
-  encoders[FRONT_RIGHT_ENC].setReversed(true);
+  encoders[REAR_LEFT_ENC].setReversed(true);
+  encoders[FRONT_LEFT_ENC].setReversed(true);
   unsigned int now = millis();
   for (int i = 0; i < 4; i++)
   {
@@ -127,7 +127,7 @@ void loop()
   // Accept and parse serial input
   checkInput();
   loopNum++;
-  if (loopNum % 10 == 0)
+  if (loopNum % 4 == 0)
   {
     updateSpeeds();
     updatePID();
@@ -604,7 +604,7 @@ void updatePID()
       outputs[i] = pids[i].Compute(inputs[i], setpoints[i]);
     }
 
-    //Serial.print("Input: ");Serial.print(inputs[REAR_LEFT_ENC]);Serial.print(" Setpoint: ");Serial.print(setpoints[REAR_LEFT_ENC]);Serial.print(" Output: ");Serial.println(outputs[REAR_LEFT_ENC]);
+    Serial.print("Input: ");Serial.print(inputs[REAR_LEFT_ENC]);Serial.print(" Setpoint: ");Serial.print(setpoints[REAR_LEFT_ENC]);Serial.print(" Output: ");Serial.println(outputs[REAR_LEFT_ENC]);
     if ( outputs[REAR_LEFT_ENC] >= 0)
     {
       digitalWrite(CH1_DIR, HIGH);
