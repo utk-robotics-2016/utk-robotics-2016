@@ -28,7 +28,8 @@ const char LEFT_LINE_SENSOR = 3; // Analog
 const char RIGHT_LIMIT_SWITCH = 32;
 const char LEFT_LIMIT_SWITCH = 33;
 const char COURSE_MIRROR_LIMIT_SWITCH = 45;
-const char IR_A = 4; // Analog
+const char IR_A = A12; // Analog
+const char IR_B = A13; // Analog
 
 void setup() {
     // Init LED pin
@@ -53,6 +54,7 @@ void setup() {
     
     // Init Sharp GP2D12 IR Rangefinder
     init_ir(IR_A);
+    init_ir(IR_B);
 }
 
 /* The loop is set up in two parts. First the Arduino does the work it needs to
@@ -262,13 +264,13 @@ void parseAndExecuteCommand(String command) {
         }
     }
     else if(args[0].equals(String("irac"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (CLOSE RANGE, i.e. <=17cm)
-        Serial.println(read_ir(IR_A,0xFF));
+        Serial.println(read_ir(IR_A,0xFF)); Serial.print(" "); Serial.println(read_ir(IR_B,0xFF));
     }
     else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (Not Close Range, i.e. >17cm)
-        Serial.println(read_ir(IR_A,0x00));
+        Serial.println(read_ir(IR_A,0x00)); Serial.print(" "); Serial.println(read_ir(IR_B,0x00));
     }
     else if(args[0].equals(String("irar"))) { // read Sharp GP2D12 IR Rangefinder RAW ADC
-        Serial.println(read_ir_raw(IR_A));
+        Serial.print(read_ir_raw(IR_A)); Serial.print(" "); Serial.println(read_ir_raw(IR_B));
     }   
     else if(args[0].equals(String("rls"))) { // read line sensors
         if(numArgs == 1) {

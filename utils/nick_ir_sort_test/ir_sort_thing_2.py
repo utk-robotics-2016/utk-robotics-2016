@@ -35,7 +35,15 @@ with get_spine() as s:
                         # To account for mecanum drift
                         cur_move_time = time.time()
                         while (cur_move_time - time.time() < 2):
-                            if(read_ir_a_raw() < 12.0):
+                            ir_raw = read_ir_a_raw()
+                            ir_raw = ir_raw.split()
+                            # Determine which course layout
+                            if s.read_switches()['course_mirror'] == 1:
+                                course_layout = 0
+                            else:
+                                course_layout = 1
+
+                            if(int(ir_raw(course_layout)) < 12):
                                 s.move(0.6, 170, -0.15)
                             else:
                                 s.move_for(2, 0.6, -180, -0.09)
