@@ -1,7 +1,3 @@
-/*
-
- */
-
 #ifndef I2CEncoder_h
 #define I2CEncoder_h
 
@@ -11,8 +7,7 @@
 // Registers for important data
 #define I2CENCODER_ADDRESS_REGISTER 0x4D
 #define I2CENCODER_POSITION_REGISTER 0x40
-#define I@I2CENCODER_SIGNED_VELOCITY_REGISTER 0x3E
-#define I2CENCODER_UNSIGNED_VELOCITY_REGISTER 0x44
+#define I2CENCODER_VELOCITY_REGISTER 0x44
 #define I2CENCODER_ZERO_REGISTER 0x4A
 #define I2CENCODER_UNTERMINATE_REGISTER 0x4B
 #define I2CENCODER_TERMINATE_REGISTER 0x4C
@@ -71,9 +66,7 @@ class I2CEncoder
   void init(double rotation_factor, double time_delta, int ticks);
   void setReversed(bool is_reversed);
   double getSpeed();
-  double getVelocity();
-  unsigned int getUnsignedVelocityBits();
-  int getSignedVelocityBits();
+  unsigned int getVelocityBits();
   double getPosition();
   long getRawPosition();
   void zero();

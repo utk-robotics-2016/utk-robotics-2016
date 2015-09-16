@@ -12,7 +12,11 @@
   #include "WProgram.h"
 #endif
 
-#include <vPID.h>
+#include "vPID.h"
+
+vPID::vPID()
+{
+}
 
 /*Constructor (...)*********************************************************
  *    The parameters specified here are those for for which we can't set up 
@@ -35,9 +39,25 @@
     vPID::SetControllerDirection(ControllerDirection);
     vPID::SetTunings(Kp, Ki, Kd);
 
+    lastOutput = 0.0;
     lastTime = millis()-SampleTime;				
   }
 
+  void vPID::init(double Kp, double Ki, double Kd, int ControllerDirection)
+ {
+    inAuto = false;
+    vPID::SetOutputLimits(0, 255);				//default output limit corresponds to 
+								//the arduino pwm limits
+
+    SampleTime = 100;						//default Controller Sample Time is 0.1 seconds
+
+    vPID::SetControllerDirection(ControllerDirection);
+    vPID::SetTunings(Kp, Ki, Kd);
+
+    lastOutput = 0.0;
+    lastTime = millis()-SampleTime;				
+  }
+  
 
 /* Compute() **********************************************************************
  *     This, as they say, is where the magic happens.  this function should be called
@@ -45,7 +65,7 @@
  *   pid Output needs to be computed.  returns true when the output is computed,
  *   false when nothing has been done.
  **********************************************************************************/ 
- bool vPID::Compute()
+ double vPID::Compute(double input, double setpoint)
  {
    if(!inAuto) return false;
    unsigned long now = millis();
@@ -53,27 +73,25 @@
    if(timeChange>=SampleTime)
    {
       /*Compute all the working error variables*/
-     double input = *myInput;
-     double error = *mySetpoint - input;
+     double error = setpoint - input;
      ITerm+= (ki * error);
      if(ITerm > outMax) ITerm= outMax;
      else if(ITerm < outMin) ITerm= outMin;
      double dInput = (input - lastInput);
 
       /*Compute PID Output*/
-     double output = lastOutput + kp * error + ITerm- kd * dInput;
+     double output = lastOutput + kp * error + ITerm - kd * dInput;
 
      if(output > outMax) output = outMax;
      else if(output < outMin) output = outMin;
-     *myOutput = output;
 
       /*Remember some variables for next time*/
      lastInput = input;
      lastTime = now;
      lastOutput = output;
-     return true;
+     return output;
    }
-   else return false;
+   else return lastOutput;
  }
 
 

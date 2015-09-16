@@ -60,21 +60,12 @@ void I2CEncoder::setReversed(bool is_reversed) {
 }
 
 /**
- * Returns the velocity of the encoder rotation per minute for the output
- * shaft of the motor.
- */
-double I2CEncoder::getVelocity(){
-  int vb = getSignedVelocityBits();
-  return rotation_factor / (double(vb) * time_delta);
-}
-
-/**
  * Returns the speed of the encoder rotation per minute for the output
  * shaft of the motor. (Assumes 269)
  */
 double I2CEncoder::getSpeed() {
   // TODO: Check sanity of the values
-  unsigned int vb = getUnsignedVelocityBits();
+  unsigned int vb = getVelocityBits();
   if (vb >= maxZeroSpeed) return 0;
   return rotation_factor / (double(vb) * time_delta);
 }
@@ -84,8 +75,8 @@ double I2CEncoder::getSpeed() {
  * ticks in multiples of 64 microseconds/tick. Stopped is 0xFFFF or 4
  * seconds. (Assumes 269)
  */
-unsigned int I2CEncoder::getUnsignedVelocityBits() {
-  accessRegister(I2CENCODER_UNSIGNED_VELOCITY_REGISTER);
+unsigned int I2CEncoder::getVelocityBits() {
+  accessRegister(I2CENCODER_VELOCITY_REGISTER);
   Wire.requestFrom(address, 2);
 
   unsigned int speed = 0;
@@ -93,20 +84,6 @@ unsigned int I2CEncoder::getUnsignedVelocityBits() {
   speed |= Wire.read();
   return speed;
 }
-
-/**
- * Returns the signed velocity bits.
- */
- int I2CEncoder::getSignedVelocityBits(){
-    accessRegister(I2CENCODER_SIGNED_VELOCITY_REGISTER);
-    Wire.requestFrom(address, 2);
-
-    int velocity = 0;
-    speed |= Wire.read << 8;
-    speed |= Wire.read();
-    return velocity;
- }
-
 
 /**
  * Returns the position in rotations since power on or last reset.
