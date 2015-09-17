@@ -70,6 +70,11 @@ void setup() {
     // Make this happen:
     encoders[REAR_RIGHT_ENC].setReversed(true);
     encoders[FRONT_RIGHT_ENC].setReversed(true);
+    encoders[REAR_LEFT_ENC].zero();
+    encoders[REAR_RIGHT_ENC].zero();
+    encoders[FRONT_RIGHT_ENC].zero();
+    encoders[FRONT_LEFT_ENC].zero();
+    
     Input = 0.0;
     Setpoint = 0.0;
     Output = 0.0;
@@ -368,6 +373,25 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'vss [1/2/3/4] [velocity]'");
         }
     }
+    else if(args[0].equals(String("vp"))){
+        if(numArgs == 5)
+        {
+          int pidNum = args[1].toInt()-1;
+          if(pidNum < 4 && pidNum > -1)
+          {
+              pid.SetTunings(toDouble(args[2]),toDouble(args[3]),toDouble(args[4]));
+              Serial.println("ok");
+          }
+          else
+          {
+              Serial.println("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'");
+          }
+        }
+        else
+        {
+          Serial.println("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'");
+        }
+    }    
     else if(args[0].equals(String("i"))){
         Serial.print("Input: ");Serial.println(Input,2);
     }

@@ -22,8 +22,11 @@ bool vPID::Compute()
    if(timeChange>=SampleTime)
    {
       /*Compute all the working error variables*/
-	  double input = *myInput;
-      double error = *mySetpoint - input;
+      double input = *myInput;
+      double setpoint = *mySetpoint;
+      if(setpoint == 0) 
+        lastOutput = 0;
+      double error = setpoint - input;
       ITerm+= (ki * error);
       // Modified from the original
       // Caps the Integral Term to prevent windup and lagging
