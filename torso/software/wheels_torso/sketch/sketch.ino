@@ -1,6 +1,8 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <I2CEncoder.h>
+#include <PID.h>
+#include "vPID.h"
 
 // Globals
 int ledState = HIGH;
@@ -11,16 +13,16 @@ int numArgs = 0;
 
 // Pin definitions
 const char LED = 6;
-const char CH1_PWM = 24;
+const char CH1_PWM = 24;  // Rear Left
 const char CH1_DIR = 20;
 const char CH1_CUR = 38;
-const char CH2_PWM = 25;
+const char CH2_PWM = 25;  // 
 const char CH2_DIR = 21;
 const char CH2_CUR = 39;
-const char CH3_PWM = 26;
+const char CH3_PWM = 26;  //
 const char CH3_DIR = 22;
 const char CH3_CUR = 40;
-const char CH4_PWM = 14;
+const char CH4_PWM = 14;  //
 const char CH4_DIR = 23;
 const char CH4_CUR = 41;
 
@@ -30,6 +32,11 @@ I2CEncoder encoders[4];
 #define REAR_RIGHT_ENC 1
 #define FRONT_RIGHT_ENC 2
 #define FRONT_LEFT_ENC 3
+
+// vPIDs:
+double lastPosition;
+double Input, Setpoint, Output;
+vPID pid(&Input, &Output, &Setpoint, .1,0,0, DIRECT);
 
 void setup() {
     // Init LED pin
@@ -63,11 +70,12 @@ void setup() {
     // Make this happen:
     encoders[REAR_RIGHT_ENC].setReversed(true);
     encoders[FRONT_RIGHT_ENC].setReversed(true);
-
+    Input = 0.0;
+    Setpoint = 0.0;
+    Output = 0.0;
+    pid.SetMode(AUTOMATIC);
     // Display ready LED
     digitalWrite(LED,HIGH);
-    
-    
 }
 
 /* The loop is set up in two parts. First the Arduino does the work it needs to
@@ -75,10 +83,9 @@ void setup() {
  * any input from the serial connection.
  */
 void loop() {
-    int inbyte;
-
     // Accept and parse serial input
     checkInput();
+    updatePID();
 }
 
 void parse_args(String command) {
@@ -317,6 +324,21 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'erp'");
         }
     }
+    else if(args[0].equals(String("es"))) { // encoder speed (in ticks per minute)
+        if(numArgs == 1) {
+            String ret = "";
+            ret += encoders[REAR_LEFT_ENC].getSpeed();
+            ret += " ";
+            ret += encoders[REAR_RIGHT_ENC].getSpeed();
+            ret += " ";
+            ret += encoders[FRONT_RIGHT_ENC].getSpeed();
+            ret += " ";
+            ret += encoders[FRONT_LEFT_ENC].getSpeed();
+            Serial.println(ret);
+        } else {
+            Serial.println("error: usage - 'erp'");
+        }
+    }
     else if(args[0].equals(String("ez"))) { // encoder zero
         if(numArgs == 1) {
             for(int i = 0; i < 4; i++) {
@@ -327,8 +349,61 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'ez'");
         }
     }
+    else if(args[0].equals(String("vss"))){
+        if(numArgs == 3)
+        {
+            int pidNum = args[1].toInt()-1;
+            if(pidNum < 4 && pidNum > -1)
+            {
+                Setpoint = toDouble(args[2]);
+                Serial.println("ok");
+            }
+            else
+            {
+                Serial.println("error: usage - 'vss [1/2/3/4] [velocity]'");
+            }
+        }
+        else
+        {
+            Serial.println("error: usage - 'vss [1/2/3/4] [velocity]'");
+        }
+    }
+    else if(args[0].equals(String("i"))){
+        Serial.print("Input: ");Serial.println(Input,2);
+    }
+    else if(args[0].equals(String("s"))){
+        Serial.print("Setpoint: ");Serial.println(Setpoint,2);
+    }
+    else if(args[0].equals(String("o"))){
+        Serial.print("Output: ");Serial.println(Output,2);
+    }
     else {
         // Unrecognized command
         Serial.println("error: unrecognized command");
     }
+}
+
+double toDouble(String s)
+{
+    char buf[s.length()+1];
+    s.toCharArray(buf,s.length()+1);
+    return atof(buf);
+}
+
+void updatePID()
+{
+    double position = encoders[REAR_LEFT_ENC].getPosition();
+    Input = encoders[REAR_LEFT_ENC].getSpeed();
+    if(position-lastPosition < 0) Input *= -1;
+    pid.Compute();
+    if(Output < 0)
+    {
+        analogWrite(CH1_PWM, -1*Output);
+        digitalWrite(CH1_DIR, LOW);
+    }
+    else{
+        analogWrite(CH1_PWM, Output);
+        digitalWrite(CH1_DIR, HIGH);
+    }
+    lastPosition = position;
 }

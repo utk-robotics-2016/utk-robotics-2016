@@ -5,7 +5,7 @@
 
 
 vPID::vPID(double* input, double* setpoint, double* output, double p, double i, double d, int ControllerDirection)
-	:(input, setpoint, output, p, i, d, ControllerDirection)
+   :PID(input, setpoint, output, p , i, d, ControllerDirection)
 	{
 		
 		SetOutputLimits(-255,255);
@@ -34,10 +34,10 @@ bool vPID::Compute()
       /*Compute PID Output*/
       double output = lastOutput + kp * error + ITerm- kd * dInput;
       
-	  if(output > outMax) output = outMax;
+      if(output > outMax) output = outMax;
       else if(output < outMin) output = outMin;
-	  *myOutput = output;
-	  
+      *myOutput = output;
+      
       /*Remember some variables for next time*/
       lastInput = input;
       lastTime = now;
@@ -45,5 +45,4 @@ bool vPID::Compute()
 	  return true;
    }
    else return false;
-
 }
