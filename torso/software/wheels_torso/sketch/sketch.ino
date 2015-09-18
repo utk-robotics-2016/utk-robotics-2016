@@ -16,13 +16,13 @@ const char LED = 6;
 const char CH1_PWM = 24;  // Rear Left
 const char CH1_DIR = 20;
 const char CH1_CUR = 38;
-const char CH2_PWM = 25;  // 
+const char CH2_PWM = 25;  // Front Left
 const char CH2_DIR = 21;
 const char CH2_CUR = 39;
-const char CH3_PWM = 26;  //
+const char CH3_PWM = 26;  // Front Right
 const char CH3_DIR = 22;
 const char CH3_CUR = 40;
-const char CH4_PWM = 14;  //
+const char CH4_PWM = 14;  // Rear Right
 const char CH4_DIR = 23;
 const char CH4_CUR = 41;
 
@@ -34,9 +34,13 @@ I2CEncoder encoders[4];
 #define FRONT_LEFT_ENC 3
 
 // vPIDs:
-double lastPosition;
-double Input, Setpoint, Output;
-vPID pid(&Input, &Output, &Setpoint, .1,0,0, DIRECT);
+double lastPositions[4];
+double Inputs[4], Setpoints[4], Outputs[4];
+vPID pidRL(&Inputs[REAR_LEFT_ENC], &Outputs[REAR_LEFT_ENC], &Setpoints[REAR_LEFT_ENC], .1,0,0, DIRECT);
+vPID pidRR(&Inputs[REAR_RIGHT_ENC], &Outputs[REAR_RIGHT_ENC], &Setpoints[REAR_RIGHT_ENC], .1,0,0, DIRECT);
+vPID pidFR(&Inputs[FRONT_RIGHT_ENC], &Outputs[FRONT_RIGHT_ENC], &Setpoints[FRONT_RIGHT_ENC], .1,0,0, DIRECT);
+vPID pidFL(&Inputs[FRONT_LEFT_ENC], &Outputs[FRONT_LEFT_ENC], &Setpoints[FRONT_LEFT_ENC], .1,0,0, DIRECT);
+vPID pids[4] = {pidRL, pidRR, pidFR, pidFL};
 
 void setup() {
     // Init LED pin
@@ -74,11 +78,14 @@ void setup() {
     encoders[REAR_RIGHT_ENC].zero();
     encoders[FRONT_RIGHT_ENC].zero();
     encoders[FRONT_LEFT_ENC].zero();
-    
-    Input = 0.0;
-    Setpoint = 0.0;
-    Output = 0.0;
-    pid.SetMode(AUTOMATIC);
+    for(int i = 0; i < 4; i++)
+    {
+      Inputs[i] = 0.0;
+      Setpoints[i] = 0.0;
+      Outputs[i] = 0.0;
+      lastPositions[i] = 0.0;
+      pids[i].SetMode(AUTOMATIC);
+    }
     // Display ready LED
     digitalWrite(LED,HIGH);
 }
@@ -184,6 +191,10 @@ void parseAndExecuteCommand(String command) {
     }
     else if(args[0].equals(String("ma"))) { //move laterally left
         if(numArgs == 1) {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(AUTOMATIC);
+            }
             digitalWrite(CH2_DIR,HIGH);
             analogWrite(CH2_PWM,128);
             digitalWrite(CH3_DIR,LOW);
@@ -204,6 +215,10 @@ void parseAndExecuteCommand(String command) {
     }
     else if(args[0].equals(String("md"))) { //move laterally right
         if(numArgs == 1) {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(AUTOMATIC);
+            }
             digitalWrite(CH2_DIR,LOW);
             analogWrite(CH2_PWM,128);
             digitalWrite(CH3_DIR,HIGH);
@@ -224,6 +239,10 @@ void parseAndExecuteCommand(String command) {
     }
     else if(args[0].equals(String("mw"))) { //move laterally forward
         if(numArgs == 1) {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(AUTOMATIC);
+            }
             digitalWrite(CH2_DIR,LOW);
             analogWrite(CH2_PWM,128);
             digitalWrite(CH3_DIR,LOW);
@@ -244,6 +263,10 @@ void parseAndExecuteCommand(String command) {
     } 
     else if(args[0].equals(String("ms"))) { //move laterally backward
         if(numArgs == 1) {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(AUTOMATIC);
+            }
             digitalWrite(CH2_DIR,HIGH);
             analogWrite(CH2_PWM,128);
             digitalWrite(CH3_DIR,HIGH);
@@ -271,6 +294,11 @@ void parseAndExecuteCommand(String command) {
     }
     else if(args[0].equals(String("go"))) {
         if(numArgs == 4) {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(MANUAL);
+            }
+
             int speed = args[2].toInt();
 
             boolean dir = LOW;
@@ -345,7 +373,8 @@ void parseAndExecuteCommand(String command) {
         }
     }
     else if(args[0].equals(String("ez"))) { // encoder zero
-        if(numArgs == 1) {
+        if(numArgs == 1) 
+        {
             for(int i = 0; i < 4; i++) {
                 encoders[i].zero();
             }
@@ -354,13 +383,14 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'ez'");
         }
     }
-    else if(args[0].equals(String("vss"))){
+    else if(args[0].equals(String("vss"))){ // Set the setpoint for a specific velocity PID
         if(numArgs == 3)
         {
             int pidNum = args[1].toInt()-1;
             if(pidNum < 4 && pidNum > -1)
             {
-                Setpoint = toDouble(args[2]);
+                pids[pidNum].SetMode(AUTOMATIC);
+                Setpoints[pidNum] = toDouble(args[2]);
                 Serial.println("ok");
             }
             else
@@ -373,13 +403,30 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'vss [1/2/3/4] [velocity]'");
         }
     }
-    else if(args[0].equals(String("vp"))){
+    else if(args[0].equals(String("vs"))){ // Set all the setpoints for the velocity PIDs
+        if(numArgs == 5)
+        {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(AUTOMATIC);
+            }
+            Setpoints[REAR_LEFT_ENC] = toDouble(args[1]);
+            Setpoints[REAR_RIGHT_ENC] = toDouble(args[2]);
+            Setpoints[FRONT_RIGHT_ENC] = toDouble(args[3]);
+            Setpoints[FRONT_LEFT_ENC] = toDouble(args[4]);
+        }
+        else
+        {
+            Serial.println("error: usage - 'vs [velocity1] [velocity2] [velocity3] [velocity4]'");
+        }
+    }
+    else if(args[0].equals(String("vp"))){ // Modify the pid constants
         if(numArgs == 5)
         {
           int pidNum = args[1].toInt()-1;
           if(pidNum < 4 && pidNum > -1)
           {
-              pid.SetTunings(toDouble(args[2]),toDouble(args[3]),toDouble(args[4]));
+              pids[pidNum].SetTunings(toDouble(args[2]),toDouble(args[3]),toDouble(args[4]));
               Serial.println("ok");
           }
           else
@@ -393,13 +440,64 @@ void parseAndExecuteCommand(String command) {
         }
     }    
     else if(args[0].equals(String("i"))){
-        Serial.print("Input: ");Serial.println(Input,2);
+            String ret = "";
+            ret += Inputs[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Inputs[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Inputs[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Inputs[FRONT_LEFT_ENC];
+            Serial.println(ret);
     }
     else if(args[0].equals(String("s"))){
-        Serial.print("Setpoint: ");Serial.println(Setpoint,2);
+            String ret = "";
+            ret += Setpoints[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Setpoints[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Setpoints[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Setpoints[FRONT_LEFT_ENC];
+            Serial.println(ret);
     }
     else if(args[0].equals(String("o"))){
-        Serial.print("Output: ");Serial.println(Output,2);
+            String ret = "";
+            ret += Outputs[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Outputs[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Outputs[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Outputs[FRONT_LEFT_ENC];
+            Serial.println(ret);
+    }
+    else if(args[0].equals(String("p"))){
+        String ret = "";
+            ret += Inputs[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Inputs[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Inputs[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Inputs[FRONT_LEFT_ENC];
+            ret += " ";
+            et += Setpoints[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Setpoints[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Setpoints[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Setpoints[FRONT_LEFT_ENC];
+            ret += " ";
+            ret += Outputs[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Outputs[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Outputs[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Outputs[FRONT_LEFT_ENC];
+            Serial.println(ret);
     }
     else {
         // Unrecognized command
@@ -416,18 +514,37 @@ double toDouble(String s)
 
 void updatePID()
 {
-    double position = encoders[REAR_LEFT_ENC].getPosition();
-    Input = encoders[REAR_LEFT_ENC].getSpeed();
-    if(position-lastPosition < 0) Input *= -1;
-    pid.Compute();
-    if(Output < 0)
+    bool updated[4];
+    for(int i = 0; i < 4; i++)
     {
-        analogWrite(CH1_PWM, -1*Output);
-        digitalWrite(CH1_DIR, LOW);
+      double position = encoders[i].getPosition();
+      Inputs[i] = encoders[i].getSpeed();
+      if(position-lastPositions[i] < 0) Inputs[i] *= -1;
+      updated[i] = pids[i].Compute();
+      lastPositions[i] = position;
     }
-    else{
-        analogWrite(CH1_PWM, Output);
-        digitalWrite(CH1_DIR, HIGH);
+    
+    if(updated[REAR_LEFT_ENC])
+    {
+        analogWrite(CH1_PWM, abs(Outputs[REAR_LEFT_ENC]));
+        digitalWrite(CH1_DIR, Outputs[REAR_LEFT_ENC] > 0);
     }
-    lastPosition = position;
+
+    if(updated[REAR_RIGHT_ENC])
+    {
+        analogWrite(CH4_PWM, abs(Outputs[REAR_RIGHT_ENC]));
+        digitalWrite(CH4_DIR, Outputs[REAR_RIGHT_ENC] > 0);
+    }
+    
+    if(updated[FRONT_RIGHT_ENC])
+    {
+        analogWrite(CH3_PWM, abs(Outputs[FRONT_RIGHT_ENC]));
+        digitalWrite(CH3_DIR, Outputs[FRONT_RIGHT_ENC] < 0);
+    }
+    
+    if(updated[FRONT_LEFT_ENC])
+    {
+        analogWrite(CH2_PWM, abs(Outputs[FRONT_LEFT_ENC]));
+        digitalWrite(CH2_DIR, Outputs[FRONT_LEFT_ENC] < 0);
+    }
 }
