@@ -482,7 +482,7 @@ void parseAndExecuteCommand(String command) {
             ret += " ";
             ret += Inputs[FRONT_LEFT_ENC];
             ret += " ";
-            et += Setpoints[REAR_LEFT_ENC];
+            ret += Setpoints[REAR_LEFT_ENC];
             ret += " ";
             ret += Setpoints[REAR_RIGHT_ENC];
             ret += " ";
