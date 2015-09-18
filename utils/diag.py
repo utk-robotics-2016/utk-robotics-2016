@@ -72,7 +72,7 @@ with get_spine() as s:
         def limit_switches():
             starttime = time.time()
             while (time.time() - starttime) < 7:
-                print s.read_limit_switches(), s.read_arm_limit()
+                print s.read_switches(), s.read_arm_limit()
         test(limit_switches, "Did the limit switches appear to work?")
 
         def vacuum():
