@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
+import time
 import random
 from subprocess import Popen, PIPE
 
-pin = random.randint(0, 9999)
+pin = random.randint(0, 99999)
 wsServer = Popen(['wsServer', '9002'], stdout=PIPE, stdin=PIPE)
 
-print "Pin Code: %04d" % (pin,)
+print "Pin Code: %05d" % (pin,)
 user = None
 
 while user is None:
@@ -21,6 +22,8 @@ while user is None:
         user = tmpUser
         wsServer.stdin.write("Pin Verified\n")
         print "Pin Verified"
+    else:
+        time.sleep(3)
 
 open = True
 wsServer.stdin.write("You have control\n")
