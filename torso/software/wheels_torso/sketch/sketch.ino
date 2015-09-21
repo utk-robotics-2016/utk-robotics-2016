@@ -439,7 +439,7 @@ void parseAndExecuteCommand(String command) {
           Serial.println("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'");
         }
     }    
-    else if(args[0].equals(String("i"))){
+    else if(args[0].equals(String("i"))){ // Display Inputs
             String ret = "";
             ret += Inputs[REAR_LEFT_ENC];
             ret += " ";
@@ -450,7 +450,7 @@ void parseAndExecuteCommand(String command) {
             ret += Inputs[FRONT_LEFT_ENC];
             Serial.println(ret);
     }
-    else if(args[0].equals(String("s"))){
+    else if(args[0].equals(String("s"))){ // Display Setpoints
             String ret = "";
             ret += Setpoints[REAR_LEFT_ENC];
             ret += " ";
@@ -461,7 +461,7 @@ void parseAndExecuteCommand(String command) {
             ret += Setpoints[FRONT_LEFT_ENC];
             Serial.println(ret);
     }
-    else if(args[0].equals(String("o"))){
+    else if(args[0].equals(String("o"))){ // Display Outputs
             String ret = "";
             ret += Outputs[REAR_LEFT_ENC];
             ret += " ";
@@ -472,7 +472,7 @@ void parseAndExecuteCommand(String command) {
             ret += Outputs[FRONT_LEFT_ENC];
             Serial.println(ret);
     }
-    else if(args[0].equals(String("p"))){
+    else if(args[0].equals(String("p"))){ // Display Inputs, Setpoints, and Outputs
         String ret = "";
             ret += Inputs[REAR_LEFT_ENC];
             ret += " ";
