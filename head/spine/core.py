@@ -569,7 +569,6 @@ class Spine:
 
     def writeWs(self, obj):
         self.wsServer.stdin.write(json.dumps(obj) + "\n")
-        logger.debug("Wrote: " + json.dumps(obj))
 
     def write_battery_voltage(self):
         self.writeWs({"type": "Battery", "val": voltage.get_battery_voltage()})

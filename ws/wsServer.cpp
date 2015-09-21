@@ -32,6 +32,9 @@ int callback_robot_protocol(struct libwebsocket_context *context,
         case LWS_CALLBACK_ESTABLISHED:
             clients.emplace_back(wsi);
             break;
+        case LWS_CALLBACK_RECEIVE:
+            printf("%d:%s\n", wsi, (char*)in);
+            fflush(stdout);
         case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
         case LWS_CALLBACK_CLOSED:
             clients.erase(std::remove(clients.begin(), clients.end(), wsi), clients.end());
