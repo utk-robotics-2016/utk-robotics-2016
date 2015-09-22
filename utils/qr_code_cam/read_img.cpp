@@ -17,7 +17,9 @@ void get_codes( vector<string> &results, void *raw_data, int width, int height )
     zbar::Image *image;         /* Zbar image object            */
 
     /* configure the Zbar scanner */
-    scanner.set_config( zbar::ZBAR_NONE, zbar::ZBAR_CFG_ENABLE, 1 );
+    scanner.set_config( zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_ENABLE, 1 );
+    scanner.set_config( zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_X_DENSITY, 8 );
+    scanner.set_config( zbar::ZBAR_QRCODE, zbar::ZBAR_CFG_Y_DENSITY, 8 );
 
     /* drop image data into Zbar image object */
     image = new zbar::Image( width, height, "Y800", raw_data, width * height );
@@ -95,7 +97,7 @@ int main ( int argc, char **argv )
     /* output all of the recognized codes */
     for( i = 0; i < qr_data.size(); i++ )
     {
-        printf( "symbol %d - data: %s\n", i, qr_data[ i ].c_str() );
+        printf( "%s\n", qr_data[ i ].c_str() );
     }
 
     free( raw_data );

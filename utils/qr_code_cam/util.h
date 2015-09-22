@@ -23,7 +23,7 @@ using namespace std;
 /*----------------------------------------------------------------------------
  Debugging flag - enable by setting to TRUE - enables debugging output
 ----------------------------------------------------------------------------*/
-#define DEBUG TRUE
+#define DEBUG FALSE
 
 /*----------------------------------------------------------------------------
  Utility procedures
