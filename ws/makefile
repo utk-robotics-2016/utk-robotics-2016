@@ -1,5 +1,5 @@
-OBJS := server.o
-EXEC := server
+OBJS := wsServer.o
+EXEC := wsServer
 CXX := g++
 TYPE := cpp
 CPPFLAGS := 
