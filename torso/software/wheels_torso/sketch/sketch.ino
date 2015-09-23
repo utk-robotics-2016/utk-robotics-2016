@@ -193,7 +193,7 @@ void parseAndExecuteCommand(String command) {
         if(numArgs == 1) {
             for(int i = 0; i < 4; i++)
             {
-                pids[i].SetMode(AUTOMATIC);
+                pids[i].SetMode(MANUAL);
             }
             digitalWrite(CH2_DIR,HIGH);
             analogWrite(CH2_PWM,128);
@@ -217,7 +217,7 @@ void parseAndExecuteCommand(String command) {
         if(numArgs == 1) {
             for(int i = 0; i < 4; i++)
             {
-                pids[i].SetMode(AUTOMATIC);
+                pids[i].SetMode(MANUAL);
             }
             digitalWrite(CH2_DIR,LOW);
             analogWrite(CH2_PWM,128);
@@ -241,7 +241,7 @@ void parseAndExecuteCommand(String command) {
         if(numArgs == 1) {
             for(int i = 0; i < 4; i++)
             {
-                pids[i].SetMode(AUTOMATIC);
+                pids[i].SetMode(MANUAL);
             }
             digitalWrite(CH2_DIR,LOW);
             analogWrite(CH2_PWM,128);
@@ -265,7 +265,7 @@ void parseAndExecuteCommand(String command) {
         if(numArgs == 1) {
             for(int i = 0; i < 4; i++)
             {
-                pids[i].SetMode(AUTOMATIC);
+                pids[i].SetMode(MANUAL);
             }
             digitalWrite(CH2_DIR,HIGH);
             analogWrite(CH2_PWM,128);
@@ -357,7 +357,7 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'erp'");
         }
     }
-    else if(args[0].equals(String("es"))) { // encoder speed (in ticks per minute)
+    else if(args[0].equals(String("es"))) { // encoder speed (in revolutions per minute)
         if(numArgs == 1) {
             String ret = "";
             ret += encoders[REAR_LEFT_ENC].getSpeed();
@@ -369,7 +369,7 @@ void parseAndExecuteCommand(String command) {
             ret += encoders[FRONT_LEFT_ENC].getSpeed();
             Serial.println(ret);
         } else {
-            Serial.println("error: usage - 'erp'");
+            Serial.println("error: usage - 'es'");
         }
     }
     else if(args[0].equals(String("ez"))) { // encoder zero
