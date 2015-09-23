@@ -414,6 +414,7 @@ void parseAndExecuteCommand(String command) {
             Setpoints[REAR_RIGHT_ENC] = toDouble(args[2]);
             Setpoints[FRONT_RIGHT_ENC] = toDouble(args[3]);
             Setpoints[FRONT_LEFT_ENC] = toDouble(args[4]);
+            Serial.println("ok");
         }
         else
         {
