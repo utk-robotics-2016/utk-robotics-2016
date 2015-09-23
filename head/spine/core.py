@@ -1,6 +1,7 @@
 # Global
 import time
 import os
+import signal
 import logging
 
 # Third-party
@@ -19,6 +20,20 @@ DEF_PORTS = {
     # 'loadmega': '/dev/loadmega', # Currently not on robot
 }
 
+class DelayedKeyboardInterrupt(object):
+    def __enter__(self):
+        self.signal_received = False
+        self.old_handler = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, self.handler)
+
+    def handler(self, signal, frame):
+        self.signal_received = (signal, frame)
+        logging.info('SIGINT received. Delaying KeyboardInterrupt.')
+
+    def __exit__(self, type, value, traceback):
+        signal.signal(signal.SIGINT, self.old_handler)
+        if self.signal_received:
+            self.old_handler(*self.signal_received)
 
 class SerialLockException(Exception):
     '''Raised when attempting to access a locked serial device.
@@ -53,6 +68,12 @@ class get_spine:
         return self.s
 
     def __exit__(self, type, value, traceback):
+        for i in range(2):
+            for devname, port in self.s.ports.iteritems():
+                self.s.ser[devname].flushOutput()
+                self.s.ser[devname].flushInput()
+            time.sleep(0.1)
+
         self.s.stop()
         # self.s.detach_loader_servos()
         self.s.set_release_suction(False)
@@ -147,15 +168,16 @@ class Spine:
         :return: The string response of the command, without the newline.
         '''
         logger.debug("Sending %s to '%s'" % (repr(command), devname))
-        self.ser[devname].write(command + self.delim)
-        echo = self.ser[devname].readline()
+        with DelayedKeyboardInterrupt():
+            self.ser[devname].write(command + self.delim)
+            echo = self.ser[devname].readline()
+            response = self.ser[devname].readline()
         try:
             assert echo == '> ' + command + '\r\n'
         except AssertionError:
             logger.warning('Echo error to %s.' % repr(devname))
             logger.warning('Actual echo was %s.' % repr(echo))
             raise
-        response = self.ser[devname].readline()
         logger.debug("Response: %s" % repr(response[:-2]))
         # Be sure to chop off newline. We don't need it.
         return response[:-2]
