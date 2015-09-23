@@ -7,7 +7,7 @@ Textfield[] PField = new Textfield[4];
 Textfield[] IField = new Textfield[4];
 Textfield[] DField = new Textfield[4];
 Textfield[] SField = new Textfield[4];
-
+Textfield SAllField;
 
 float[] Setpoint = new float[4];
 float[] Input = new float[4];
@@ -123,7 +123,29 @@ void setup()
      .setPosition(oLeft+450,oTop+oHeight+20+20*i)
      .setSize(75,16)
      ;
+     
+     
   }
+  
+  cp5.addTextlabel("Setpoint_label")
+      .setPosition(oLeft+555,oTop+oHeight+74)
+      .setColor(0)
+      .setValue("Setpoint: ");
+  
+  SAllField = cp5.addTextfield("Setpoint")
+     .setPosition(oLeft+600,oTop+oHeight+70)
+     .setSize(45,16)
+     .setColorBackground(color(255,255,255))
+     .setColor(0)
+     .setValue("0");
+     ;
+  
+  cp5.addButton("Set_All_Setpoint")
+     .setValue(2)
+     .setPosition(oLeft+650,oTop+oHeight+70)
+     .setSize(80,16)
+     ;
+  
      nextRefresh = millis();
 }
 
@@ -304,6 +326,16 @@ void Set_Setpoint4()
 {
   if(isNumeric(SField[3].getText()))
     myPort.write("vss 4 "+SField[3].getText()+"\n");
+}
+
+void Set_All_Setpoint()
+{
+  if(isNumeric(SAllField.getText()))
+  {
+    for(int i = 0; i < 4; i++)
+      SField[i].setValue(SAllField.getText());
+    myPort.write("vs "+SAllField.getText()+" "+SAllField.getText()+" "+SAllField.getText()+" "+SAllField.getText()+"\n");
+  }
 }
 
 void serialEvent(Serial myPort)
