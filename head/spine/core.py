@@ -20,6 +20,7 @@ DEF_PORTS = {
     # 'loadmega': '/dev/loadmega', # Currently not on robot
 }
 
+
 class DelayedKeyboardInterrupt(object):
     def __enter__(self):
         self.signal_received = False
@@ -34,6 +35,7 @@ class DelayedKeyboardInterrupt(object):
         signal.signal(signal.SIGINT, self.old_handler)
         if self.signal_received:
             self.old_handler(*self.signal_received)
+
 
 class SerialLockException(Exception):
     '''Raised when attempting to access a locked serial device.
@@ -582,6 +584,43 @@ class Spine:
         command = 'mos ' + str(m_id)
         response = self.send('loadmega', command)
         assert response == 'ok'
+
+    def set_pid_params(self, pid_id, kp, ki, kd):
+        assert pid_id in range(4)
+        command = 'vp %d %.4f %.4f %.4f' % (pid_id, kp, ki, kd)
+        response = self.send('teensy', command)
+        assert response == 'ok'
+
+    def move_pid(self, speed, direction, angular):
+        '''Set the robot to move using the mecanum wheels and PID velocity
+        control.
+
+        :param speed:
+            Continuous value from 0 to 1 where 0 is stopped and 1 is full
+            speed.
+        :type speed: ``float``
+        :param direction:
+            Value from -180 to 180 where 0 is straight forward.
+            For reference, -90 is right, and 90 is left.
+        :type direction: ``int``
+        :param angular:
+            Continuous value from -1 to 1 where 0 is no angular rotation at all.
+            If 0, the robot's heading will not change while moving.
+        :type angular: ``float``
+        '''
+
+        assert 0 <= speed <= 1
+        assert -180 <= direction <= 180
+        assert -1 <= angular <= 1
+        wheels = mecanum.move(speed, direction, angular)
+        logging.info(wheels)
+
+    def get_encoder_velocities(self):
+        command = 'ev'
+        response = self.send('teensy', command)
+        response = response.split(' ')
+        response = [float(i) for i in response]
+        return response
 
     def startup(self):
         '''Ping Arduino boards and briefly flash their LEDs.
