@@ -271,6 +271,6 @@ class block_detector:
                     cp_top.set_y((cp_top.get_y() + cp_bottom.get_y()) / 2)
                     self.mark_point(cp_top, 0)
 
-        self.s.writeWs({"type":"Blocks","val":rv})
+        self.s.writeWs({"type": "Blocks", "val": rv})
         logger.info("Block Array: %s" % rv)
         return rv
