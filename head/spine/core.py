@@ -222,7 +222,7 @@ class Spine:
             The arguments following `delay` will be passed directly to the
             :func:`move` function.
         '''
-        self.move(*args)
+        self.move_pid(*args)
         time.sleep(delay)
         self.stop()
 
@@ -586,6 +586,11 @@ class Spine:
         assert response == 'ok'
 
     def set_pid_params(self, pid_id, kp, ki, kd):
+        ''' Modify the PID constants for each wheel.
+
+        Note that the PID IDs may not necessarily coincide with the wheel IDs.
+        '''
+
         assert pid_id in range(4)
         command = 'vp %d %.4f %.4f %.4f' % (pid_id, kp, ki, kd)
         response = self.send('teensy', command)
@@ -613,14 +618,20 @@ class Spine:
         assert -180 <= direction <= 180
         assert -1 <= angular <= 1
         wheels = mecanum.move(speed, direction, angular)
-        logging.info(wheels)
-
-    def get_encoder_velocities(self):
-        command = 'ev'
+        sw = []
+        for speed, direction in wheels:
+            scaled = speed * (100./255.)
+            if direction == 'fw':
+                sw.append(scaled)
+            else:
+                sw.append(-1*scaled)
+        logging.info(sw)
+        mapped_wheels = [sw[0],sw[2],sw[3],sw[1]]
+        logging.info(mapped_wheels)
+        command = 'vs %f %f %f %f' % tuple(mapped_wheels)
+        logging.info(command)
         response = self.send('teensy', command)
-        response = response.split(' ')
-        response = [float(i) for i in response]
-        return response
+        assert response == 'ok'
 
     def startup(self):
         '''Ping Arduino boards and briefly flash their LEDs.
