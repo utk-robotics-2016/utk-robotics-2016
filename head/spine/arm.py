@@ -106,6 +106,11 @@ class get_arm:
         return self.arm
 
     def __exit__(self, type, value, traceback):
+        for i in range(2):
+            for devname, port in self.s.ports.iteritems():
+                self.s.ser[devname].flushOutput()
+                self.s.ser[devname].flushInput()
+            time.sleep(0.1)
         self.arm.park()
 
 

@@ -1,6 +1,9 @@
 #include <Servo.h>
 /*#include "includes/gp2d12_ir.h"*/
 
+#define STR1(x)  #x
+#define STR(x)  STR1(x)
+
 // Globals
 int ledState = HIGH;
 // Command parsing
@@ -289,6 +292,21 @@ void parseAndExecuteCommand(String command) {
             Serial.println(out);
         } else {
             Serial.println("error: usage - 'rsw'");
+        }
+    }
+    else if(args[0].equals(String("ver"))) { // version information
+        if(numArgs == 1) {
+            String out = "Source last modified: ";
+            out += __TIMESTAMP__;
+            out += "\r\nPreprocessor timestamp: " __DATE__ " " __TIME__;
+            out += "\r\nSource code line number: ";
+            out += __LINE__;
+            out += "\r\nUsername: " STR(__USER__);
+            out += "\r\nDirectory: " STR(__DIR__);
+            out += "\r\nGit hash: " STR(__GIT_HASH__);
+            Serial.println(out);
+        } else {
+            Serial.println("error: usage - 'ver'");
         }
     }
     else {
