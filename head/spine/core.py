@@ -626,13 +626,13 @@ class Spine:
         wheels = mecanum.move(speed, direction, angular)
         sw = []
         for speed, direction in wheels:
-            scaled = speed * (100./255.)
+            scaled = speed * (100. / 255.)
             if direction == 'fw':
                 sw.append(scaled)
             else:
-                sw.append(-1*scaled)
+                sw.append(-1 * scaled)
         logging.info(sw)
-        mapped_wheels = [sw[0],sw[2],sw[3],sw[1]]
+        mapped_wheels = [sw[0], sw[2], sw[3], sw[1]]
         logging.info(mapped_wheels)
         command = 'vs %f %f %f %f' % tuple(mapped_wheels)
         logging.info(command)
