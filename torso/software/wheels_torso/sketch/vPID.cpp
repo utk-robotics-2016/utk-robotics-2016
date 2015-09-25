@@ -14,6 +14,19 @@ vPID::vPID(double* input, double* setpoint, double* output, double p, double i, 
 		SampleTime = 10;
 	}
 
+void vPID::SetMode(int Mode)
+{
+    bool newAuto = (Mode == AUTOMATIC);
+    if(newAuto == !inAuto)
+    {  /*we just went from manual to auto*/
+        *mySetpoint = 0.0;
+        *myOutput = 0.0;
+        PID::Initialize();
+    }
+
+    inAuto = newAuto;
+}
+
 bool vPID::Compute()
 {
    if(!inAuto) return false;

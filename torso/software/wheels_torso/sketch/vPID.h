@@ -7,6 +7,7 @@ class vPID : public PID
 {
 public:
 	vPID(double*, double*, double*, double, double, double, int);
+	void SetMode(int Mode);
 	bool Compute();
 private:
 	double lastOutput;
