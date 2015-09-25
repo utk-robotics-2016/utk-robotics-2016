@@ -30,7 +30,7 @@ const char RIGHT_LINE_SENSOR = 2; // Analog
 const char LEFT_LINE_SENSOR = 3; // Analog
 const char RIGHT_LIMIT_SWITCH = 32;
 const char LEFT_LIMIT_SWITCH = 33;
-const char COURSE_MIRROR_LIMIT_SWITCH = 45;
+const char COURSE_MIRROR_LIMIT_SWITCH = 44;
 const char IR_A = 4; // Analog
 
 void setup() {

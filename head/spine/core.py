@@ -591,12 +591,6 @@ class Spine:
         response = self.send('loadmega', command)
         assert response == 'ok'
 
-    def writeWs(self, obj):
-        self.wsServer.stdin.write(json.dumps(obj) + "\n")
-
-    def write_battery_voltage(self):
-        self.writeWs({"type": "Battery", "val": voltage.get_battery_voltage()})
-
     def set_pid_params(self, pid_id, kp, ki, kd):
         ''' Modify the PID constants for each wheel.
 
@@ -632,18 +626,24 @@ class Spine:
         wheels = mecanum.move(speed, direction, angular)
         sw = []
         for speed, direction in wheels:
-            scaled = speed * (100./255.)
+            scaled = speed * (100. / 255.)
             if direction == 'fw':
                 sw.append(scaled)
             else:
-                sw.append(-1*scaled)
+                sw.append(-1 * scaled)
         logging.info(sw)
-        mapped_wheels = [sw[0],sw[2],sw[3],sw[1]]
+        mapped_wheels = [sw[0], sw[2], sw[3], sw[1]]
         logging.info(mapped_wheels)
         command = 'vs %f %f %f %f' % tuple(mapped_wheels)
         logging.info(command)
         response = self.send('teensy', command)
         assert response == 'ok'
+
+    def writeWs(self, obj):
+        self.wsServer.stdin.write(json.dumps(obj) + "\n")
+
+    def write_battery_voltage(self):
+        self.writeWs({"type": "Battery", "val": voltage.get_battery_voltage()})
 
     def startup(self):
         '''Ping Arduino boards and briefly flash their LEDs.
@@ -688,5 +688,5 @@ class Spine:
             if self.use_lock:
                 os.remove(lockfn)
                 logger.info('Removed lock at %s.' % lockfn)
-        if hasattr(self,'wsServer'):
+        if hasattr(self, 'wsServer'):
             self.wsServer.terminate()
