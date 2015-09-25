@@ -1,6 +1,8 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <I2CEncoder.h>
+#include <PID.h>
+#include "vPID.h"
 
 // Globals
 int ledState = HIGH;
@@ -11,16 +13,16 @@ int numArgs = 0;
 
 // Pin definitions
 const char LED = 6;
-const char CH1_PWM = 24;
+const char CH1_PWM = 24;  // Rear Left
 const char CH1_DIR = 20;
 const char CH1_CUR = 38;
-const char CH2_PWM = 25;
+const char CH2_PWM = 25;  // Front Left
 const char CH2_DIR = 21;
 const char CH2_CUR = 39;
-const char CH3_PWM = 26;
+const char CH3_PWM = 26;  // Front Right
 const char CH3_DIR = 22;
 const char CH3_CUR = 40;
-const char CH4_PWM = 14;
+const char CH4_PWM = 14;  // Rear Right
 const char CH4_DIR = 23;
 const char CH4_CUR = 41;
 
@@ -30,6 +32,15 @@ I2CEncoder encoders[4];
 #define REAR_RIGHT_ENC 1
 #define FRONT_RIGHT_ENC 2
 #define FRONT_LEFT_ENC 3
+
+// vPIDs:
+double lastPositions[4];
+double Inputs[4], Setpoints[4], Outputs[4];
+vPID pidRL(&Inputs[REAR_LEFT_ENC], &Outputs[REAR_LEFT_ENC], &Setpoints[REAR_LEFT_ENC], .1,0,0, DIRECT);
+vPID pidRR(&Inputs[REAR_RIGHT_ENC], &Outputs[REAR_RIGHT_ENC], &Setpoints[REAR_RIGHT_ENC], .1,0,0, DIRECT);
+vPID pidFR(&Inputs[FRONT_RIGHT_ENC], &Outputs[FRONT_RIGHT_ENC], &Setpoints[FRONT_RIGHT_ENC], .1,0,0, DIRECT);
+vPID pidFL(&Inputs[FRONT_LEFT_ENC], &Outputs[FRONT_LEFT_ENC], &Setpoints[FRONT_LEFT_ENC], .1,0,0, DIRECT);
+vPID pids[4] = {pidRL, pidRR, pidFR, pidFL};
 
 void setup() {
     // Init LED pin
@@ -63,11 +74,20 @@ void setup() {
     // Make this happen:
     encoders[REAR_RIGHT_ENC].setReversed(true);
     encoders[FRONT_RIGHT_ENC].setReversed(true);
-
+    encoders[REAR_LEFT_ENC].zero();
+    encoders[REAR_RIGHT_ENC].zero();
+    encoders[FRONT_RIGHT_ENC].zero();
+    encoders[FRONT_LEFT_ENC].zero();
+    for(int i = 0; i < 4; i++)
+    {
+      Inputs[i] = 0.0;
+      Setpoints[i] = 0.0;
+      Outputs[i] = 0.0;
+      lastPositions[i] = 0.0;
+      pids[i].SetMode(AUTOMATIC);
+    }
     // Display ready LED
     digitalWrite(LED,HIGH);
-    
-    
 }
 
 /* The loop is set up in two parts. First the Arduino does the work it needs to
@@ -75,10 +95,9 @@ void setup() {
  * any input from the serial connection.
  */
 void loop() {
-    int inbyte;
-
     // Accept and parse serial input
     checkInput();
+    updatePID();
 }
 
 void parse_args(String command) {
@@ -172,6 +191,10 @@ void parseAndExecuteCommand(String command) {
     }
     else if(args[0].equals(String("ma"))) { //move laterally left
         if(numArgs == 1) {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(MANUAL);
+            }
             digitalWrite(CH2_DIR,HIGH);
             analogWrite(CH2_PWM,128);
             digitalWrite(CH3_DIR,LOW);
@@ -192,6 +215,10 @@ void parseAndExecuteCommand(String command) {
     }
     else if(args[0].equals(String("md"))) { //move laterally right
         if(numArgs == 1) {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(MANUAL);
+            }
             digitalWrite(CH2_DIR,LOW);
             analogWrite(CH2_PWM,128);
             digitalWrite(CH3_DIR,HIGH);
@@ -212,6 +239,10 @@ void parseAndExecuteCommand(String command) {
     }
     else if(args[0].equals(String("mw"))) { //move laterally forward
         if(numArgs == 1) {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(MANUAL);
+            }
             digitalWrite(CH2_DIR,LOW);
             analogWrite(CH2_PWM,128);
             digitalWrite(CH3_DIR,LOW);
@@ -232,6 +263,10 @@ void parseAndExecuteCommand(String command) {
     } 
     else if(args[0].equals(String("ms"))) { //move laterally backward
         if(numArgs == 1) {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(MANUAL);
+            }
             digitalWrite(CH2_DIR,HIGH);
             analogWrite(CH2_PWM,128);
             digitalWrite(CH3_DIR,HIGH);
@@ -259,6 +294,11 @@ void parseAndExecuteCommand(String command) {
     }
     else if(args[0].equals(String("go"))) {
         if(numArgs == 4) {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(MANUAL);
+            }
+
             int speed = args[2].toInt();
 
             boolean dir = LOW;
@@ -317,8 +357,24 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'erp'");
         }
     }
-    else if(args[0].equals(String("ez"))) { // encoder zero
+    else if(args[0].equals(String("es"))) { // encoder speed (in revolutions per minute)
         if(numArgs == 1) {
+            String ret = "";
+            ret += encoders[REAR_LEFT_ENC].getSpeed();
+            ret += " ";
+            ret += encoders[REAR_RIGHT_ENC].getSpeed();
+            ret += " ";
+            ret += encoders[FRONT_RIGHT_ENC].getSpeed();
+            ret += " ";
+            ret += encoders[FRONT_LEFT_ENC].getSpeed();
+            Serial.println(ret);
+        } else {
+            Serial.println("error: usage - 'es'");
+        }
+    }
+    else if(args[0].equals(String("ez"))) { // encoder zero
+        if(numArgs == 1) 
+        {
             for(int i = 0; i < 4; i++) {
                 encoders[i].zero();
             }
@@ -327,8 +383,169 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'ez'");
         }
     }
+    else if(args[0].equals(String("vss"))){ // Set the setpoint for a specific velocity PID
+        if(numArgs == 3)
+        {
+            int pidNum = args[1].toInt()-1;
+            if(pidNum < 4 && pidNum > -1)
+            {
+                pids[pidNum].SetMode(AUTOMATIC);
+                Setpoints[pidNum] = toDouble(args[2]);
+                Serial.println("ok");
+            }
+            else
+            {
+                Serial.println("error: usage - 'vss [1/2/3/4] [velocity]'");
+            }
+        }
+        else
+        {
+            Serial.println("error: usage - 'vss [1/2/3/4] [velocity]'");
+        }
+    }
+    else if(args[0].equals(String("vs"))){ // Set all the setpoints for the velocity PIDs
+        if(numArgs == 5)
+        {
+            for(int i = 0; i < 4; i++)
+            {
+                pids[i].SetMode(AUTOMATIC);
+            }
+            Setpoints[REAR_LEFT_ENC] = toDouble(args[1]);
+            Setpoints[REAR_RIGHT_ENC] = toDouble(args[2]);
+            Setpoints[FRONT_RIGHT_ENC] = toDouble(args[3]);
+            Setpoints[FRONT_LEFT_ENC] = toDouble(args[4]);
+            Serial.println("ok");
+        }
+        else
+        {
+            Serial.println("error: usage - 'vs [velocity1] [velocity2] [velocity3] [velocity4]'");
+        }
+    }
+    else if(args[0].equals(String("vp"))){ // Modify the pid constants
+        if(numArgs == 5)
+        {
+          int pidNum = args[1].toInt()-1;
+          if(pidNum < 4 && pidNum > -1)
+          {
+              pids[pidNum].SetTunings(toDouble(args[2]),toDouble(args[3]),toDouble(args[4]));
+              Serial.println("ok");
+          }
+          else
+          {
+              Serial.println("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'");
+          }
+        }
+        else
+        {
+          Serial.println("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'");
+        }
+    }    
+    else if(args[0].equals(String("i"))){ // Display Inputs
+            String ret = "";
+            ret += Inputs[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Inputs[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Inputs[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Inputs[FRONT_LEFT_ENC];
+            Serial.println(ret);
+    }
+    else if(args[0].equals(String("s"))){ // Display Setpoints
+            String ret = "";
+            ret += Setpoints[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Setpoints[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Setpoints[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Setpoints[FRONT_LEFT_ENC];
+            Serial.println(ret);
+    }
+    else if(args[0].equals(String("o"))){ // Display Outputs
+            String ret = "";
+            ret += Outputs[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Outputs[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Outputs[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Outputs[FRONT_LEFT_ENC];
+            Serial.println(ret);
+    }
+    else if(args[0].equals(String("p"))){ // Display Inputs, Setpoints, and Outputs
+        String ret = "";
+            ret += Inputs[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Inputs[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Inputs[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Inputs[FRONT_LEFT_ENC];
+            ret += " ";
+            ret += Setpoints[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Setpoints[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Setpoints[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Setpoints[FRONT_LEFT_ENC];
+            ret += " ";
+            ret += Outputs[REAR_LEFT_ENC];
+            ret += " ";
+            ret += Outputs[REAR_RIGHT_ENC];
+            ret += " ";
+            ret += Outputs[FRONT_RIGHT_ENC];
+            ret += " ";
+            ret += Outputs[FRONT_LEFT_ENC];
+            Serial.println(ret);
+    }
     else {
         // Unrecognized command
         Serial.println("error: unrecognized command");
+    }
+}
+
+double toDouble(String s)
+{
+    char buf[s.length()+1];
+    s.toCharArray(buf,s.length()+1);
+    return atof(buf);
+}
+
+void updatePID()
+{
+    bool updated[4];
+    for(int i = 0; i < 4; i++)
+    {
+      double position = encoders[i].getPosition();
+      Inputs[i] = encoders[i].getSpeed();
+      if(position-lastPositions[i] < 0) Inputs[i] *= -1;
+      updated[i] = pids[i].Compute();
+      lastPositions[i] = position;
+    }
+    
+    if(updated[REAR_LEFT_ENC])
+    {
+        analogWrite(CH1_PWM, abs(Outputs[REAR_LEFT_ENC]));
+        digitalWrite(CH1_DIR, Outputs[REAR_LEFT_ENC] > 0);
+    }
+
+    if(updated[REAR_RIGHT_ENC])
+    {
+        analogWrite(CH4_PWM, abs(Outputs[REAR_RIGHT_ENC]));
+        digitalWrite(CH4_DIR, Outputs[REAR_RIGHT_ENC] > 0);
+    }
+    
+    if(updated[FRONT_RIGHT_ENC])
+    {
+        analogWrite(CH3_PWM, abs(Outputs[FRONT_RIGHT_ENC]));
+        digitalWrite(CH3_DIR, Outputs[FRONT_RIGHT_ENC] < 0);
+    }
+    
+    if(updated[FRONT_LEFT_ENC])
+    {
+        analogWrite(CH2_PWM, abs(Outputs[FRONT_LEFT_ENC]));
+        digitalWrite(CH2_DIR, Outputs[FRONT_LEFT_ENC] < 0);
     }
 }
