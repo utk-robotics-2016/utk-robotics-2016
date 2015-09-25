@@ -36,11 +36,10 @@ with get_spine() as s:
             s.move(speed, self.dir_mod * dir, angle)
 
         def move_to_corner(self):
-            s.move_pid(1,0,0)
+            s.move_pid(1, 0, 0)
             time.sleep(5)
-            s.move(1,-75*self.dir_mod,0)
+            s.move(1, -75 * self.dir_mod, 0)
             time.sleep(.25)
-            
 
         def strafe_until_white(self):
             # move until we get to the white line
