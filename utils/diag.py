@@ -42,12 +42,14 @@ with get_spine() as s:
         def arm_move_then_park():
             # right/left, forward, height
             # right side
-            arm.move_to(Vec3d(0, 10, 0), 0, 180)
+            arm.move_to(Vec3d(11, -1, 10), 0, 180)
+            arm.move_to(Vec3d(0, 10, 10), 0, 180)
             time.sleep(3)
-            arm.move_to(Vec3d(0, 10, 0), 3.14 / 6, 180)
-            arm.move_to(Vec3d(0, 10, 0), -3.14 / 6, 180)
-            arm.move_to(Vec3d(0, 10, 0), 0, 0)
-            arm.move_to(Vec3d(0, 10, 0), 0, 180)
+            arm.move_to(Vec3d(0, 10, 10), 3.14 / 6, 180)
+            arm.move_to(Vec3d(0, 10, 10), -3.14 / 6, 180)
+            arm.move_to(Vec3d(0, 10, 10), 0, 0)
+            arm.move_to(Vec3d(0, 10, 10), 0, 180)
+            arm.move_to(Vec3d(11, -1, 10), 0, 180)
             arm.park()
         test(arm_move_then_park, "Did the arm move?")
 
@@ -72,7 +74,7 @@ with get_spine() as s:
         def limit_switches():
             starttime = time.time()
             while (time.time() - starttime) < 7:
-                print s.read_limit_switches(), s.read_arm_limit()
+                print s.read_switches(), s.read_arm_limit()
         test(limit_switches, "Did the limit switches appear to work?")
 
         def vacuum():
