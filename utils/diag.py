@@ -59,15 +59,33 @@ with get_spine() as s:
             s.stop()
         test(move_forward, "Did the robot move forward for 5 seconds?")
 
-        def move_backward():
-            s.move(0.6, -180, 0)
+        def strafe_right():
+            s.move(0.6, -90, 0)
             time.sleep(5)
             s.stop()
-        test(move_backward, "Did the robot move backward for 5 seconds?")
+        test(strafe_right, "Did the robot strafe right for 5 seconds?")
+
+        def rotate_right():
+            s.move(0, 0, 0.5)
+            time.sleep(5)
+            s.stop()
+        test(rotate_right, "Did the robot rotate right for 5 seconds?")
+
+        def strafe_right_pid():
+            s.move_pid(0.6, -90, 0)
+            time.sleep(5)
+            s.stop()
+        test(strafe_right_pid, "Did the robot strafe right for 5 seconds?")
+
+        def rotate_right_pid():
+            s.move_pid(0, 0, 0.5)
+            time.sleep(5)
+            s.stop()
+        test(rotate_right_pid, "Did the robot rotate right for 5 seconds?")
 
         def line_sensors():
             starttime = time.time()
-            while (time.time() - starttime) < 5:
+            while (time.time() - starttime) < 10:
                 print s.read_line_sensors()
         test(line_sensors, "Did the line sensors appear to work?")
 
@@ -75,7 +93,7 @@ with get_spine() as s:
             starttime = time.time()
             while (time.time() - starttime) < 7:
                 print s.read_switches(), s.read_arm_limit()
-        test(limit_switches, "Did the limit switches appear to work?")
+        test(limit_switches, "Did the limit switches appear to work (fronts are currently off)?")
 
         def vacuum():
             s.set_suction(True)
