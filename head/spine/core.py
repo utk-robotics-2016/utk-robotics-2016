@@ -690,4 +690,5 @@ class Spine:
             if self.use_lock:
                 os.remove(lockfn)
                 logger.info('Removed lock at %s.' % lockfn)
-        self.wsServer.terminate()
+        if hasattr(self, 'wsServer'):
+            self.wsServer.terminate()
