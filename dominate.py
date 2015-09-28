@@ -31,12 +31,15 @@ with get_spine() as s:
                 self.course = 'A'
                 self.dir_mod = -1
 
+        def move_pid(self, speed, dir, angle):
+            s.move_pid(speed, self.dir_mod * dir, angle)
+
         # moves with respect to the course layout
         def move(self, speed, dir, angle):
             s.move(speed, self.dir_mod * dir, angle)
 
         def move_to_corner(self):
-            s.move_pid(1, 0, 0)
+            self.move_pid(1, 0, 0)
             time.sleep(5)
             self.move(1, 75, 0)
             time.sleep(.25)
@@ -44,7 +47,7 @@ with get_spine() as s:
         def strafe_until_white(self):
             # move until we get to the white line
             logger.info("Looking for white")
-            self.move(1, -78, 0)
+            self.move_pid(1, -90, 0)
             while s.read_line_sensors()['left'] > self.qtr_threshold:
                 # do nothing
                 time.sleep(0.01)
@@ -66,8 +69,6 @@ with get_spine() as s:
     bot.wait_until_arm_limit_pressed()
     time.sleep(0.5)
     bot.start()
-'''
-    bot.start()
     while bot.white_square < 3:
         bot.strafe_until_white()
         logger.info("Found the white square #" + str(bot.white_square))
@@ -75,4 +76,3 @@ with get_spine() as s:
         if bot.white_square < 3:
             bot.move(1, -78, 0)
             time.sleep(3)
-'''
