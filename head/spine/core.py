@@ -253,15 +253,11 @@ class Spine:
         assert 0 <= speed <= 255
         # TODO: convert these to fw and bw
         assert direction in ['fw', 'rv']
-        # Let W1, W2, W3, and W4 be the front left, front right, rear left, and rear right wheels, respectively.
-        w_id = [2, 3, 1, 4][w_id - 1]
-        # Now let W1, W2, W3, and W4 be the rear left, front left, front right, rear right wheels, respectively.
         if w_id in [1, 4]:
             if direction == 'fw':
                 direction = 'rv'
             else:
                 direction = 'fw'
-        # Reassign wheel numbers to accomodate them being switched
         direction = {'fw': 'cw', 'rv': 'ccw'}[direction]
         command = 'go ' + str(w_id) + ' ' + str(speed) + ' ' + direction
         response = self.send('teensy', command)
@@ -390,13 +386,15 @@ class Spine:
         :param angular:
             Continuous value from -1 to 1 where 0 is no angular rotation at all.
             If 0, the robot's heading will not change while moving.
+            Positive value is right rotation.
         :type angular: ``float``
         '''
 
         assert 0 <= speed <= 1
         assert -180 <= direction <= 180
         assert -1 <= angular <= 1
-        wheels = mecanum.move(speed, direction, angular)
+        w = mecanum.move(speed, direction, angular)
+        wheels = [w[0], w[2], w[3], w[1]]
         for w_id, wheel in enumerate(wheels, start=1):
             self.set_wheel(w_id, wheel[0], wheel[1])
         if len(args) >= 1 and args[0] is True:
@@ -617,6 +615,7 @@ class Spine:
         :param angular:
             Continuous value from -1 to 1 where 0 is no angular rotation at all.
             If 0, the robot's heading will not change while moving.
+            Positive value is right rotation.
         :type angular: ``float``
         '''
 
@@ -632,8 +631,11 @@ class Spine:
             else:
                 sw.append(-1 * scaled)
         logging.info(sw)
-        mapped_wheels = [sw[0], sw[2], sw[3], sw[1]]
-        logging.info(mapped_wheels)
+        # Map the mecanum.move() output to wheel IDs
+        mw = [sw[0], sw[2], sw[3], sw[1]]
+        logging.info(mw)
+        # Correct for the fact that vs wheel IDs do not correspond to actual WIDs
+        mapped_wheels = [mw[0], mw[3], mw[2], mw[1]]
         command = 'vs %f %f %f %f' % tuple(mapped_wheels)
         logging.info(command)
         response = self.send('teensy', command)
