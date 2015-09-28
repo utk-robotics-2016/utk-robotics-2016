@@ -38,7 +38,7 @@ with get_spine() as s:
         def move_to_corner(self):
             s.move_pid(1, 0, 0)
             time.sleep(5)
-            s.move(1, -75 * self.dir_mod, 0)
+            self.move(1, 75, 0)
             time.sleep(.25)
 
         def strafe_until_white(self):
@@ -54,11 +54,17 @@ with get_spine() as s:
             self.white_square = self.white_square + 1
             s.stop()
 
+        def wait_until_arm_limit_pressed(self):
+            while not s.read_arm_limit():
+                pass
+
         def start(self):
             self.move_to_corner()
             logger.info("Done!")
 
     bot = Robot()
+    bot.wait_until_arm_limit_pressed()
+    time.sleep(0.5)
     bot.start()
 '''
     bot.start()
