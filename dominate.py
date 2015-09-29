@@ -85,10 +85,6 @@ with get_spine() as s:
             else:
                 while s.read_line_sensors()['right'] > self.qtr_threshold:
                     time.sleep(0.01)
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
             # stop after we detect the line
             logger.info("Found white")
             self.white_square = self.white_square + 1
