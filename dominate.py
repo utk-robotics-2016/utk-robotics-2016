@@ -59,27 +59,28 @@ with get_spine() as s:
                 self.dir_mod = -1
 
         def move_pid(self, speed, dir, angle):
-            s.move_pid(speed, self.dir_mod * dir, angle)
+            s.move_pid(speed, self.dir_mod * dir, self.dir_mod*angle)
 
         # moves with respect to the course layout
         def move(self, speed, dir, angle):
-            s.move(speed, self.dir_mod * dir, angle)
+            s.move(speed, self.dir_mod * dir, self.dir_mod*angle)
 
         def move_to_corner(self):
             keyframe(self.move_pid,(1,0,0),6,(0,0,0),(1,0,0))    
-            #self.move_pid(1, 0, 0)
-            #time.sleep(5)
             self.move(1, 75, 0)
-            time.sleep(.25)
+            time.sleep(.375)
 
         def strafe_until_white(self):
             # move until we get to the white line
             logger.info("Looking for white")
             self.move_pid(1, -90, 0)
-            while s.read_line_sensors()['left'] > self.qtr_threshold:
-                # do nothing
-                time.sleep(0.01)
-
+            if self.course == "B":
+                while s.read_line_sensors()['left'] > self.qtr_threshold:
+                    # do nothing
+                    time.sleep(0.01)
+            else:
+                while s.read_line_sensors()['right'] > self.qtr_threshold:
+                    time.sleep(0.01)
             # stop after we detect the line
             logger.info("Found white")
             self.white_square = self.white_square + 1
@@ -87,8 +88,12 @@ with get_spine() as s:
         
         def strafe_until_black(self):
             self.move_pid(1,-90,0)
-            while s.read_line_sensors()['left'] < self.qtr_threshold:
-                time.sleep(0.01)
+            if self.course == "B":
+                while s.read_line_sensors()['left'] < self.qtr_threshold:
+                    time.sleep(0.01)
+            else:
+                while s.read_line_sensors()['right'] < self.qtr_threshold:
+                    time.sleep(0.01)
             s.stop()
 
         def wait_until_arm_limit_pressed(self):
@@ -105,12 +110,16 @@ with get_spine() as s:
     bot.start()
     
     bot.move_pid(1, -135, -.1)
-    time.sleep(0.375)
+    time.sleep(0.25)
     
     for i in range(2):
         bot.strafe_until_white()
         bot.strafe_until_black()
     bot.strafe_until_white()
 
-    keyframe(bot.move_pid,(1,-180,0),4.5,(0,-180,0),(0,-180,0))
-    
+    keyframe(bot.move_pid,(1,-180,0),4,(0,-180,0),(0,-180,0))
+    bot.move_pid(0,0,1)
+    time.sleep(2)
+    s.stop()
+    keyframe(bot.move_pid,(.5,0,0),3,(0,0,0),(0,0,0))
+    s.stop()
