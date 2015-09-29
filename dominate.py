@@ -2,6 +2,8 @@
 import time
 import logging
 import operator
+import threading
+
 # Local modules
 from head.spine.core import get_spine
 from head.spine.loader import Loader
@@ -58,6 +60,8 @@ with get_spine() as s:
                 self.course = 'A'
                 self.dir_mod = -1
 
+            self.on = True
+
         def move_pid(self, speed, dir, angle):
             s.move_pid(speed, self.dir_mod * dir, self.dir_mod*angle)
 
@@ -81,6 +85,10 @@ with get_spine() as s:
             else:
                 while s.read_line_sensors()['right'] > self.qtr_threshold:
                     time.sleep(0.01)
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
             # stop after we detect the line
             logger.info("Found white")
             self.white_square = self.white_square + 1
@@ -100,11 +108,20 @@ with get_spine() as s:
             while not s.read_arm_limit():
                 pass
 
+        def battery_thread(self):
+            while self.on:
+                s.write_battery_voltage()
+                time.sleep(1)
+
         def start(self):
             self.move_to_corner()
             logger.info("Done!")
 
     bot = Robot()
+
+    t = threading.Thread(target=bot.battery_thread)
+    t.start()
+
     #    bot.wait_until_arm_limit_pressed()
     time.sleep(0.5)
     bot.start()
@@ -123,3 +140,4 @@ with get_spine() as s:
     s.stop()
     keyframe(bot.move_pid,(.5,0,0),3,(0,0,0),(0,0,0))
     s.stop()
+    bot.on = False
