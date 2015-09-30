@@ -61,11 +61,11 @@ with get_spine() as s:
                 self.dir_mod = -1
 
         def move_pid(self, speed, dir, angle):
-            s.move_pid(speed, self.dir_mod * dir, self.dir_mod*angle)
+            s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
 
         # moves with respect to the course layout
         def move(self, speed, dir, angle):
-            s.move(speed, self.dir_mod * dir, self.dir_mod*angle)
+            s.move(speed, self.dir_mod * dir, self.dir_mod * angle)
 
         def move_to_corner(self):
             keyframe(self.move_pid, (1, 0, 0), 6, (0, 0, 0), (1, 0, 0))
