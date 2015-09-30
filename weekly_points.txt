@@ -7,6 +7,8 @@ DATE    RUN #1   |   RUN #2   |   RUN #3   |     AVG
 9/9:    50 pts   |   25 pts   |   25 pts   |   33 pts    
 9/16:   25 pts   |    0 pts   |    0 pts   |    8 pts    
 9/23:   25 pts   |   25 pts   |   25 pts   |   25 pts    
+9/30:   50 pts   |   50 pts   |   50 pts   |   50 pts    
+
 
 NOTES:
 9/9/15: We could only run from the version B orientation; therefore, we could not go through the tunnel on a version A board.
@@ -14,3 +16,5 @@ NOTES:
 9/16/15: Serial communication issues between the BBB and the robot's microcontrollers caused to robot to stop functioning properly. Issue is being investigated. 
 
 9/23/15: Serial communication bug fixed. Velcotiy PID motor control has been added, but the movement is still being debugged. This resulted in dominate.py not being updated, so the robot could move but not yet through the tunnel. 
+
+9/30/15: We "randomly" drew version 2 all three times, but it also works on version 1. Navigation was done with dead reckoning and the new PID movement code. The robot correctly drives from the start square to each of the block zones (A, B, and C) and then to the sea zone when the robot is run on a version 2 course. Version 1 stll would score 50 points, but the other navigation is not working as well in that orientation. 
