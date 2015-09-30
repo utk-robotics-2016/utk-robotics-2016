@@ -68,7 +68,7 @@ with get_spine() as s:
             s.move(speed, self.dir_mod * dir, self.dir_mod*angle)
 
         def move_to_corner(self):
-            keyframe(self.move_pid, (1, 0, 0), 6, (0, 0, 0), (1, 0, 0))    
+            keyframe(self.move_pid, (1, 0, 0), 6, (0, 0, 0), (1, 0, 0))
             self.move(1, 75, 0)
             time.sleep(.375)
 
