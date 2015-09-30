@@ -2,7 +2,6 @@
 import time
 import logging
 import operator
-import threading
 
 # Local modules
 from head.spine.core import get_spine
@@ -11,6 +10,7 @@ from head.spine.loader import Loader
 fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
 logger = logging.getLogger(__name__)
+
 
 def keyframe(f, middleargs, seconds, startargs, endargs):
     ramptime = 1
@@ -60,8 +60,6 @@ with get_spine() as s:
                 self.course = 'A'
                 self.dir_mod = -1
 
-            self.on = True
-
         def move_pid(self, speed, dir, angle):
             s.move_pid(speed, self.dir_mod * dir, self.dir_mod*angle)
 
@@ -70,7 +68,7 @@ with get_spine() as s:
             s.move(speed, self.dir_mod * dir, self.dir_mod*angle)
 
         def move_to_corner(self):
-            keyframe(self.move_pid,(1,0,0),6,(0,0,0),(1,0,0))    
+            keyframe(self.move_pid, (1, 0, 0), 6, (0, 0, 0), (1, 0, 0))    
             self.move(1, 75, 0)
             time.sleep(.375)
 
@@ -89,9 +87,9 @@ with get_spine() as s:
             logger.info("Found white")
             self.white_square = self.white_square + 1
             s.stop()
-        
+
         def strafe_until_black(self):
-            self.move_pid(1,-90,0)
+            self.move_pid(1, -90, 0)
             if self.course == "B":
                 while s.read_line_sensors()['left'] < self.qtr_threshold:
                     time.sleep(0.01)
@@ -104,36 +102,27 @@ with get_spine() as s:
             while not s.read_arm_limit():
                 pass
 
-        def battery_thread(self):
-            while self.on:
-                s.write_battery_voltage()
-                time.sleep(1)
-
         def start(self):
             self.move_to_corner()
             logger.info("Done!")
 
     bot = Robot()
 
-    t = threading.Thread(target=bot.battery_thread)
-    t.start()
-
     #    bot.wait_until_arm_limit_pressed()
     time.sleep(0.5)
     bot.start()
-    
+
     bot.move_pid(1, -135, -.1)
     time.sleep(0.25)
-    
+
     for i in range(2):
         bot.strafe_until_white()
         bot.strafe_until_black()
     bot.strafe_until_white()
 
-    keyframe(bot.move_pid,(1,-180,0),4,(0,-180,0),(0,-180,0))
-    bot.move_pid(0,0,1)
+    keyframe(bot.move_pid, (1, -180, 0), 4, (0, -180, 0), (0, -180, 0))
+    bot.move_pid(0, 0, 1)
     time.sleep(2)
     s.stop()
-    keyframe(bot.move_pid,(.5,0,0),3,(0,0,0),(0,0,0))
+    keyframe(bot.move_pid, (.5, 0, 0), 3, (0, 0, 0), (0, 0, 0))
     s.stop()
-    bot.on = False
