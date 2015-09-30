@@ -42,7 +42,12 @@ class BlockPicker:
             level_height = TOP_LEVEL_HEIGHT
         else:
             raise ValueError
-        if desc == 'full':
+        # To avoid physical collision with rod
+        if desc == 'full' and col == 7 and level == 'bottom':
+            forward = NEAR_HALF_BLOCK_FORWARD
+        elif desc == 'far_half' and col == 7 and level == 'top':
+            forward = FULL_BLOCK_FORWARD + 1
+        elif desc == 'full':
             forward = FULL_BLOCK_FORWARD
         elif desc == 'near_half':
             forward = NEAR_HALF_BLOCK_FORWARD
@@ -56,6 +61,9 @@ class BlockPicker:
         self.arm.move_to(Vec3d(lateral, forward,
                          level_height - 1), 0, 180, SPEED)
         time.sleep(0.5)
+        # To avoid the math domain errors on retract
+        if (col == 0 and desc == 'far_half') or (col == 7 and desc == 'far_half' and level == 'bottom'):
+            forward = FULL_BLOCK_FORWARD
         if col == 7:
             lateral = get_lateral(col - 1)
             logging.info(lateral)
