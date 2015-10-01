@@ -78,7 +78,5 @@ with get_spine() as s:
             else:
                 print "invalid command", obj
 
-#arm.park()
-
 wsServerRead.terminate()
 wsServerWrite.terminate()
