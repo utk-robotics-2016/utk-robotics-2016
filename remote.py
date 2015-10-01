@@ -11,13 +11,14 @@ from head.spine.arm import get_arm
 from head.spine.Vec3d import Vec3d
 
 pin = random.randint(0, 99999)
-wsServer = Popen(['wsServer', '9002'], stdout=PIPE, stdin=PIPE)
+wsServerRead = Popen(['wsServer', '9002'], stdout=PIPE, stdin=PIPE)
+wsServerWrite = Popen(['wsServer', '9003'], stdout=PIPE, stdin=PIPE)
 
 print "Pin Code: %05d" % (pin,)
 user = None
 
 while user is None:
-    line = wsServer.stdout.readline().rstrip()
+    line = wsServerRead.stdout.readline().rstrip()
     line = line.split(':', 1)
     tmpUser = line[0]
     if line[1] == ".":
@@ -26,7 +27,7 @@ while user is None:
     uPin = int(line[1])
     if uPin == pin:
         user = tmpUser
-        wsServer.stdin.write("Pin Verified\n")
+        wsServerWrite.stdin.write(str(user) + ":Pin Verified\n")
         print "Pin Verified"
     else:
         time.sleep(3)
@@ -38,11 +39,11 @@ logger = logging.getLogger(__name__)
 with get_spine() as s:
     with get_arm(s) as arm:
         open = True
-        wsServer.stdin.write("You have control\n")
+        wsServerWrite.stdin.write(str(user) + ":You have control\n")
         print user, "has control"
 
         while open:
-            line = wsServer.stdout.readline().rstrip()
+            line = wsServerRead.stdout.readline().rstrip()
             line = line.split(':', 1)
             tmpUser = line[0]
             if line[1] == ".":
@@ -59,12 +60,25 @@ with get_spine() as s:
             obj = json.loads(line[1])
 
             if obj.has_key("arm"):
-                print "Moving arm to", obj.get("arm")[0], obj.get("arm")[1], obj.get("arm")[2], 0.08 * 3.14, 180
-                arm.move_to(Vec3d(obj.get("arm")[0], obj.get("arm")[1], obj.get("arm")[2]), 0.08 * 3.14, 180)
-                print "Done moving arm"
+                try:
+                    arm.move_to(Vec3d(obj.get("arm")[0], obj.get("arm")[1], obj.get("arm")[2]), obj.get("arm")[3] * 3.14, 0)
+                except ValueError:
+                    print "Out of reach"
+                except AssertionError:
+                    print "Out of reach, closing remote"
+                    wsServerRead.terminate()
+                    wsServerWrite.terminate()
+            elif obj.has_key("suction"):
+                if obj.get("suction"):
+                    s.set_release_suction(False)
+                    s.set_suction(True)
+                else:
+                    s.set_suction(False)
+                    s.set_release_suction(True)
             else:
-                print "obj does not have arm"
+                print "invalid command", obj
 
-        arm.park()
+#arm.park()
 
-wsServer.terminate()
+wsServerRead.terminate()
+wsServerWrite.terminate()
