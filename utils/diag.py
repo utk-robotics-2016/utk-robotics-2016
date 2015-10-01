@@ -53,35 +53,47 @@ with get_spine() as s:
             arm.park()
         test(arm_move_then_park, "Did the arm move?")
 
-        def move_forward():
+        WHEEL_MOVE_TIME = 2
+
+        def move_fw_bw():
             s.move(0.6, 0, 0)
-            time.sleep(5)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.move(0.6, -180, 0)
+            time.sleep(WHEEL_MOVE_TIME)
             s.stop()
-        test(move_forward, "Did the robot move forward for 5 seconds?")
+        test(move_fw_bw, "Did the robot move forward and backward for 4 seconds?")
 
-        def strafe_right():
+        def strafe_right_left():
             s.move(0.6, -90, 0)
-            time.sleep(5)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.move(0.6, 90, 0)
+            time.sleep(WHEEL_MOVE_TIME)
             s.stop()
-        test(strafe_right, "Did the robot strafe right for 5 seconds?")
+        test(strafe_right_left, "Did the robot strafe right then left for 4 seconds?")
 
-        def rotate_right():
+        def rotate_right_left():
             s.move(0, 0, 0.5)
-            time.sleep(5)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.move(0, 0, -0.5)
+            time.sleep(WHEEL_MOVE_TIME)
             s.stop()
-        test(rotate_right, "Did the robot rotate right for 5 seconds?")
+        test(rotate_right_left, "Did the robot rotate right then left for 4 seconds?")
 
-        def strafe_right_pid():
+        def strafe_right_left_pid():
             s.move_pid(0.6, -90, 0)
-            time.sleep(5)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.move_pid(0.6, 90, 0)
+            time.sleep(WHEEL_MOVE_TIME)
             s.stop()
-        test(strafe_right_pid, "Did the robot strafe right for 5 seconds?")
+        test(strafe_right_left_pid, "Did the robot strafe right then left for 4 seconds?")
 
         def rotate_right_pid():
             s.move_pid(0, 0, 0.5)
-            time.sleep(5)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.move_pid(0, 0, -0.5)
+            time.sleep(WHEEL_MOVE_TIME)
             s.stop()
-        test(rotate_right_pid, "Did the robot rotate right for 5 seconds?")
+        test(rotate_right_pid, "Did the robot rotate right then left for 4 seconds?")
 
         def line_sensors():
             starttime = time.time()
