@@ -115,9 +115,8 @@ with get_spine() as s:
                         # Move away from railroad
                         s.move_for(1, 0.6, 70, 0)
                     elif currzone != -1:
-                        # Last argument is rotational mvmt toward the railroad
-                        # To account for mecanum drift
-                        s.move_for(2, 0.6, -180, -0.09)
+                        keyframe(self.move_pid, (0.5, 180, 0), 2.8, (0, 180, 0), (0, 180, 0))
+                        s.stop()
                 else:
                     raise ValueError
 
@@ -176,7 +175,7 @@ with get_spine() as s:
                         lastzid = zid
 
             def start(self):
-                '''
+                # '''
                 self.move_to_corner()
                 logger.info("Done!")
 
@@ -219,7 +218,7 @@ with get_spine() as s:
                 # self.bump_forward(bumptime=0.375)
                 s.stop()
                 self.wait_until_arm_limit_pressed()
-                '''
+                # '''
 
                 # UNLOAD RAIL BLOCKS
                 self.unload_rail()
