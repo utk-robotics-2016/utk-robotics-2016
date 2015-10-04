@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 wristToCup = 10  # Distance in centimeters from wrist center to cup tip
 
 # Servo configuration
-BASECENTER = 90  # more positive moves to the right
+BASECENTER = 85  # more positive moves to the right
 BASERIGHT = BASECENTER + 85
 BASELEFT = BASECENTER - 85
 
