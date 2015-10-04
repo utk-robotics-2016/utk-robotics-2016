@@ -34,14 +34,23 @@ with get_spine() as s:
                 # self.bp.drop_block_right()
                 # self.bp.pick_block(7, 'top', 'far_half')
                 # self.bp.drop_block_right()
-                # '''
-                # for level in ['top']:
-                for level in ['top', 'bottom']:
+
+                # self.bp.pick_block(0, 'top', 'near_half')
+                # self.bp.drop_block_right()
+                # self.bp.pick_block(0, 'top', 'far_half')
+                # self.bp.drop_block_right()
+                # self.bp.pick_block(7, 'top', 'near_half')
+                # self.bp.drop_block_right()
+                self.bp.pick_block(7, 'top', 'far_half')
+                self.bp.drop_block_right()
+                '''
+                # for level in ['top', 'bottom']:
+                for level in ['top']:
                     for col in range(8):
                         self.bp.pick_block(col, level)
                         self.bp.drop_block_right()
                 logger.info("Done!")
-                # '''
+                '''
 
         bot = Robot()
         bot.start()

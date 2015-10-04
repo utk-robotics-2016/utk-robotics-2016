@@ -8,17 +8,17 @@ from head.spine.Vec3d import Vec3d
 
 # SPEED = 0.75
 SPEED = 1
-FULL_BLOCK_FORWARD = 11
-NEAR_HALF_BLOCK_FORWARD = 9
-FAR_HALF_BLOCK_FORWARD = 14
+FULL_BLOCK_FORWARD = 9
+NEAR_HALF_BLOCK_FORWARD = FULL_BLOCK_FORWARD - 2
+FAR_HALF_BLOCK_FORWARD = FULL_BLOCK_FORWARD + 3
 HEIGHT_TO_CLEAR_LOADER = 12
 RIGHT_DROP_XY = (16, 0)
 # height of the top surface of the bottom level
-BOTTOM_LEVEL_HEIGHT = -1
+BOTTOM_LEVEL_HEIGHT = -3
 BLOCK_WIDTH_IN_CM = 1.5 * 2.54
 # height of the top surface of the top level
 TOP_LEVEL_HEIGHT = BOTTOM_LEVEL_HEIGHT + BLOCK_WIDTH_IN_CM
-RAIL_DROP_XY = (16 + 5, 0)
+RAIL_DROP_XY = (16 + 5, -5)
 HEIGHT_TO_DROP_RAIL = HEIGHT_TO_CLEAR_LOADER - 11
 
 
@@ -31,7 +31,7 @@ class BlockPicker:
         # lateral, forward, height
         def get_lateral(thecol):
             far_left_lateral = 11.645  # col index 0
-            far_right_lateral = -13.258  # col index 7
+            far_right_lateral = -11.645  # col index 7
             lateral_inc = (far_right_lateral - far_left_lateral) / 7
             return far_left_lateral + lateral_inc * thecol
         lateral = get_lateral(col)
@@ -42,12 +42,7 @@ class BlockPicker:
             level_height = TOP_LEVEL_HEIGHT
         else:
             raise ValueError
-        # To avoid physical collision with rod
-        if desc == 'full' and col == 7 and level == 'bottom':
-            forward = NEAR_HALF_BLOCK_FORWARD
-        elif desc == 'far_half' and col == 7 and level == 'top':
-            forward = FULL_BLOCK_FORWARD + 1
-        elif desc == 'full':
+        if desc == 'full':
             forward = FULL_BLOCK_FORWARD
         elif desc == 'near_half':
             forward = NEAR_HALF_BLOCK_FORWARD
@@ -59,17 +54,11 @@ class BlockPicker:
                          level_height + 4), 0, 180, SPEED)
         self.s.set_suction(True)
         self.arm.move_to(Vec3d(lateral, forward,
-                         level_height - 1), 0, 180, SPEED)
+                         level_height - 1), -pi / 20, 180, SPEED)
         time.sleep(0.5)
         # To avoid the math domain errors on retract
-        if (col == 0 and desc == 'far_half') or (col == 7 and desc == 'far_half' and level == 'bottom'):
+        if (col in [0, 7] and desc == 'far_half'):
             forward = FULL_BLOCK_FORWARD
-        if col == 7:
-            lateral = get_lateral(col - 1)
-            logging.info(lateral)
-            self.arm.move_to(Vec3d(lateral, forward,
-                             level_height + 4), 0, 180, SPEED)
-            logging.info(lateral)
         self.arm.move_to(Vec3d(lateral, forward,
                          HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
 
@@ -92,3 +81,7 @@ class BlockPicker:
         self.s.set_release_suction(True)
         time.sleep(0.5)
         self.s.set_release_suction(False)
+        # To clear rails before returning
+        if rail_drop:
+            self.arm.move_to(Vec3d(RIGHT_DROP_XY[0], RIGHT_DROP_XY[1],
+                             HEIGHT_TO_CLEAR_LOADER), wrist, 180, SPEED)
