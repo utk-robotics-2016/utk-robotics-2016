@@ -11,7 +11,7 @@ SPEED = 1
 FULL_BLOCK_FORWARD = 9
 NEAR_HALF_BLOCK_FORWARD = FULL_BLOCK_FORWARD - 2
 FAR_HALF_BLOCK_FORWARD = FULL_BLOCK_FORWARD + 3
-HEIGHT_TO_CLEAR_LOADER = 12
+HEIGHT_TO_CLEAR_LOADER = 13
 RIGHT_DROP_XY = (16, 0)
 # height of the top surface of the bottom level
 BOTTOM_LEVEL_HEIGHT = -3
@@ -35,6 +35,8 @@ class BlockPicker:
             lateral_inc = (far_right_lateral - far_left_lateral) / 7
             return far_left_lateral + lateral_inc * thecol
         lateral = get_lateral(col)
+        if col == 0 and desc == 'far_half':
+            lateral += 1
         logging.info(lateral)
         if level == 'bottom':
             level_height = BOTTOM_LEVEL_HEIGHT

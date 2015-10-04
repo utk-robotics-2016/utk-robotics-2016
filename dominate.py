@@ -45,9 +45,6 @@ with get_spine() as s:
         def __init__(self):
             self.ldr = Loader(s)
 
-            # keep track of what white square we are on
-            self.white_square = 0
-
             # set a threshold for white vs black values from the QTR sensor
             self.qtr_threshold = 800
 
@@ -72,21 +69,21 @@ with get_spine() as s:
             self.move(1, 75, 0)
             time.sleep(.375)
 
+        def bump_forward(self, bumptime=0.2):
+            self.move(1, 0, 0)
+            time.sleep(bumptime)
+            s.stop()
+
+        # These two functions could be combined into one. Code duplication
         def strafe_until_white(self):
-            # move until we get to the white line
-            logger.info("Looking for white")
             self.move_pid(1, -90, 0)
             if self.course == "B":
                 while s.read_line_sensors()['left'] > self.qtr_threshold:
-                    # do nothing
                     time.sleep(0.01)
             else:
                 while s.read_line_sensors()['right'] > self.qtr_threshold:
                     time.sleep(0.01)
-            # stop after we detect the line
-            logger.info("Found white")
-            self.white_square = self.white_square + 1
-            s.stop()
+            # This function does not stop the movement after returning!!
 
         def strafe_until_black(self):
             self.move_pid(1, -90, 0)
@@ -96,7 +93,7 @@ with get_spine() as s:
             else:
                 while s.read_line_sensors()['right'] < self.qtr_threshold:
                     time.sleep(0.01)
-            s.stop()
+            # This function does not stop the movement after returning!!
 
         def wait_until_arm_limit_pressed(self):
             while not s.read_arm_limit():
@@ -106,23 +103,50 @@ with get_spine() as s:
             self.move_to_corner()
             logger.info("Done!")
 
+            self.move_pid(1, -135, -.1)
+            time.sleep(0.25)
+
+            # LOAD SEA BLOCKS
+            self.strafe_until_white()
+            s.stop()
+            self.bump_forward()
+            self.wait_until_arm_limit_pressed()
+
+            # UNLOAD SEA BLOCKS
+            self.strafe_until_black()
+            self.strafe_until_white()
+            self.strafe_until_black()
+            self.strafe_until_white()
+            s.stop()
+            time.sleep(0.5)
+            # back away from the rail zone
+            self.move(1, 80, 0)
+            time.sleep(0.275)
+            s.stop()
+            # Move to sea zone
+            keyframe(self.move_pid, (1, -180, 0), 4, (0, -180, 0), (0, -180, 0))
+            self.move_pid(0, 0, 1)
+            time.sleep(2)
+            s.stop()
+            keyframe(self.move_pid, (.5, 0, 0), 3, (0, 0, 0), (0, 0, 0))
+            s.stop()
+            self.wait_until_arm_limit_pressed()
+
+            # LOAD RAIL BLOCKS
+            # Move from sea zone
+            keyframe(self.move_pid, (1, -180, 0), 4, (0, -180, 0), (0, -180, 0))
+            self.move_pid(0, 0, 1)
+            time.sleep(1.9)
+            s.stop()
+            keyframe(self.move_pid, (.5, 0, 0), 3, (0, 0, 0), (0, 0, 0))
+            # self.bump_forward(bumptime=0.375)
+            s.stop()
+            self.wait_until_arm_limit_pressed()
+
+            # UNLOAD RAIL BLOCKS
+
     bot = Robot()
 
-    #    bot.wait_until_arm_limit_pressed()
+    bot.wait_until_arm_limit_pressed()
     time.sleep(0.5)
     bot.start()
-
-    bot.move_pid(1, -135, -.1)
-    time.sleep(0.25)
-
-    for i in range(2):
-        bot.strafe_until_white()
-        bot.strafe_until_black()
-    bot.strafe_until_white()
-
-    keyframe(bot.move_pid, (1, -180, 0), 4, (0, -180, 0), (0, -180, 0))
-    bot.move_pid(0, 0, 1)
-    time.sleep(2)
-    s.stop()
-    keyframe(bot.move_pid, (.5, 0, 0), 3, (0, 0, 0), (0, 0, 0))
-    s.stop()
