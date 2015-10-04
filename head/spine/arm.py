@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 wristToCup = 10  # Distance in centimeters from wrist center to cup tip
 
 # Servo configuration
-BASECENTER = 90  # more positive moves to the right
+BASECENTER = 85  # more positive moves to the right
 BASERIGHT = BASECENTER + 85
 BASELEFT = BASECENTER - 85
 
@@ -151,7 +151,9 @@ class Arm(object):
         self.s.detach_arm_servos()
 
     def detect_blocks(self, level):
-        bd = block_detector()
+        bd = block_detector(self.s)
+        # First move away from rails
+        self.move_to(Vec3d(11, -1, 10), 0, 180)
         self.move_to(Vec3d(-6, 4, 17), 0.08 * 3.14, 180)
         bd.grab_left_frame()
         self.move_to(Vec3d(2, 4, 17), 0.08 * 3.14, 180)
