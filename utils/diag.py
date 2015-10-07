@@ -112,7 +112,7 @@ with get_spine() as s:
             time.sleep(5)
             s.set_suction(False)
             s.set_release_suction(True)
-            time.sleep(5)
+            time.sleep(2)
             s.set_release_suction(False)
         test(vacuum, "Did the suction and release_suction appear to work?")
 
