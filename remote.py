@@ -90,7 +90,7 @@ with get_spine() as s:
             # Read input as json
             obj = json.loads(line[1])
 
-            if obj.has_key("arm"):
+            if "arm" in obj:
                 # If command is arm, move arm to requested location
                 try:
                     arm.move_to(Vec3d(obj.get("arm")[0], obj.get("arm")[1], obj.get("arm")[2]), obj.get("arm")[3] * 3.14, 0)
@@ -103,7 +103,7 @@ with get_spine() as s:
                     wsServerRead.terminate()
                     wsServerWrite.terminate()
 
-            elif obj.has_key("suction"):
+            elif "suction" in obj:
                 # If command is suction, either turn the suction on or off
                 if obj.get("suction"):
                     s.set_release_suction(False)
