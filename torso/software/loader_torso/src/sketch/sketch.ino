@@ -58,9 +58,9 @@ void setup() {
     // From the docs: you must call the init() of each encoder method in the
     // order that they are chained together. The one plugged into the Arduino
     // first, then the one plugged into that and so on until the last encoder.
-    encoders[0].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
-    encoders[1].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
-    encoders[2].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA)
+    encoders[0].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA); // Left extend
+    encoders[1].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA); // Right extend
+    encoders[2].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA); // Width
     // Ideally, moving forward should count as positive rotation.
     // Make this happen:
     //encoders[0].setReversed(true);
