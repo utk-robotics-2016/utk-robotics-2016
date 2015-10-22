@@ -23,7 +23,7 @@ class Loader(object):
         # Measured in rotations forward from the position of not extended
         self.flap_extension = 0
 
-    def extend(self, pos, **kwargs):
+    def extend(self, pos, side, **kwargs):
         '''Extend (or retract) the loader slide rails to a given position.
 
         :param pos:
@@ -35,32 +35,46 @@ class Loader(object):
               Abort the rail movement if the rails do not reach their
               destination after ``e_stop`` seconds. Defaults to 4.
         '''
-        encoders = [self.s.get_loader_encoder(i) for i in range(2)]
+        if side == 'left':
+            encoders = [1]
+        elif side == 'right':
+            encoders = [0]
+        elif side == 'both':
+            encoders = [0, 1]
 
-        if pos > encoders[0] and pos > encoders[1]:
+        encVals = [self.s.get_loader_encoder(i) for i in encoders]
+
+        condition1 = True
+        for i in range(len(encoders)):
+            condition1 = condition1 and pos > encVals[i] 
+        condition2 = True
+        for i in range(len(encoders)):
+            condition2 = condition2 and pos < encVals[i]
+
+        if condition1:
             direction = 'fw'
             op = operator.ge
-        elif pos < encoders[0] and pos < encoders[1]:
+        elif condition2:
             direction = 'bw'
             op = operator.le
         else:
             raise ValueError
 
         motorrunning = []
-        for i in range(2):
+        for i in encoders:
             self.s.set_loader_motor(i, 500, direction)
             motorrunning.append(True)
         starttime = time.time()
 
         while True in motorrunning:
             if time.time() - starttime > kwargs.get('e_stop', 4):
-                self.s.stop_loader_motor(0)
-                self.s.stop_loader_motor(1)
-            for i in range(2):
+                for i in encoders:
+                    self.s.stop_loader_motor(i)
+            for i in range(len(encoders)):
                 if motorrunning[i]:
-                    encval = self.s.get_loader_encoder(i)
-                    if op(encval, pos):
-                        self.s.stop_loader_motor(i)
+                    encVal = self.s.get_loader_encoder(encoders[i])
+                    if op(encVal, pos):
+                        self.s.stop_loader_motor(encoders[i])
                         motorrunning[i] = False
 
     def close_flap(self):
@@ -76,6 +90,10 @@ class Loader(object):
         This method is preferred to calling Spine's direct method.
         '''
         self.s.open_loader_flap()
+
+    def dump_blocks()
+        extend(6.0,'both')
+        extend(-6.0,'both')
 
     def load(self):
         '''Execute a sequence of Loader methods that will load a set of blocks.

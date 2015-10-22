@@ -20,7 +20,7 @@ DEF_PORTS = {
     'teensy': '/dev/teensy',
     # When enabling this line, make sure to re-enable the zero_loader_encoder
     # line in Spine.__init__
-    # 'loadmega': '/dev/loadmega', # Currently not on robot
+    'loadmega': '/dev/loadmega',
 }
 
 
@@ -80,6 +80,8 @@ class get_spine:
             time.sleep(0.1)
 
         self.s.stop()
+        for i in range(2):
+            self.s.stop_loader_motor(i)
         # self.s.detach_loader_servos()
         self.s.set_release_suction(False)
         self.s.set_suction(False)
@@ -148,10 +150,8 @@ class Spine:
         self.wsServer = Popen(['wsServer', '9000'], stdout=PIPE, stdin=PIPE)
 
         # Startup commands
-        '''
         for i in range(2):
             self.zero_loader_encoder(i)
-        '''
 
     def send(self, devname, command):
         '''Send a command to a device and return the result.
@@ -511,7 +511,7 @@ class Spine:
         :type raw: ``bool``
         '''
 
-        assert encoder_id in [0, 1]
+        assert encoder_id in [0, 1, 2]
         if raw:
             command = 'erp '
         else:
@@ -535,7 +535,7 @@ class Spine:
             Should be the same as the motor ID.
         :type encoder_id: ``int``
         '''
-        assert encoder_id in [0, 1]
+        assert encoder_id in [0, 1, 2]
         command = 'ez %d' % encoder_id
         response = self.send('loadmega', command)
         assert response == 'ok'
@@ -564,8 +564,6 @@ class Spine:
         assert m_id in [0, 1]
         assert 0 <= speed <= 1024
         assert direction in ['fw', 'bw']
-        if m_id == 1:
-            direction = {'fw': 'bw', 'bw': 'fw'}[direction]
         command = 'mod ' + str(m_id) + ' ' + str(speed) + ' ' + direction
         response = self.send('loadmega', command)
         assert response == 'ok'
