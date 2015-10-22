@@ -112,7 +112,7 @@ with get_spine() as s:
                     s.set_suction(False)
                     s.set_release_suction(True)
 
-            elif "move_pid" in obj:
+            elif "move" in obj:
                 # If command is move, move the robot in the desired direction
                 # Assume max velocity
                 # params: speed 0 <= speed <= 1 
@@ -122,7 +122,7 @@ with get_spine() as s:
             
             elif "stop" in obj:
                 # tell robot to stop
-                s.move(0, 0, 0, True)
+                s.move_pid(0, 0, 0, True)
 
             #elif "turn" in obj:
                 # deal with turn commands
