@@ -115,24 +115,21 @@ with get_spine() as s:
             elif "move" in obj:
                 # If command is move, move the robot in the desired direction
                 # Assume max velocity
-                # params: speed 0 <= speed <= 1 
+                # params: speed 0 <= speed <= 1
                 # params: direction -180 <= dir <= 1
                 # params: angular (default to straight ahead)
                 s.move_pid(1, obj.get("move"), 0)
-            
+
             elif "stop" in obj:
                 # tell robot to stop
                 s.move_pid(0, 0, 0)
 
-            #elif "turn" in obj:
+            # elif "turn" in obj:
                 # deal with turn commands
                 # give it a velocity of 0
 
-
             else:
                 print "invalid command", obj
-
-                
 
 # Close the wsServers
 wsServerRead.terminate()
