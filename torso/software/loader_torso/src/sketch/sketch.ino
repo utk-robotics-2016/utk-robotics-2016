@@ -1,6 +1,9 @@
 #include <I2CEncoder.h>
 #include <Wire.h>
 
+#define STR1(x)  #x
+#define STR(x)  STR1(x)
+
 // Globals
 int ledState = HIGH;
 // Command parsing
@@ -63,7 +66,8 @@ void setup() {
     encoders[2].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA); // Width
     // Ideally, moving forward should count as positive rotation.
     // Make this happen:
-    //encoders[0].setReversed(true);
+    encoders[0].setReversed(true);
+    encoders[2].setReversed(true);
 }
 
 void motorOff(int motor)
