@@ -122,7 +122,7 @@ with get_spine() as s:
             
             elif "stop" in obj:
                 # tell robot to stop
-                s.move_pid(0, 0, 0, True)
+                s.move_pid(0, 0, 0)
 
             #elif "turn" in obj:
                 # deal with turn commands
