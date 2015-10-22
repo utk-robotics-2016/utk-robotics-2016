@@ -118,7 +118,7 @@ with get_spine() as s:
                 # params: speed 0 <= speed <= 1 
                 # params: direction -180 <= dir <= 1
                 # params: angular (default to straight ahead)
-                s.move_pid(1, obj.get("move"), 0, True)
+                s.move_pid(1, obj.get("move"), 0)
             
             elif "stop" in obj:
                 # tell robot to stop
