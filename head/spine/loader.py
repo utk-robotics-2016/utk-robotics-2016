@@ -91,9 +91,9 @@ class Loader(object):
         '''
         self.s.open_loader_flap()
 
-    def dump_blocks()
-        extend(6.0,'both')
-        extend(-6.0,'both')
+    def dump_blocks():
+        extend(6.0, 'both')
+        extend(-6.0, 'both')
 
     def load(self):
         '''Execute a sequence of Loader methods that will load a set of blocks.

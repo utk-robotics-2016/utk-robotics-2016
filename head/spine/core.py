@@ -82,7 +82,7 @@ class get_spine:
         self.s.stop()
         for i in range(2):
             self.s.stop_loader_motor(i)
-        # self.s.detach_loader_servos()
+        self.s.detach_loader_servos()
         self.s.set_release_suction(False)
         self.s.set_suction(False)
         self.s.close()
@@ -476,22 +476,20 @@ class Spine:
         response = self.send('mega', command)
         assert response == 'ok'
 
-    calibrated_right = 175
+    calibrated_right = 180
     calibrated_left = 87
 
-    def open_loader_flap(self):
+    def open_loader_flaps(self):
         '''Set the loader servos to close the flap.
         '''
-        # self.set_loader_servos(85, 160)
         off = 90
         self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
 
     def close_loader_flap(self):
         '''Set the loader servos to open the flap.
         '''
-        off = -10
+        off = 0
         self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
-        # self.set_loader_servos(175+15, 70-15)
 
     def get_loader_encoder(self, encoder_id, raw=False):
         '''Get the current encoder position (in rotations) on one of the

@@ -17,7 +17,7 @@ Servo elbow;
 Servo wrist;
 Servo wristrotate;
 
-//Left is 12, right is 13
+//Left is 12, right is 20
 Servo loader_right;
 Servo loader_left;
 
@@ -194,7 +194,7 @@ void parseAndExecuteCommand(String command) {
             int rightpos = args[1].toInt();
             int leftpos = args[2].toInt();
             if (!loader_right.attached()) {
-                loader_right.attach(10);
+                loader_right.attach(20);
             }
             if (!loader_left.attached()) {
                 loader_left.attach(12);
