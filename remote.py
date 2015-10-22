@@ -112,8 +112,15 @@ with get_spine() as s:
                     s.set_suction(False)
                     s.set_release_suction(True)
 
+			elif "move" in obj:
+				# If command is move, move the robot in the desired direction
+				# Assume max velocity
+				s.move(obj.get("move")[0], obj.get("move")[1], obj.get("arm")[2], True)
+
             else:
                 print "invalid command", obj
+
+				
 
 # Close the wsServers
 wsServerRead.terminate()
