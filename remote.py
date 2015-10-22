@@ -115,7 +115,14 @@ with get_spine() as s:
             elif "move" in obj:
                 # If command is move, move the robot in the desired direction
                 # Assume max velocity
-                s.move(obj.get("move")[0], obj.get("move")[1], obj.get("arm")[2], True)
+                # params: speed 0 <= speed <= 1 
+                # params: direction -180 <= dir <= 1
+                # params: angular (default to straight ahead)
+                s.move(1, obj.get("move"), 0, True)
+            
+            elif "stop" in obj:
+                # tell robot to stop
+                s.move(0, 0, 0, True)
 
             #elif "turn" in obj:
                 # deal with turn commands
