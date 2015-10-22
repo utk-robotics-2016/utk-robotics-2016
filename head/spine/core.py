@@ -82,6 +82,7 @@ class get_spine:
         self.s.stop()
         for i in range(2):
             self.s.stop_loader_motor(i)
+        self.s.stop_width_motor()
         self.s.detach_loader_servos()
         self.s.set_release_suction(False)
         self.s.set_suction(False)
@@ -477,12 +478,12 @@ class Spine:
         assert response == 'ok'
 
     calibrated_right = 180
-    calibrated_left = 87
+    calibrated_left = 0
 
     def open_loader_flaps(self):
         '''Set the loader servos to close the flap.
         '''
-        off = 90
+        off = 87
         self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
 
     def close_loader_flap(self):
@@ -583,6 +584,41 @@ class Spine:
         assert m_id in [0, 1]
         command = 'mos ' + str(m_id)
         response = self.send('loadmega', command)
+        assert response == 'ok'
+
+    def set_width_motor(self, speed, direction):
+        '''Change speed of the loader's width motor
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        :param speed:
+            The speed from 0 to 1024 to set the motor to.
+        :type speed: ``int``
+        :param direction:
+            'cw' should be extending out, 'ccw' should be retracting.
+        :type direction: ``string``
+        '''
+
+        assert 0 <= speed <= 1024
+        assert direction in ['cw', 'ccw']
+        command = 'mod ' +str(1) + ' ' + str(speed) + ' ' + direction
+        response = self.send('teensy', command)
+        assert response == 'ok'
+
+    def stop_width_motor(self):
+        '''Stop one of the loader's width motors.
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+        '''
+
+        command = 'mos ' + str(1)
+        response = self.send('teensy', command)
         assert response == 'ok'
 
     def set_pid_params(self, pid_id, kp, ki, kd):

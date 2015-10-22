@@ -16,6 +16,4 @@ logging.basicConfig(format=fmt, level=logging.WARNING, datefmt='%I:%M:%S')
 logger = logging.getLogger(__name__)
 
 with get_spine() as s:
-    s.set_loader_servos(90,90)
-#    ldr = Loader(s)
-#    ldr.extend(-6.0,'both')
+    s.set_loader_servos(180,0)
