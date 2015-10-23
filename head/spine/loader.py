@@ -70,6 +70,7 @@ class Loader(object):
             if time.time() - starttime > kwargs.get('e_stop', 4):
                 for i in encoders:
                     self.s.stop_loader_motor(i)
+                break
             for i in range(len(encoders)):
                 if motorrunning[i]:
                     encVal = self.s.get_loader_encoder(encoders[i])
@@ -100,12 +101,13 @@ class Loader(object):
         else:
             raise ValueError
 
-        self.s.set_width_motor(500, direction)
+        self.s.set_width_motor(750, direction)
         starttime = time.time()
 
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 4):
                 self.s.stop_width_motor()
+                break
             encVal = self.s.get_loader_encoder(2)
             if op(encVal, pos):
                 self.s.stop_width_motor()
@@ -120,16 +122,17 @@ class Loader(object):
 
         :Keyword Arguments:
             * **e_stop** (``float``) --
-              Abort the movement if destination not reach after ``e_stop`` seconds. Defaults to 4.
+              Abort the movement if destination not reach after ``e_stop`` seconds. Defaults to 10.
         '''
-        encVal = self.s.read_lift_encoder()
-        # convert to inches
-        encVal = encVal / 464.64 / 20.0
+        def encoder_inches():
+            return self.s.read_lift_encoder() / 464.64 / 20.0
+
+        encVal = encoder_inches()
 
         if pos > encVal:
             direction = 'ccw'
             op = operator.ge
-            self.s.set_lift_motor(1000,direction)
+            self.s.set_lift_motor(1023,direction)
         elif pos < encVal:
             direction = 'cw'
             op = operator.le
@@ -140,30 +143,31 @@ class Loader(object):
         starttime = time.time()
 
         while True:
-            if time.time() - starttime > kwargs.get('e_stop', 4):
+            if time.time() - starttime > kwargs.get('e_stop', 10):
                 self.s.stop_lift_motor()
-            encVal = self.s.read_lift_encoder()
+                break
+            encVal = encoder_inches()
             if op(encVal, pos):
                 self.s.stop_lift_motor()
                 break
 
-    def close_flap(self):
-        '''Close the loader flap.
+    def close_flaps(self):
+        '''Close the loader flaps.
 
         This method is preferred to calling Spine's direct method.
         '''
-        self.s.close_loader_flap()
+        self.s.close_loader_flaps()
 
-    def open_flap(self):
-        '''Open the loader flap.
+    def open_flaps(self):
+        '''Open the loader flaps.
 
         This method is preferred to calling Spine's direct method.
         '''
-        self.s.open_loader_flap()
+        self.s.open_loader_flaps()
 
     def dump_blocks(self):
         self.extend(6.0, 'both')
-        self.extend(-6.0, 'both')
+        self.extend(0.0, 'both')
 
     def load(self):
         '''Execute a sequence of Loader methods that will load a set of blocks.
@@ -171,15 +175,17 @@ class Loader(object):
         Before executing this method, make sure the robot is lined up within
         the tolerances of the loader with the blocks.
         '''
-        self.open_flap()
+        '''
+        self.open_flaps()
         time.sleep(2)
         # self.extend(6.5)
         self.extend(6)
         time.sleep(2)
-        self.close_flap()
+        self.close_flaps()
         time.sleep(2)
         self.extend(0)
         time.sleep(2)
-        self.open_flap()
+        self.open_flaps()
         time.sleep(2)
         self.s.detach_loader_servos()
+        '''

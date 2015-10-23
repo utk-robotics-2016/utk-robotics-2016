@@ -485,13 +485,13 @@ class Spine:
     calibrated_left = 0
 
     def open_loader_flaps(self):
-        '''Set the loader servos to close the flap.
+        '''Set the loader servos to open the flaps.
         '''
         off = 87
         self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
 
-    def close_loader_flap(self):
-        '''Set the loader servos to open the flap.
+    def close_loader_flaps(self):
+        '''Set the loader servos to close the flaps.
         '''
         off = 0
         self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)

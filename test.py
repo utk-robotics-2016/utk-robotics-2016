@@ -17,4 +17,6 @@ logger = logging.getLogger(__name__)
 
 with get_spine() as s:
     ldr = Loader(s)
-    ldr.lift(1.0)
+    ldr.lift(0.3)
+    # raw_input("continue...")
+    # ldr.lift(0)
