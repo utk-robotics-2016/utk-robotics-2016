@@ -7,7 +7,9 @@ DATE    RUN #1   |   RUN #2   |   RUN #3   |     AVG
 9/9:    50 pts   |   25 pts   |   25 pts   |   33 pts    
 9/16:   25 pts   |    0 pts   |    0 pts   |    8 pts    
 9/23:   25 pts   |   25 pts   |   25 pts   |   25 pts    
-9/30:   50 pts   |   50 pts   |   50 pts   |   50 pts    
+9/30:   50 pts   |   50 pts   |   50 pts   |   50 pts   
+10/7:   50 pts   |   50 pts   |   50 pts   |   50 pts    
+10/14:  50 pts   |   50 pts   |   50 pts   |   50 pts    
 
 
 NOTES:
@@ -18,3 +20,7 @@ NOTES:
 9/23/15: Serial communication bug fixed. Velcotiy PID motor control has been added, but the movement is still being debugged. This resulted in dominate.py not being updated, so the robot could move but not yet through the tunnel. 
 
 9/30/15: We "randomly" drew version 2 all three times, but it also works on version 1. Navigation was done with dead reckoning and the new PID movement code. The robot correctly drives from the start square to each of the block zones (A, B, and C) and then to the sea zone when the robot is run on a version 2 course. Version 1 stll would score 50 points, but the other navigation is not working as well in that orientation. 
+
+10/7/15: ... 
+
+10/14/15: The robot is able to move about the course to drop off the blue blocks in the sea zone and deposit the colored blocks in the rail zone, but the loader is not ready to be used without a person interveneing to move the blocks onto the loader.

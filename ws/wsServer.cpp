@@ -1,6 +1,7 @@
 #include <libwebsockets.h>
 
 #include <iostream>
+#include <sstream>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -66,17 +67,40 @@ static struct libwebsocket_protocols protocols[] = {
 //Read from STDIN, Send message over Websockets
 void read_send() {
     string input;
-
+    int ptr;
+    stringstream ss;
+    string tmp;
 
     //Read the line from STDIN
     while (getline(cin, input)) {
+        ptr = 0;
+        ss.str("");
+        ss.clear();
+        
+        ss.str(input);
+        ss >> ptr;
+        cout << ptr << endl;
+
+        if (ptr != 0) {
+            getline(ss, input);
+            input = input.substr(1);
+            cout << input << endl;
+        }
+
+
         unsigned char *buf = (unsigned char*) malloc(LWS_SEND_BUFFER_PRE_PADDING
                                     + input.size() + LWS_SEND_BUFFER_POST_PADDING);
 
         strcpy((char*)&buf[LWS_SEND_BUFFER_PRE_PADDING], input.c_str());
 
-        for (auto& client : clients) {
-            libwebsocket_write(client, &buf[LWS_SEND_BUFFER_PRE_PADDING], 
+        if (ptr == 0) {
+            for (auto& client : clients) {
+                libwebsocket_write(client, &buf[LWS_SEND_BUFFER_PRE_PADDING], 
+                                   input.size(), LWS_WRITE_TEXT);
+            }
+        }
+        else {
+            libwebsocket_write((libwebsocket*)ptr, &buf[LWS_SEND_BUFFER_PRE_PADDING], 
                                input.size(), LWS_WRITE_TEXT);
         }
 

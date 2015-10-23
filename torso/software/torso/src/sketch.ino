@@ -1,5 +1,5 @@
 #include <Servo.h>
-/*#include "includes/gp2d12_ir.h"*/
+#include <Encoder.h>
 
 #define STR1(x)  #x
 #define STR(x)  STR1(x)
@@ -17,9 +17,11 @@ Servo elbow;
 Servo wrist;
 Servo wristrotate;
 
-//Left is 12, right is 13
+//Left is 19, right is 18
 Servo loader_right;
 Servo loader_left;
+
+Encoder lift(20,21);
 
 // Pin definitions
 const char LED = 13;
@@ -31,14 +33,16 @@ const char LEFT_LINE_SENSOR = 3; // Analog
 const char RIGHT_LIMIT_SWITCH = 22;
 const char LEFT_LIMIT_SWITCH = 23;
 const char COURSE_MIRROR_LIMIT_SWITCH = 44;
-const char IR_A = 4; // Analog
+const char IR_A = A12; // Analog
+const char IR_B = A13; // Analog
 
 void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
 
     // Init Sharp GP2D12 IR Rangefinder
-    /*init_ir(IR_A);*/
+    pinMode(IR_A, INPUT);
+    pinMode(IR_B, INPUT);
 
     pinMode(SUCTION, OUTPUT);
     pinMode(RELEASE_SUCTION, OUTPUT);
@@ -196,10 +200,10 @@ void parseAndExecuteCommand(String command) {
             int rightpos = args[1].toInt();
             int leftpos = args[2].toInt();
             if (!loader_right.attached()) {
-                loader_right.attach(10);
+                loader_right.attach(18);
             }
             if (!loader_left.attached()) {
-                loader_left.attach(12);
+                loader_left.attach(19);
             }
             loader_right.write(rightpos);
             loader_left.write(leftpos);
@@ -294,6 +298,34 @@ void parseAndExecuteCommand(String command) {
             Serial.println(out);
         } else {
             Serial.println("error: usage - 'rsw'");
+        }
+    }
+    else if(args[0].equals(String("rle"))){ // read lift encoder
+        if(numArgs == 1){
+            Serial.println(lift.read());
+        }
+        else{
+            Serial.println("error: usage - 'rle'");
+        }
+    }
+    else if(args[0].equals(String("zle"))){ // zero lift encoder
+        if(numArgs == 1){
+            lift.write(0);
+            Serial.println("ok");
+        }
+        else{
+            Serial.println("error: usage - 'zle'");
+        }
+    }
+    else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder RAW ADC
+        if(numArgs == 1){
+            String out = "";
+            out += analogRead(IR_A);
+            out += " ";
+            out += analogRead(IR_B);
+            Serial.println(out);
+        } else {
+            Serial.println("error: usage - 'ira'");
         }
     }
     else if(args[0].equals(String("ver"))) { // version information
