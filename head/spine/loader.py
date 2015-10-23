@@ -127,23 +127,24 @@ class Loader(object):
         encVal = encVal / 464.64 / 20.0
 
         if pos > encVal:
-            direction = 'cw'
-            op = operator.ge
-        elif pos < encVal:
             direction = 'ccw'
+            op = operator.ge
+            self.s.set_lift_motor(1000,direction)
+        elif pos < encVal:
+            direction = 'cw'
             op = operator.le
+            self.s.set_lift_motor(500,direction)
         else:
             raise ValueError
 
-        self.s.set_width_motor(500, direction)
         starttime = time.time()
 
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 4):
-                self.s.stop_width_motor()
-            encVal = self.s.get_loader_encoder(2)
+                self.s.stop_lift_motor()
+            encVal = self.s.get_lift_encoder()
             if op(encVal, pos):
-                self.s.stop_width_motor()
+                self.s.stop_lift_motor()
                 break
 
     def close_flap(self):

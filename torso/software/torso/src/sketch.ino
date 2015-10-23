@@ -1,5 +1,5 @@
 #include <Servo.h>
-#inclusw <Encoder.h>
+#include <Encoder.h>
 
 #define STR1(x)  #x
 #define STR(x)  STR1(x)
@@ -304,6 +304,15 @@ void parseAndExecuteCommand(String command) {
         }
         else{
             Serial.println("error: usage - 'rle'");
+        }
+    }
+    else if(args[0].equals(String("zle"))){ // zero lift encoder
+        if(numArgs == 1){
+            lift.write(0);
+            Serial.println("ok");
+        }
+        else{
+            Serial.println("error: usage - 'zle'");
         }
     }
     else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder RAW ADC
