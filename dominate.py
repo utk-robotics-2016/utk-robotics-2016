@@ -73,6 +73,9 @@ with get_spine() as s:
 
             def move_to_corner(self):
                 keyframe(self.move_pid, (1, 0, 0), 6, (0, 0, 0), (1, 0, 0))
+                # move back a smidgen
+                self.move(.75, 180, 0)
+                time.sleep(.1)
                 self.move(1, 75, 0)
                 time.sleep(.375)
 
@@ -83,7 +86,7 @@ with get_spine() as s:
 
             # These two functions could be combined into one. Code duplication
             def strafe_until_white(self):
-                self.move_pid(1, -90, 0)
+                self.move_pid(1, -85, 0)
                 if self.course == "B":
                     while s.read_line_sensors()['left'] > self.qtr_threshold:
                         time.sleep(0.01)
@@ -93,7 +96,7 @@ with get_spine() as s:
                 # This function does not stop the movement after returning!!
 
             def strafe_until_black(self):
-                self.move_pid(1, -90, 0)
+                self.move_pid(1, -85, 0)
                 if self.course == "B":
                     while s.read_line_sensors()['left'] < self.qtr_threshold:
                         time.sleep(0.01)
@@ -184,8 +187,8 @@ with get_spine() as s:
                 self.move_to_corner()
                 logger.info("Done!")
 
-                self.move_pid(1, -135, -.1)
-                time.sleep(0.25)
+                # self.move_pid(1, -135, -.1)
+                # time.sleep(0.15)
 
                 # LOAD SEA BLOCKS
                 self.strafe_until_white()
@@ -207,7 +210,7 @@ with get_spine() as s:
                 # Move to sea zone
                 keyframe(self.move_pid, (1, -180, 0), 4, (0, -180, 0), (0, -180, 0))
                 self.move_pid(0, 0, 1)
-                time.sleep(2)
+                time.sleep(2.1)
                 s.stop()
                 keyframe(self.move_pid, (.5, 0, 0), 3, (0, 0, 0), (0, 0, 0))
                 s.stop()
@@ -217,10 +220,14 @@ with get_spine() as s:
                 # Move from sea zone
                 keyframe(self.move_pid, (1, -180, 0), 4, (0, -180, 0), (0, -180, 0))
                 self.move_pid(0, 0, 1)
-                time.sleep(1.9)
+                time.sleep(2.1)
                 s.stop()
                 keyframe(self.move_pid, (.7, 0, 0), 3, (0, 0, 0), (0, 0, 0))
                 # self.bump_forward(bumptime=0.375)
+                s.stop()
+                # Move closer to rail zone
+                self.move(1, -80, 0)
+                time.sleep(0.31)
                 s.stop()
                 self.wait_until_arm_limit_pressed()
                 time.sleep(1)
