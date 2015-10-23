@@ -122,7 +122,7 @@ class Loader(object):
             * **e_stop** (``float``) --
               Abort the movement if destination not reach after ``e_stop`` seconds. Defaults to 4.
         '''
-        encVal = self.s.get_lift_encoder()
+        encVal = self.s.read_lift_encoder()
         # convert to inches
         encVal = encVal / 464.64 / 20.0
 
@@ -142,7 +142,7 @@ class Loader(object):
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 4):
                 self.s.stop_lift_motor()
-            encVal = self.s.get_lift_encoder()
+            encVal = self.s.read_lift_encoder()
             if op(encVal, pos):
                 self.s.stop_lift_motor()
                 break

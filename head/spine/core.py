@@ -670,7 +670,7 @@ class Spine:
         response = self.send('mega',command)
         return float(response)
 
-    def zero_lift_encoder(self, encoder_id):
+    def zero_lift_encoder(self):
         '''Reset the current encoder position to zero.
         :warning:
             This command should probably not be called directly. There is a
