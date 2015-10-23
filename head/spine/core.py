@@ -604,7 +604,7 @@ class Spine:
 
         assert 0 <= speed <= 1024
         assert direction in ['cw', 'ccw']
-        command = 'mod ' +str(1) + ' ' + str(speed) + ' ' + direction
+        command = 'mod ' + str(1) + ' ' + str(speed) + ' ' + direction
         response = self.send('teensy', command)
         assert response == 'ok'
 

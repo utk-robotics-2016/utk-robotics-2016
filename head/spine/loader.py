@@ -46,7 +46,7 @@ class Loader(object):
 
         condition1 = True
         for i in range(len(encoders)):
-            condition1 = condition1 and pos > encVals[i] 
+            condition1 = condition1 and pos > encVals[i]
         condition2 = True
         for i in range(len(encoders)):
             condition2 = condition2 and pos < encVals[i]
@@ -100,11 +100,11 @@ class Loader(object):
         else:
             raise ValueError
 
-        self.s.set_width_motor(500,direction)
+        self.s.set_width_motor(500, direction)
         starttime = time.time()
 
         while True:
-            if time.time() - starttime > kwargs.get('e_stop',4):
+            if time.time() - starttime > kwargs.get('e_stop', 4):
                 self.s.stop_width_motor()
             encVal = self.s.get_loader_encoder(2)
             if op(encVal, pos):
@@ -125,9 +125,9 @@ class Loader(object):
         '''
         self.s.open_loader_flap()
 
-    def dump_blocks():
-        extend(6.0, 'both')
-        extend(-6.0, 'both')
+    def dump_blocks(self):
+        self.extend(6.0, 'both')
+        self.extend(-6.0, 'both')
 
     def load(self):
         '''Execute a sequence of Loader methods that will load a set of blocks.
