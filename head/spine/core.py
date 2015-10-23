@@ -350,12 +350,14 @@ class Spine:
     def read_ir_a(self):
         '''Reads Sharp GP2D12 IR Rangefinder mounted between two wheels on the lower chassis
 
-        :return: Double for the distance value in centimeters
+        :return: Dictionary for the distance ADC values
         '''
 
         command = 'ira'
         response = self.send('mega', command)
-        return float(response[:-2])
+        response = response.split(' ')
+        return {'right': int(response[0]),
+                'left': int(response[1])}
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
@@ -609,7 +611,7 @@ class Spine:
         assert response == 'ok'
 
     def stop_width_motor(self):
-        '''Stop one of the loader's width motors.
+        '''Stopthe loader's width motor.
 
         :warning:
             This command should probably not be called directly. There is a
@@ -620,6 +622,51 @@ class Spine:
         command = 'mos ' + str(1)
         response = self.send('teensy', command)
         assert response == 'ok'
+
+    def set_lift_motor(self, speed, direction):
+        '''Change speed of the loader's lift motor
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        :param speed:
+            The speed from 0 to 1024 to set the motor to.
+        :type speed: ``int``
+        :param direction:
+            'cw' should be extending out, 'ccw' should be retracting.
+        :type direction: ``string``
+        '''
+        assert 0 <= speed <= 1024
+        assert direction in ['cw', 'ccw']
+        command = 'mod ' + str(0) + ' ' + str(speed) + ' ' + direction
+        response = self.send('teensy', command)
+        assert response == 'ok'
+
+    def stop_lift_motor(self):
+        '''Stop the loader's lift motor.
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+        '''
+
+        command = 'mos ' + str(0)
+        response = self.send('teensy', command)
+        assert response == 'ok'
+
+    def read_lift_encoder(self):
+        ''' Read the encoder for the lift motor.
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+        '''
+        command = 'rle'
+        response = self.send('mega',command)
+        return float(response)
 
     def set_pid_params(self, pid_id, kp, ki, kd):
         ''' Modify the PID constants for each wheel.

@@ -111,6 +111,41 @@ class Loader(object):
                 self.s.stop_width_motor()
                 break
 
+    def lift(self, pos, **kwargs):
+        ''' Lift (or lower) the loader to a given position
+
+        :param pos:
+            Absolute position, in rotations of the gear, to move to.
+        :type pos: ``float``
+
+        :Keyword Arguments:
+            * **e_stop** (``float``) --
+              Abort the movement if destination not reach after ``e_stop`` seconds. Defaults to 4.
+        '''
+        encVal = self.s.get_lift_encoder()
+        # convert to inches
+        encVal = encVal / 464.64 / 20.0
+
+        if pos > encVal:
+            direction = 'cw'
+            op = operator.ge
+        elif pos < encVal:
+            direction = 'ccw'
+            op = operator.le
+        else:
+            raise ValueError
+
+        self.s.set_width_motor(500, direction)
+        starttime = time.time()
+
+        while True:
+            if time.time() - starttime > kwargs.get('e_stop', 4):
+                self.s.stop_width_motor()
+            encVal = self.s.get_loader_encoder(2)
+            if op(encVal, pos):
+                self.s.stop_width_motor()
+                break
+
     def close_flap(self):
         '''Close the loader flap.
 
