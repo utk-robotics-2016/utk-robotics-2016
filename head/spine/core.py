@@ -83,6 +83,7 @@ class get_spine:
         for i in range(2):
             self.s.stop_loader_motor(i)
         self.s.stop_width_motor()
+        self.s.stop_lift_motor()
         self.s.detach_loader_servos()
         self.s.set_release_suction(False)
         self.s.set_suction(False)
@@ -151,8 +152,9 @@ class Spine:
         self.wsServer = Popen(['wsServer', '9000'], stdout=PIPE, stdin=PIPE)
 
         # Startup commands
-        for i in range(2):
+        for i in range(3):
             self.zero_loader_encoder(i)
+        self.zero_lift_encoder()
 
     def send(self, devname, command):
         '''Send a command to a device and return the result.
@@ -356,8 +358,8 @@ class Spine:
         command = 'ira'
         response = self.send('mega', command)
         response = response.split(' ')
-        return {'right': int(response[0]),
-                'left': int(response[1])}
+        return {'left': int(response[0]),
+                'right': int(response[1])}
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
@@ -667,6 +669,21 @@ class Spine:
         command = 'rle'
         response = self.send('mega',command)
         return float(response)
+
+    def zero_lift_encoder(self):
+        '''Reset the current encoder position to zero.
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        :param encoder_id:
+            Should be the same as the motor ID.
+        :type encoder_id: ``int``
+        '''
+        command = 'zle'
+        response = self.send('mega', command)
+        assert response == 'ok'
 
     def set_pid_params(self, pid_id, kp, ki, kd):
         ''' Modify the PID constants for each wheel.
