@@ -48,7 +48,7 @@ with get_spine() as s:
                 for level in ['top']:
                     for col in range(8):
                         self.bp.pick_block(col, level)
-                        self.bp.drop_block_right()
+                        self.bp.drop_block(side='left', rail=True)
                 logger.info("Done!")
                 # '''
 
