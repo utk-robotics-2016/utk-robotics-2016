@@ -42,45 +42,77 @@ with get_spine() as s:
         def arm_move_then_park():
             # right/left, forward, height
             # right side
-            arm.move_to(Vec3d(0, 10, 0), 0, 180)
+            arm.move_to(Vec3d(11, -1, 10), 0, 180)
+            arm.move_to(Vec3d(0, 10, 10), 0, 180)
             time.sleep(3)
-            arm.move_to(Vec3d(0, 10, 0), 3.14 / 6, 180)
-            arm.move_to(Vec3d(0, 10, 0), -3.14 / 6, 180)
-            arm.move_to(Vec3d(0, 10, 0), 0, 0)
-            arm.move_to(Vec3d(0, 10, 0), 0, 180)
+            arm.move_to(Vec3d(0, 10, 10), 3.14 / 6, 180)
+            arm.move_to(Vec3d(0, 10, 10), -3.14 / 6, 180)
+            arm.move_to(Vec3d(0, 10, 10), 0, 0)
+            arm.move_to(Vec3d(0, 10, 10), 0, 180)
+            arm.move_to(Vec3d(11, -1, 10), 0, 180)
             arm.park()
         test(arm_move_then_park, "Did the arm move?")
 
-        def move_forward():
-            s.move(0.6, 0, 0)
-            time.sleep(5)
-            s.stop()
-        test(move_forward, "Did the robot move forward for 5 seconds?")
+        WHEEL_MOVE_TIME = 2
 
-        def move_backward():
+        def move_fw_bw():
+            s.move(0.6, 0, 0)
+            time.sleep(WHEEL_MOVE_TIME)
             s.move(0.6, -180, 0)
-            time.sleep(5)
+            time.sleep(WHEEL_MOVE_TIME)
             s.stop()
-        test(move_backward, "Did the robot move backward for 5 seconds?")
+        test(move_fw_bw, "Did the robot move forward and backward for 4 seconds?")
+
+        def strafe_right_left():
+            s.move(0.6, -90, 0)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.move(0.6, 90, 0)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.stop()
+        test(strafe_right_left, "Did the robot strafe right then left for 4 seconds?")
+
+        def rotate_right_left():
+            s.move(0, 0, 0.5)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.move(0, 0, -0.5)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.stop()
+        test(rotate_right_left, "Did the robot rotate right then left for 4 seconds?")
+
+        def strafe_right_left_pid():
+            s.move_pid(0.6, -90, 0)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.move_pid(0.6, 90, 0)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.stop()
+        test(strafe_right_left_pid, "Did the robot strafe right then left for 4 seconds?")
+
+        def rotate_right_pid():
+            s.move_pid(0, 0, 0.5)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.move_pid(0, 0, -0.5)
+            time.sleep(WHEEL_MOVE_TIME)
+            s.stop()
+        test(rotate_right_pid, "Did the robot rotate right then left for 4 seconds?")
 
         def line_sensors():
             starttime = time.time()
-            while (time.time() - starttime) < 5:
+            while (time.time() - starttime) < 10:
                 print s.read_line_sensors()
         test(line_sensors, "Did the line sensors appear to work?")
 
         def limit_switches():
             starttime = time.time()
             while (time.time() - starttime) < 7:
-                print s.read_limit_switches(), s.read_arm_limit()
-        test(limit_switches, "Did the limit switches appear to work?")
+                print s.read_switches(), s.read_arm_limit()
+        test(limit_switches, "Did the limit switches appear to work (fronts are currently off)?")
 
         def vacuum():
             s.set_suction(True)
             time.sleep(5)
             s.set_suction(False)
             s.set_release_suction(True)
-            time.sleep(5)
+            time.sleep(2)
             s.set_release_suction(False)
         test(vacuum, "Did the suction and release_suction appear to work?")
 

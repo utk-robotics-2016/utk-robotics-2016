@@ -1,13 +1,17 @@
 # Global
 import time
 import os
+import signal
 import logging
+import json
+from subprocess import Popen, PIPE
 
 # Third-party
 import serial
 
 # Project specific
 import mecanum
+import voltage
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +22,22 @@ DEF_PORTS = {
     # line in Spine.__init__
     # 'loadmega': '/dev/loadmega', # Currently not on robot
 }
+
+
+class DelayedKeyboardInterrupt(object):
+    def __enter__(self):
+        self.signal_received = False
+        self.old_handler = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, self.handler)
+
+    def handler(self, signal, frame):
+        self.signal_received = (signal, frame)
+        logging.info('SIGINT received. Delaying KeyboardInterrupt.')
+
+    def __exit__(self, type, value, traceback):
+        signal.signal(signal.SIGINT, self.old_handler)
+        if self.signal_received:
+            self.old_handler(*self.signal_received)
 
 
 class SerialLockException(Exception):
@@ -53,6 +73,12 @@ class get_spine:
         return self.s
 
     def __exit__(self, type, value, traceback):
+        for i in range(2):
+            for devname, port in self.s.ports.iteritems():
+                self.s.ser[devname].flushOutput()
+                self.s.ser[devname].flushInput()
+            time.sleep(0.1)
+
         self.s.stop()
         # self.s.detach_loader_servos()
         self.s.set_release_suction(False)
@@ -119,6 +145,7 @@ class Spine:
                 logger.info('Waiting for connection to stabilize.')
                 time.sleep(1)
         self.delim = delim
+        self.wsServer = Popen(['wsServer', '9000'], stdout=PIPE, stdin=PIPE)
 
         # Startup commands
         '''
@@ -147,15 +174,16 @@ class Spine:
         :return: The string response of the command, without the newline.
         '''
         logger.debug("Sending %s to '%s'" % (repr(command), devname))
-        self.ser[devname].write(command + self.delim)
-        echo = self.ser[devname].readline()
+        with DelayedKeyboardInterrupt():
+            self.ser[devname].write(command + self.delim)
+            echo = self.ser[devname].readline()
+            response = self.ser[devname].readline()
         try:
             assert echo == '> ' + command + '\r\n'
         except AssertionError:
             logger.warning('Echo error to %s.' % repr(devname))
             logger.warning('Actual echo was %s.' % repr(echo))
             raise
-        response = self.ser[devname].readline()
         logger.debug("Response: %s" % repr(response[:-2]))
         # Be sure to chop off newline. We don't need it.
         return response[:-2]
@@ -198,7 +226,7 @@ class Spine:
             The arguments following `delay` will be passed directly to the
             :func:`move` function.
         '''
-        self.move(*args)
+        self.move_pid(*args)
         time.sleep(delay)
         self.stop()
 
@@ -225,15 +253,11 @@ class Spine:
         assert 0 <= speed <= 255
         # TODO: convert these to fw and bw
         assert direction in ['fw', 'rv']
-        # Let W1, W2, W3, and W4 be the front left, front right, rear left, and rear right wheels, respectively.
-        w_id = [2, 3, 1, 4][w_id - 1]
-        # Now let W1, W2, W3, and W4 be the rear left, front left, front right, rear right wheels, respectively.
         if w_id in [1, 4]:
             if direction == 'fw':
                 direction = 'rv'
             else:
                 direction = 'fw'
-        # Reassign wheel numbers to accomodate them being switched
         direction = {'fw': 'cw', 'rv': 'ccw'}[direction]
         command = 'go ' + str(w_id) + ' ' + str(speed) + ' ' + direction
         response = self.send('teensy', command)
@@ -348,7 +372,7 @@ class Spine:
         response = self.send('mega', command)
         assert response == 'ok'
 
-    def move(self, speed, direction, angular):
+    def move(self, speed, direction, angular, *args):
         '''Set the robot to move using the mecanum wheels.
 
         :param speed:
@@ -362,15 +386,19 @@ class Spine:
         :param angular:
             Continuous value from -1 to 1 where 0 is no angular rotation at all.
             If 0, the robot's heading will not change while moving.
+            Positive value is right rotation.
         :type angular: ``float``
         '''
 
         assert 0 <= speed <= 1
         assert -180 <= direction <= 180
         assert -1 <= angular <= 1
-        wheels = mecanum.move(speed, direction, angular)
+        w = mecanum.move(speed, direction, angular)
+        wheels = [w[0], w[2], w[3], w[1]]
         for w_id, wheel in enumerate(wheels, start=1):
             self.set_wheel(w_id, wheel[0], wheel[1])
+        if len(args) >= 1 and args[0] is True:
+            self.writeWs({"type": "Wheels", "powers": wheels})
 
     def move_no_mec(self, rightspeed, leftspeed):
         '''Set the robot to move without the mecanum wheels.
@@ -561,6 +589,64 @@ class Spine:
         response = self.send('loadmega', command)
         assert response == 'ok'
 
+    def set_pid_params(self, pid_id, kp, ki, kd):
+        ''' Modify the PID constants for each wheel.
+
+        Note that the PID IDs may not necessarily coincide with the wheel IDs.
+        '''
+
+        assert pid_id in range(4)
+        command = 'vp %d %.4f %.4f %.4f' % (pid_id, kp, ki, kd)
+        response = self.send('teensy', command)
+        assert response == 'ok'
+
+    def move_pid(self, speed, direction, angular):
+        '''Set the robot to move using the mecanum wheels and PID velocity
+        control.
+
+        :param speed:
+            Continuous value from 0 to 1 where 0 is stopped and 1 is full
+            speed.
+        :type speed: ``float``
+        :param direction:
+            Value from -180 to 180 where 0 is straight forward.
+            For reference, -90 is right, and 90 is left.
+        :type direction: ``int``
+        :param angular:
+            Continuous value from -1 to 1 where 0 is no angular rotation at all.
+            If 0, the robot's heading will not change while moving.
+            Positive value is right rotation.
+        :type angular: ``float``
+        '''
+
+        assert 0 <= speed <= 1
+        assert -180 <= direction <= 180
+        assert -1 <= angular <= 1
+        wheels = mecanum.move(speed, direction, angular)
+        sw = []
+        for speed, direction in wheels:
+            scaled = speed * (100. / 255.)
+            if direction == 'fw':
+                sw.append(scaled)
+            else:
+                sw.append(-1 * scaled)
+        logging.info(sw)
+        # Map the mecanum.move() output to wheel IDs
+        mw = [sw[0], sw[2], sw[3], sw[1]]
+        logging.info(mw)
+        # Correct for the fact that vs wheel IDs do not correspond to actual WIDs
+        mapped_wheels = [mw[0], mw[3], mw[2], mw[1]]
+        command = 'vs %f %f %f %f' % tuple(mapped_wheels)
+        logging.info(command)
+        response = self.send('teensy', command)
+        assert response == 'ok'
+
+    def writeWs(self, obj):
+        self.wsServer.stdin.write(json.dumps(obj) + "\n")
+
+    def write_battery_voltage(self):
+        self.writeWs({"type": "Battery", "val": voltage.get_battery_voltage()})
+
     def startup(self):
         '''Ping Arduino boards and briefly flash their LEDs.
 
@@ -604,3 +690,5 @@ class Spine:
             if self.use_lock:
                 os.remove(lockfn)
                 logger.info('Removed lock at %s.' % lockfn)
+        if hasattr(self, 'wsServer'):
+            self.wsServer.terminate()

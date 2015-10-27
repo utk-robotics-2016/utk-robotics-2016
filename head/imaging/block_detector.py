@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 import logging
-from color_point import color_point
 import numpy as np
 from datetime import datetime
 import cv2
+
+from color_point import color_point
 
 logger = logging.getLogger(__name__)
 
 
 class block_detector:
 
-    def __init__(self):
+    def __init__(self, s):
+
+        self.s = s
         self.top_points = ((65, 187), (65, 382),
                            (220, 187), (220, 382),
                            (390, 187), (390, 382),
@@ -268,5 +271,6 @@ class block_detector:
                     cp_top.set_y((cp_top.get_y() + cp_bottom.get_y()) / 2)
                     self.mark_point(cp_top, 0)
 
+        self.s.writeWs({"type": "Blocks", "val": rv})
         logger.info("Block Array: %s" % rv)
         return rv
