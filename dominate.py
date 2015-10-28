@@ -36,6 +36,7 @@ with get_spine() as s:
                     # tunnel on right
                     self.course = 'A'
                     self.dir_mod = -1
+                logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
 
             def move_pid(self, speed, dir, angle):
                 s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
@@ -45,7 +46,7 @@ with get_spine() as s:
                 s.move(speed, self.dir_mod * dir, self.dir_mod * angle)
 
             def move_to_corner(self):
-                keyframe(self.move_pid, (1, 0, 0), 6, (0, 0, 0), (1, 0, 0))
+                keyframe(self.move_pid, (1, 0, 0), 6.2, (0, 0, 0), (1, 0, 0))
                 # move back a smidgen
                 self.move(.75, 180, 0)
                 time.sleep(.1)
@@ -59,7 +60,7 @@ with get_spine() as s:
 
             # These two functions could be combined into one. Code duplication
             def strafe_until_white(self):
-                self.move_pid(1, -85, 0)
+                self.move_pid(1, -90, 0)
                 if self.course == "B":
                     while s.read_line_sensors()['left'] > self.qtr_threshold:
                         time.sleep(0.01)
@@ -69,7 +70,7 @@ with get_spine() as s:
                 # This function does not stop the movement after returning!!
 
             def strafe_until_black(self):
-                self.move_pid(1, -85, 0)
+                self.move_pid(1, -90, 0)
                 if self.course == "B":
                     while s.read_line_sensors()['left'] < self.qtr_threshold:
                         time.sleep(0.01)
@@ -166,8 +167,13 @@ with get_spine() as s:
                 # LOAD SEA BLOCKS
                 self.strafe_until_white()
                 s.stop()
+                thedir = 85
+                keyframe(self.move_pid, (0.5, thedir, 0), 2.25, (0, thedir, 0), (0, thedir, 0))
+                time.sleep(0.6)
                 self.bump_forward()
-                self.wait_until_arm_limit_pressed()
+                # self.wait_until_arm_limit_pressed()
+                self.ldr.load(strafe_dir='right')
+                # self.wait_until_arm_limit_pressed()
 
                 # UNLOAD SEA BLOCKS
                 self.strafe_until_black()
@@ -187,8 +193,9 @@ with get_spine() as s:
                 s.stop()
                 keyframe(self.move_pid, (.5, 0, 0), 3, (0, 0, 0), (0, 0, 0))
                 s.stop()
-                self.wait_until_arm_limit_pressed()
+                self.ldr.dump_blocks()
 
+                '''
                 # LOAD RAIL BLOCKS
                 # Move from sea zone
                 keyframe(self.move_pid, (1, -180, 0), 4, (0, -180, 0), (0, -180, 0))
@@ -204,10 +211,10 @@ with get_spine() as s:
                 s.stop()
                 self.wait_until_arm_limit_pressed()
                 time.sleep(1)
-                # '''
 
                 # UNLOAD RAIL BLOCKS
                 self.unload_rail()
+                '''
 
         bot = Robot()
 

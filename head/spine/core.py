@@ -186,6 +186,7 @@ class Spine:
         except AssertionError:
             logger.warning('Echo error to %s.' % repr(devname))
             logger.warning('Actual echo was %s.' % repr(echo))
+            logger.warning('Command was %s.' % repr(command))
             raise
         logger.debug("Response: %s" % repr(response[:-2]))
         # Be sure to chop off newline. We don't need it.
