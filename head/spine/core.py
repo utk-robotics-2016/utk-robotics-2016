@@ -482,7 +482,7 @@ class Spine:
         assert response == 'ok'
 
     calibrated_right = 180
-    calibrated_left = 0
+    calibrated_left = 5
 
     def open_loader_flaps(self):
         '''Set the loader servos to open the flaps.

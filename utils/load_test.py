@@ -19,10 +19,11 @@ logger = logging.getLogger(__name__)
 with get_spine() as s:
     ldr = Loader(s)
 
+    FWD_EXTEND_ROTS = 6.5
     # Open flaps and extend left
     ldr.open_flaps()
     ldr.widen(4.5)
-    ldr.extend(6, 'left')
+    ldr.extend(FWD_EXTEND_ROTS, 'left')
     time.sleep(1)
 
     # Strafe right to compress left side
@@ -33,8 +34,18 @@ with get_spine() as s:
     s.stop()
 
     # Compress blocks
-    ldr.extend(6, 'right')
+    ldr.extend(FWD_EXTEND_ROTS, 'right')
     ldr.widen(1)
+    '''
+    # Manually enable compression
+    s.set_width_motor(750, 'ccw')
+    time.sleep(0.2)
+    s.move_pid(0.5, 180, 0)
+    time.sleep(0.5)
+    # Manually disable compression
+    s.stop_width_motor()
+    s.stop()
+    '''
     ldr.widen(1.6)
 
     # Bring home the bacon
