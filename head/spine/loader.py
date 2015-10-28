@@ -167,8 +167,10 @@ class Loader(object):
         self.s.open_loader_flaps()
 
     def dump_blocks(self):
+        self.s.open_loader_flaps()
         self.extend(6.0, 'both')
         self.extend(0.0, 'both')
+        self.s.close_loader_flaps()
 
     def load(self, **kwargs):
         '''Execute a sequence of Loader methods that will load a set of blocks.
@@ -177,23 +179,33 @@ class Loader(object):
         the tolerances of the loader with the blocks.
         '''
         strafe_dir = kwargs.get('strafe_dir', None)
-        assert strafe_dir == 'right'
+        # assert strafe_dir == 'right'
+        assert strafe_dir in ['right', 'left']
         FWD_EXTEND_ROTS = 6.5
         # Open flaps and extend left
         self.open_flaps()
         self.widen(4.5)
-        self.extend(FWD_EXTEND_ROTS, 'left')
+        if strafe_dir == 'right':
+            self.extend(FWD_EXTEND_ROTS, 'left')
+        else:
+            self.extend(FWD_EXTEND_ROTS, 'right')
         time.sleep(1)
 
         # Strafe right to compress left side
         # self.s.move_pid(.5, -90, 0)
-        thedir = -85
+        if strafe_dir == 'right':
+            thedir = -85
+        else:
+            thedir = 85
         keyframe(self.s.move_pid, (0.5, thedir, 0), 2.15, (0, thedir, 0), (0, thedir, 0))
         time.sleep(1)
         self.s.stop()
 
         # Compress blocks
-        self.extend(FWD_EXTEND_ROTS, 'right')
+        if strafe_dir == 'right':
+            self.extend(FWD_EXTEND_ROTS, 'right')
+        else:
+            self.extend(FWD_EXTEND_ROTS, 'left')
         self.widen(1)
         '''
         # Manually enable compression
