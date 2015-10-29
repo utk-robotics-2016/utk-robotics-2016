@@ -186,6 +186,7 @@ class Spine:
         except AssertionError:
             logger.warning('Echo error to %s.' % repr(devname))
             logger.warning('Actual echo was %s.' % repr(echo))
+            logger.warning('Command was %s.' % repr(command))
             raise
         logger.debug("Response: %s" % repr(response[:-2]))
         # Be sure to chop off newline. We don't need it.
@@ -482,7 +483,7 @@ class Spine:
         assert response == 'ok'
 
     calibrated_right = 180
-    calibrated_left = 0
+    calibrated_left = 5
 
     def open_loader_flaps(self):
         '''Set the loader servos to open the flaps.
@@ -667,7 +668,7 @@ class Spine:
             higher level interface for the loader.
         '''
         command = 'rle'
-        response = self.send('mega',command)
+        response = self.send('mega', command)
         return float(response)
 
     def zero_lift_encoder(self):

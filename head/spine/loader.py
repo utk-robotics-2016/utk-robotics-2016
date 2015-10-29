@@ -1,6 +1,7 @@
 import operator
 import time
 import logging
+from head.spine.control import keyframe
 
 logger = logging.getLogger(__name__)
 
@@ -132,11 +133,11 @@ class Loader(object):
         if pos > encVal:
             direction = 'ccw'
             op = operator.ge
-            self.s.set_lift_motor(1023,direction)
+            self.s.set_lift_motor(1023, direction)
         elif pos < encVal:
             direction = 'cw'
             op = operator.le
-            self.s.set_lift_motor(500,direction)
+            self.s.set_lift_motor(500, direction)
         else:
             raise ValueError
 
@@ -166,26 +167,73 @@ class Loader(object):
         self.s.open_loader_flaps()
 
     def dump_blocks(self):
+        self.s.open_loader_flaps()
         self.extend(6.0, 'both')
         self.extend(0.0, 'both')
+        self.s.close_loader_flaps()
 
-    def load(self):
+    def load(self, **kwargs):
         '''Execute a sequence of Loader methods that will load a set of blocks.
 
         Before executing this method, make sure the robot is lined up within
         the tolerances of the loader with the blocks.
         '''
-        '''
+        strafe_dir = kwargs.get('strafe_dir', None)
+        # assert strafe_dir == 'right'
+        assert strafe_dir in ['right', 'left']
+        FWD_EXTEND_ROTS = 6.5
+        # Open flaps and extend left
         self.open_flaps()
-        time.sleep(2)
-        # self.extend(6.5)
-        self.extend(6)
-        time.sleep(2)
+        self.widen(4.5)
+        if strafe_dir == 'right':
+            self.extend(FWD_EXTEND_ROTS, 'left')
+        else:
+            self.extend(FWD_EXTEND_ROTS, 'right')
+        time.sleep(1)
+
+        # Strafe right to compress left side
+        # self.s.move_pid(.5, -90, 0)
+        if strafe_dir == 'right':
+            thedir = -85
+        else:
+            thedir = 85
+        keyframe(self.s.move_pid, (0.5, thedir, 0), 2.15, (0, thedir, 0), (0, thedir, 0))
+        time.sleep(1)
+        self.s.stop()
+
+        # Compress blocks
+        if strafe_dir == 'right':
+            self.extend(FWD_EXTEND_ROTS, 'right')
+        else:
+            self.extend(FWD_EXTEND_ROTS, 'left')
+        self.widen(1)
+        '''
+        # Manually enable compression
+        self.s.set_width_motor(750, 'ccw')
+        time.sleep(0.2)
+        self.s.move_pid(0.5, 180, 0)
+        time.sleep(0.5)
+        # Manually disable compression
+        self.s.stop_width_motor()
+        self.s.stop()
+        '''
+        self.widen(1.6)
+
+        # Bring home the bacon
+        self.s.move(1, 0, 0)
+        time.sleep(0.5)
         self.close_flaps()
+        time.sleep(1)  # Wait for servos to close
+        self.widen(1)
+        self.s.stop()
+        # '''
+        self.extend(0, 'both')
+
+        # self.widen(0)
+        # Allow servos time to move:
         time.sleep(2)
-        self.extend(0)
-        time.sleep(2)
-        self.open_flaps()
-        time.sleep(2)
+        # '''
         self.s.detach_loader_servos()
-        '''
+        # self.lift(0.3)
+        # raw_input("continue...")
+        # self.lift(0)

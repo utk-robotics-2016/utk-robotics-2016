@@ -33,8 +33,8 @@ const char LEFT_LINE_SENSOR = 3; // Analog
 const char RIGHT_LIMIT_SWITCH = 22;
 const char LEFT_LIMIT_SWITCH = 23;
 const char COURSE_MIRROR_LIMIT_SWITCH = 44;
-const char IR_A = A12; // Analog
-const char IR_B = A13; // Analog
+const char IR_A = A13; // Analog
+const char IR_B = A14; // Analog
 
 void setup() {
     // Init LED pin

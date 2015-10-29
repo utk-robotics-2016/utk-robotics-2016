@@ -84,6 +84,11 @@ void setup() {
   Serial.begin(115200);
 
   Wire.begin();
+  
+  // Delay to allow mega time to start up and power on the encoders
+  long t = millis();
+  while(millis() - t < 200);
+  
   // From the docs: you must call the init() of each encoder method in the
   // order that they are chained together. The one plugged into the Arduino
   // first, then the one plugged into that and so on until the last encoder.
