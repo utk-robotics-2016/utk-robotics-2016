@@ -55,7 +55,7 @@ with get_spine() as s:
 
             def bump_forward(self, bumptime=0.2, **kwargs):
                 self.move(1, 0, 0)
-                if kwargs.get('buttons', False) == True:
+                if kwargs.get('buttons', False) is True:
                     while True:
                         sw = s.read_switches()
                         logging.info(sw)
