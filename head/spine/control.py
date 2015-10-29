@@ -53,7 +53,8 @@ def keyframe(f, startargs, endargs, seconds, callback=defaultCallback):
     f(*endargs)
 
 
-def trapezoid(f, startargs, middleargs, endargs, constanttime, rampuptime=1.0, rampdowntime=1.0, callback=defaultCallback):
+def trapezoid(f, startargs, middleargs, endargs, totaltime, rampuptime=1.0, rampdowntime=1.0, callback=defaultCallback):
+    constanttime = totaltime - rampdowntime - rampuptime
     keyframe(f, startargs, middleargs, rampuptime, callback)
     keyframe(f, middleargs, middleargs, constanttime, callback)
     keyframe(f, middleargs, endargs, rampdowntime, callback)
