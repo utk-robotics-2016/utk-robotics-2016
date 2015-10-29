@@ -2,6 +2,7 @@ import time
 import operator
 import logging
 
+
 def keyframe(f, middleargs, seconds, startargs, endargs):
     ramptime = 1
     if seconds < ramptime * 2:
