@@ -668,7 +668,7 @@ class Spine:
             higher level interface for the loader.
         '''
         command = 'rle'
-        response = self.send('mega',command)
+        response = self.send('mega', command)
         return float(response)
 
     def zero_lift_encoder(self):

@@ -133,11 +133,11 @@ class Loader(object):
         if pos > encVal:
             direction = 'ccw'
             op = operator.ge
-            self.s.set_lift_motor(1023,direction)
+            self.s.set_lift_motor(1023, direction)
         elif pos < encVal:
             direction = 'cw'
             op = operator.le
-            self.s.set_lift_motor(500,direction)
+            self.s.set_lift_motor(500, direction)
         else:
             raise ValueError
 
