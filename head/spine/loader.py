@@ -1,6 +1,7 @@
 import operator
 import time
 import logging
+from head.spine.control import keyframe
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class Loader(object):
         # Measured in rotations forward from the position of not extended
         self.flap_extension = 0
 
-    def extend(self, pos, **kwargs):
+    def extend(self, pos, side, **kwargs):
         '''Extend (or retract) the loader slide rails to a given position.
 
         :param pos:
@@ -35,63 +36,204 @@ class Loader(object):
               Abort the rail movement if the rails do not reach their
               destination after ``e_stop`` seconds. Defaults to 4.
         '''
-        encoders = [self.s.get_loader_encoder(i) for i in range(2)]
+        if side == 'left':
+            encoders = [1]
+        elif side == 'right':
+            encoders = [0]
+        elif side == 'both':
+            encoders = [0, 1]
 
-        if pos > encoders[0] and pos > encoders[1]:
+        encVals = [self.s.get_loader_encoder(i) for i in encoders]
+
+        condition1 = True
+        for i in range(len(encoders)):
+            condition1 = condition1 and pos > encVals[i]
+        condition2 = True
+        for i in range(len(encoders)):
+            condition2 = condition2 and pos < encVals[i]
+
+        if condition1:
             direction = 'fw'
             op = operator.ge
-        elif pos < encoders[0] and pos < encoders[1]:
+        elif condition2:
             direction = 'bw'
             op = operator.le
         else:
             raise ValueError
 
         motorrunning = []
-        for i in range(2):
+        for i in encoders:
             self.s.set_loader_motor(i, 500, direction)
             motorrunning.append(True)
         starttime = time.time()
 
         while True in motorrunning:
             if time.time() - starttime > kwargs.get('e_stop', 4):
-                self.s.stop_loader_motor(0)
-                self.s.stop_loader_motor(1)
-            for i in range(2):
+                for i in encoders:
+                    self.s.stop_loader_motor(i)
+                break
+            for i in range(len(encoders)):
                 if motorrunning[i]:
-                    encval = self.s.get_loader_encoder(i)
-                    if op(encval, pos):
-                        self.s.stop_loader_motor(i)
+                    encVal = self.s.get_loader_encoder(encoders[i])
+                    if op(encVal, pos):
+                        self.s.stop_loader_motor(encoders[i])
                         motorrunning[i] = False
 
-    def close_flap(self):
-        '''Close the loader flap.
+    def widen(self, pos, **kwargs):
+        ''' Widen (or retract) the loader to a given position
+
+        :param pos:
+            Absolute position, in rotations of the gear, to move to.
+        :type pos: ``float``
+
+        :Keyword Arguments:
+            * **e_stop** (``float``) --
+              Abort the movement if destination not reach after ``e_stop`` seconds. Defaults to 4.
+        '''
+
+        encVal = self.s.get_loader_encoder(2)
+
+        if pos > encVal:
+            direction = 'cw'
+            op = operator.ge
+        elif pos < encVal:
+            direction = 'ccw'
+            op = operator.le
+        else:
+            raise ValueError
+
+        self.s.set_width_motor(750, direction)
+        starttime = time.time()
+
+        while True:
+            if time.time() - starttime > kwargs.get('e_stop', 4):
+                self.s.stop_width_motor()
+                break
+            encVal = self.s.get_loader_encoder(2)
+            if op(encVal, pos):
+                self.s.stop_width_motor()
+                break
+
+    def lift(self, pos, **kwargs):
+        ''' Lift (or lower) the loader to a given position
+
+        :param pos:
+            Absolute position, in rotations of the gear, to move to.
+        :type pos: ``float``
+
+        :Keyword Arguments:
+            * **e_stop** (``float``) --
+              Abort the movement if destination not reach after ``e_stop`` seconds. Defaults to 10.
+        '''
+        def encoder_inches():
+            return self.s.read_lift_encoder() / 464.64 / 20.0
+
+        encVal = encoder_inches()
+
+        if pos > encVal:
+            direction = 'ccw'
+            op = operator.ge
+            self.s.set_lift_motor(1023, direction)
+        elif pos < encVal:
+            direction = 'cw'
+            op = operator.le
+            self.s.set_lift_motor(500, direction)
+        else:
+            raise ValueError
+
+        starttime = time.time()
+
+        while True:
+            if time.time() - starttime > kwargs.get('e_stop', 10):
+                self.s.stop_lift_motor()
+                break
+            encVal = encoder_inches()
+            if op(encVal, pos):
+                self.s.stop_lift_motor()
+                break
+
+    def close_flaps(self):
+        '''Close the loader flaps.
 
         This method is preferred to calling Spine's direct method.
         '''
-        self.s.close_loader_flap()
+        self.s.close_loader_flaps()
 
-    def open_flap(self):
-        '''Open the loader flap.
+    def open_flaps(self):
+        '''Open the loader flaps.
 
         This method is preferred to calling Spine's direct method.
         '''
-        self.s.open_loader_flap()
+        self.s.open_loader_flaps()
 
-    def load(self):
+    def dump_blocks(self):
+        self.s.open_loader_flaps()
+        self.extend(6.0, 'both')
+        self.extend(0.0, 'both')
+        self.s.close_loader_flaps()
+
+    def load(self, **kwargs):
         '''Execute a sequence of Loader methods that will load a set of blocks.
 
         Before executing this method, make sure the robot is lined up within
         the tolerances of the loader with the blocks.
         '''
-        self.open_flap()
+        strafe_dir = kwargs.get('strafe_dir', None)
+        # assert strafe_dir == 'right'
+        assert strafe_dir in ['right', 'left']
+        FWD_EXTEND_ROTS = 6.5
+        # Open flaps and extend left
+        self.open_flaps()
+        self.widen(4.5)
+        if strafe_dir == 'right':
+            self.extend(FWD_EXTEND_ROTS, 'left')
+        else:
+            self.extend(FWD_EXTEND_ROTS, 'right')
+        time.sleep(1)
+
+        # Strafe right to compress left side
+        # self.s.move_pid(.5, -90, 0)
+        if strafe_dir == 'right':
+            thedir = -85
+        else:
+            thedir = 85
+        keyframe(self.s.move_pid, (0.5, thedir, 0), 2.15, (0, thedir, 0), (0, thedir, 0))
+        time.sleep(1)
+        self.s.stop()
+
+        # Compress blocks
+        if strafe_dir == 'right':
+            self.extend(FWD_EXTEND_ROTS, 'right')
+        else:
+            self.extend(FWD_EXTEND_ROTS, 'left')
+        self.widen(1)
+        '''
+        # Manually enable compression
+        self.s.set_width_motor(750, 'ccw')
+        time.sleep(0.2)
+        self.s.move_pid(0.5, 180, 0)
+        time.sleep(0.5)
+        # Manually disable compression
+        self.s.stop_width_motor()
+        self.s.stop()
+        '''
+        self.widen(1.6)
+
+        # Bring home the bacon
+        self.s.move(1, 0, 0)
+        time.sleep(0.5)
+        self.close_flaps()
+        time.sleep(1)  # Wait for servos to close
+        self.widen(1)
+        self.s.stop()
+        # '''
+        self.extend(0, 'both')
+
+        # self.widen(0)
+        # Allow servos time to move:
         time.sleep(2)
-        # self.extend(6.5)
-        self.extend(6)
-        time.sleep(2)
-        self.close_flap()
-        time.sleep(2)
-        self.extend(0)
-        time.sleep(2)
-        self.open_flap()
-        time.sleep(2)
+        # '''
         self.s.detach_loader_servos()
+        # self.lift(0.3)
+        # raw_input("continue...")
+        # self.lift(0)

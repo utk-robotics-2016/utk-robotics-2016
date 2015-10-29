@@ -1,6 +1,9 @@
 #include <I2CEncoder.h>
 #include <Wire.h>
 
+#define STR1(x)  #x
+#define STR(x)  STR1(x)
+
 // Globals
 int ledState = HIGH;
 // Command parsing
@@ -28,7 +31,7 @@ int cspin[2] = {2, 3}; // CS: Current sense ANALOG input
 int enpin[2] = {0, 1}; // EN: Status of switches output (Analog pin)
 
 // For encoders:
-I2CEncoder encoders[2];
+I2CEncoder encoders[3];
 
 void setup() {
     // Init LED pin
@@ -58,11 +61,13 @@ void setup() {
     // From the docs: you must call the init() of each encoder method in the
     // order that they are chained together. The one plugged into the Arduino
     // first, then the one plugged into that and so on until the last encoder.
-    encoders[0].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
-    encoders[1].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA);
+    encoders[0].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA); // Right extend
+    encoders[1].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA); // Left extend
+    encoders[2].init(MOTOR_393_TORQUE_ROTATIONS, MOTOR_393_TIME_DELTA); // Width
     // Ideally, moving forward should count as positive rotation.
     // Make this happen:
     encoders[0].setReversed(true);
+    encoders[2].setReversed(true);
 }
 
 void motorOff(int motor)
@@ -246,28 +251,58 @@ void parseAndExecuteCommand(String command) {
     else if(args[0].equals(String("ep"))) { // encoder position (in rotations)
         if(numArgs == 2) {
             int enc = args[1].toInt();
+            if(enc >= 0 && enc < 3){
             double pos = encoders[enc].getPosition();
             Serial.println(pos);
+            }
+            else{
+                Serial.println("error: usage - 'ep [0/1/2]'");
+            }
         } else {
-            Serial.println("error: usage - 'ep [0/1]'");
+            Serial.println("error: usage - 'ep [0/1/2]'");
         }
     }
     else if(args[0].equals(String("erp"))) { // encoder raw position (in ticks)
         if(numArgs == 2) {
             int enc = args[1].toInt();
+            if(enc >= 0 && enc < 3){
             long pos = encoders[enc].getRawPosition();
             Serial.println(pos);
+            }
+            else{
+                Serial.println("error: usage - 'ep [0/1/2]'");
+            }
         } else {
-            Serial.println("error: usage - 'erp [0/1]'");
+            Serial.println("error: usage - 'erp [0/1/2]'");
         }
     }
     else if(args[0].equals(String("ez"))) { // encoder zero
         if(numArgs == 2) {
             int enc = args[1].toInt();
+            if(enc >= 0 && enc < 3){
             encoders[enc].zero();
             Serial.println("ok");
+            }
+            else{
+                Serial.println("error: usage - 'ep [0/1/2]'");
+            }
         } else {
-            Serial.println("error: usage - 'ez [0/1]'");
+            Serial.println("error: usage - 'ez [0/1/2]'");
+        }
+    }
+    else if(args[0].equals(String("ver"))) { // version information
+        if(numArgs == 1) {
+            String out = "Source last modified: ";
+            out += __TIMESTAMP__;
+            out += "\r\nPreprocessor timestamp: " __DATE__ " " __TIME__;
+            out += "\r\nSource code line number: ";
+            out += __LINE__;
+            out += "\r\nUsername: " STR(__USER__);
+            out += "\r\nDirectory: " STR(__DIR__);
+            out += "\r\nGit hash: " STR(__GIT_HASH__);
+            Serial.println(out);
+        } else {
+            Serial.println("error: usage - 'ver'");
         }
     }
     else {
