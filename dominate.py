@@ -47,10 +47,11 @@ with get_spine() as s:
 
             def move_to_corner(self):
                 keyframe(self.move_pid, (1, 0, 0), 6.1, (0, 0, 0), (1, 0, 0))
+                self.bump_forward()
                 # move back a smidgen
-                self.move(.75, 180, 0)
+                self.move_pid(.75, 180, 0)
                 time.sleep(.1)
-                self.move(1, 75, 0)
+                self.move(1, 90, 0)
                 time.sleep(.375)
 
             def bump_forward(self, bumptime=0.2, **kwargs):
@@ -67,7 +68,13 @@ with get_spine() as s:
 
             # These two functions could be combined into one. Code duplication
             def strafe_until_white(self):
-                self.move_pid(1, -85, 0)
+                # change angle for course A to fix issue where the corner of the loader jams into the course
+                if self.course == "A":
+                    angle = -89;
+                else:
+                    angle = -85;
+
+                self.move_pid(1, angle, 0)
                 if self.course == "B":
                     while s.read_line_sensors()['left'] > self.qtr_threshold:
                         time.sleep(0.01)
@@ -77,14 +84,20 @@ with get_spine() as s:
                 # This function does not stop the movement after returning!!
 
             def strafe_until_black(self):
-                self.move_pid(1, -85, 0)
+                # change angle for course A to fix issue where the corner of the loader jams into the course
+                if self.course == "A":
+                    angle = -89;
+                else:
+                    angle = -85;
+
+                self.move_pid(1, angle, 0)
                 if self.course == "B":
                     while s.read_line_sensors()['left'] < self.qtr_threshold:
                         time.sleep(0.01)
                 else:
                     while s.read_line_sensors()['right'] < self.qtr_threshold:
                         time.sleep(0.01)
-                # This function does not stop the movement after returning!!
+                # This function does not stop the movement after returning!
 
             def wait_until_arm_limit_pressed(self):
                 logging.info("Waiting for arm limit press.")
@@ -178,16 +191,24 @@ with get_spine() as s:
                 keyframe(self.move_pid, (0.5, thedir, 0), 2.20, (0, thedir, 0), (0, thedir, 0))
                 time.sleep(0.6)
                 self.bump_forward()
+                logger.info("At zone A")
                 # self.wait_until_arm_limit_pressed()
-                self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                # self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
                 # self.wait_until_arm_limit_pressed()
 
                 # UNLOAD SEA BLOCKS
+                self.move(.75, 180, 0)
+                time.sleep(.1)
+                s.stop()
+                if self.course == "A":
+                    self.strafe_until_white()
                 self.strafe_until_black()
                 self.strafe_until_white()
+                logger.info("At zone B")
                 self.strafe_until_black()
                 self.strafe_until_white()
                 s.stop()
+                logger.info("At zone C")
                 time.sleep(0.5)
                 # back away from the rail zone
                 self.move(1, 80, 0)
@@ -200,7 +221,30 @@ with get_spine() as s:
                 s.stop()
                 keyframe(self.move_pid, (.5, 0, 0), 3, (0, 0, 0), (0, 0, 0))
                 s.stop()
-                self.ldr.dump_blocks()
+                logger.info("At Sea Zone")
+                # self.ldr.dump_blocks()
+
+                # Move from sea zone to Zone B
+                self.move(1, -180, 0)
+                time.sleep(.2)
+                s.stop()
+                self.move(1, -90, 0)
+                time.sleep(.3)
+                s.stop()
+                
+                # turn around
+                self.move_pid(0, 0, 1)
+                time.sleep(2.1)
+                s.stop()
+
+                # temporarily invert direction -- quick fix to use current strafe function
+                self.dir_mod *= -1
+                self.strafe_until_white()
+                s.stop()
+                self.dir_mod *= -1
+                keyframe(self.move_pid, (1, 0, 0), 4, (0, 0, 0), (0, 0, 0))
+                self.bump_forward()
+                logger.info("At Zone B... hopefully")
 
                 '''
                 # LOAD RAIL BLOCKS
