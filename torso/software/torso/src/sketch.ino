@@ -1,5 +1,6 @@
 #include <Servo.h>
 #include <Encoder.h>
+#include <NewPing.h>
 
 #define STR1(x)  #x
 #define STR(x)  STR1(x)
@@ -30,11 +31,19 @@ const char SUCTION = 47;
 const char RELEASE_SUCTION = 46;
 const char RIGHT_LINE_SENSOR = 2; // Analog
 const char LEFT_LINE_SENSOR = 3; // Analog
-const char RIGHT_LIMIT_SWITCH = 22;
-const char LEFT_LIMIT_SWITCH = 23;
+
+const char FRONT_LEFT_ULTRASONIC = 22;
+const char FRONT_RIGHT_ULTRASONIC = 23;
+const char LEFT_ULTRASONIC = 24; // Get checked
+const char RIGHT_ULTRASONIC = 25; // Get checked
+const char LIFT_LIMIT_SWITCH = 26;
+
+NewPing front_left_sonar(FRONT_LEFT_ULTRASONIC,FRONT_LEFT_ULTRASONIC);
+NewPing front_right_sonar(FRONT_RIGHT_ULTRASONIC,FRONT_RIGHT_ULTRASONIC);
+//NewPing left_sonar(LEFT_ULTRASONIC,LEFT_ULTRASONIC);
+//NewPing right_sonar(RIGHT_ULTRASONIC,RIGHT_ULTRASONIC);
+
 const char COURSE_MIRROR_LIMIT_SWITCH = 44;
-const char IR_A = A13; // Analog
-const char IR_B = A14; // Analog
 
 void setup() {
     // Init LED pin
@@ -47,12 +56,10 @@ void setup() {
     pinMode(SUCTION, OUTPUT);
     pinMode(RELEASE_SUCTION, OUTPUT);
     pinMode(ARM_LIMIT, INPUT);
-    pinMode(RIGHT_LIMIT_SWITCH, INPUT_PULLUP);
-    pinMode(LEFT_LIMIT_SWITCH, INPUT_PULLUP);
-    /*pinMode(RIGHT_LIMIT_SWITCH, INPUT);*/
-    /*pinMode(LEFT_LIMIT_SWITCH, INPUT);*/
     pinMode(COURSE_MIRROR_LIMIT_SWITCH, INPUT);
 
+
+    pinMode(LIFT_LIMIT_SWITCH, INPUT_PULLUP);
     // Init serial
     Serial.begin(115200);
 
@@ -270,12 +277,37 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'ral'");
         }
     }
-    /*else if(args[0].equals(String("irac"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (CLOSE RANGE, i.e. <=17cm)*/
-        /*read_ir(IR_A,0xFF);*/
-    /*}*/
-    /*else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (Not Close Range, i.e. >17cm)*/
-        /*read_ir(IR_A,0x00);*/
-    /*}*/
+    else if(args[0].equals(String("rus"))){ // read ultrasonic
+        if(numArgs == 2){
+            unsigned int uS;
+            if(args[1].equals(String("fl")))
+            {
+                uS = front_left_sonar.ping();
+            }
+            else if(args[1].equals(String("fr")))
+            {
+                uS = front_right_sonar.ping();
+            }
+            else if(args[2].equals(String("l")))
+            {
+//                uS = left_sonar.ping();
+            }
+            else if(args[3].equals(String("r")))
+            {
+//                uS = right_sonar.ping();
+            }
+            else
+            {
+                Serial.println("error: usage - 'rus [fl/fr/l/r]'");
+                return;
+            }
+            Serial.println(uS);
+        }
+        else
+        {
+            Serial.println("error: usage - 'rus [fl/fr/l/r]'");
+        }
+    }
     else if(args[0].equals(String("rls"))) { // read line sensors
         if(numArgs == 1) {
             String out = "";
@@ -289,12 +321,10 @@ void parseAndExecuteCommand(String command) {
     }
     else if(args[0].equals(String("rsw"))) { // read limit switches
         if(numArgs == 1) {
-            String out = "";
-            out += digitalRead(RIGHT_LIMIT_SWITCH);
-            out += " ";
-            out += digitalRead(LEFT_LIMIT_SWITCH);
-            out += " ";
+            String out = ""
             out += digitalRead(COURSE_MIRROR_LIMIT_SWITCH);
+            out += " ";
+            out += digitalRead(LIFT_LIMIT_SWITCH);
             Serial.println(out);
         } else {
             Serial.println("error: usage - 'rsw'");
@@ -315,17 +345,6 @@ void parseAndExecuteCommand(String command) {
         }
         else{
             Serial.println("error: usage - 'zle'");
-        }
-    }
-    else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder RAW ADC
-        if(numArgs == 1){
-            String out = "";
-            out += analogRead(IR_A);
-            out += " ";
-            out += analogRead(IR_B);
-            Serial.println(out);
-        } else {
-            Serial.println("error: usage - 'ira'");
         }
     }
     else if(args[0].equals(String("ver"))) { // version information

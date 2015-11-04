@@ -346,21 +346,36 @@ class Spine:
         command = 'rsw'
         response = self.send('mega', command)
         response = response.split(' ')
-        return {'right': int(response[0]),
-                'left': int(response[1]),
-                'course_mirror': int(response[2])}
+        return {'course_mirror': int(response[0]), 'lift': int(response[1])}
 
-    def read_ir_a(self):
-        '''Reads Sharp GP2D12 IR Rangefinder mounted between two wheels on the lower chassis
-
-        :return: Dictionary for the distance ADC values
+    def read_ultrasonics(self, pos, unit):
+        '''Reads the ultrasonics
+        :return: distance in specified unit
         '''
+        command = 'rus'
 
-        command = 'ira'
+        assert pos in ['front_left', 'front_right', 'left', 'right']
+        if pos == 'front_left':
+            command += ' fl'
+        elif pos == 'front_right':
+            command += ' fr'
+        elif pos == 'left':
+            command += ' l'
+        elif pos == 'right':
+            command += ' r'
+
         response = self.send('mega', command)
-        response = response.split(' ')
-        return {'left': int(response[0]),
-                'right': int(response[1])}
+
+        assert unit in ['inch','cm']
+        if unit == 'inch':
+            response = float(response) / 2.0 / 73.746
+        elif unit == 'cm':
+            response = float(response) / 2.0 / 29.1
+
+        if response == 0:
+            response = float('inf')
+
+        return response
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
