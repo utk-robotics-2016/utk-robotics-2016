@@ -177,7 +177,7 @@ with get_spine() as s:
                         lastzid = zid
 
             def start(self):
-                # '''
+                # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("Done!")
 
@@ -200,20 +200,24 @@ with get_spine() as s:
                 self.move(.75, 180, 0)
                 time.sleep(.1)
                 s.stop()
+                # traverse the barge area using the line sensors 
+                # special case for course A due to differences in how it aligns
                 if self.course == "A":
                     self.strafe_until_white()
                 self.strafe_until_black()
                 self.strafe_until_white()
-                logger.info("At zone B")
+                logger.info("Passing zone B")
                 self.strafe_until_black()
                 self.strafe_until_white()
                 s.stop()
-                logger.info("At zone C")
+                logger.info("Passing zone C")
                 time.sleep(0.5)
+                
                 # back away from the rail zone
                 self.move(1, 80, 0)
                 time.sleep(0.275)
                 s.stop()
+
                 # Move to sea zone
                 keyframe(self.move_pid, (1, -180, 0), 4, (0, -180, 0), (0, -180, 0))
                 self.move_pid(0, 0, 1)
@@ -238,13 +242,18 @@ with get_spine() as s:
                 s.stop()
 
                 # temporarily invert direction -- quick fix to use current strafe function
+                # attempt to strafe to the central white line
                 self.dir_mod *= -1
                 self.strafe_until_white()
                 s.stop()
                 self.dir_mod *= -1
+                # move forward along the central white line
                 keyframe(self.move_pid, (1, 0, 0), 4, (0, 0, 0), (0, 0, 0))
+                # move into the wall of the barge -- using this instead of time
                 self.bump_forward()
                 logger.info("At Zone B... hopefully")
+
+                # from here, theoretically, we can strafe over and be ready for rail block sorting
 
                 '''
                 # LOAD RAIL BLOCKS
