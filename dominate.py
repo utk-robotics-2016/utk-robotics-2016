@@ -70,9 +70,9 @@ with get_spine() as s:
             def strafe_until_white(self):
                 # change angle for course A to fix issue where the corner of the loader jams into the course
                 if self.course == "A":
-                    angle = -89;
+                    angle = -89
                 else:
-                    angle = -85;
+                    angle = -85
 
                 self.move_pid(1, angle, 0)
                 if self.course == "B":
@@ -86,9 +86,9 @@ with get_spine() as s:
             def strafe_until_black(self):
                 # change angle for course A to fix issue where the corner of the loader jams into the course
                 if self.course == "A":
-                    angle = -89;
+                    angle = -89
                 else:
-                    angle = -85;
+                    angle = -85
 
                 self.move_pid(1, angle, 0)
                 if self.course == "B":
