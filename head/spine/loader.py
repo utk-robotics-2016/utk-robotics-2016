@@ -152,6 +152,15 @@ class Loader(object):
                 self.s.stop_lift_motor()
                 break
 
+    def zero_lift(self):
+
+        self.widen(1)
+        self.s.set_lift_motor(500, 'cw')
+        while self.read_switches()['lift'] == 1:
+            time.sleep(.01)
+        self.s.stop_lift_motor()
+        self.s.zero_lift_encoder()
+
     def close_flaps(self):
         '''Close the loader flaps.
 
