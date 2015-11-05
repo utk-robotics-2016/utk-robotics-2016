@@ -32,12 +32,12 @@ const char CH4_PWM = 14;  // Rear Right
 const char CH4_DIR = 23;
 const char CH4_CUR = 41;
 
-const char WIDTH_PWM = 27;
-const char WIDTH_IN1 = 4;
-const char WIDTH_IN2 = 5;
-const char LIFT_PWM = 16;
-const char LIFT_IN1 = 7;
-const char LIFT_IN2 = 8;
+const char LIFT_PWM = 27;
+const char LIFT_IN1 = 4;
+const char LIFT_IN2 = 5;
+const char WIDTH_PWM = 16;
+const char WIDTH_IN1 = 7;
+const char WIDTH_IN2 = 8;
 
 
 // For encoders:
@@ -84,6 +84,11 @@ void setup() {
   Serial.begin(115200);
 
   Wire.begin();
+  
+  // Delay to allow mega time to start up and power on the encoders
+  long t = millis();
+  while(millis() - t < 200);
+  
   // From the docs: you must call the init() of each encoder method in the
   // order that they are chained together. The one plugged into the Arduino
   // first, then the one plugged into that and so on until the last encoder.
@@ -360,12 +365,12 @@ void parseAndExecuteCommand(String command) {
         inPin2 = LOW;
       }
 
-      if (args[1].equals(String("0"))) {
+      if (args[1].equals(String("1"))) {
         digitalWrite(WIDTH_IN1, inPin1);
         digitalWrite(WIDTH_IN2, inPin2);
         analogWrite(WIDTH_PWM, speed);
         Serial.println("ok");
-      } else if (args[1].equals(String("1"))) {
+      } else if (args[1].equals(String("0"))) {
         digitalWrite(LIFT_IN1, inPin1);
         digitalWrite(LIFT_IN2, inPin2);
         analogWrite(LIFT_PWM, speed);
@@ -378,16 +383,15 @@ void parseAndExecuteCommand(String command) {
   }
   else if (args[0].equals(String("mos"))) { // motor stop
     if (numArgs == 2) {
-      if (args[1].equals(String("0"))) {
+      if (args[1].equals(String("1"))) {
         digitalWrite(WIDTH_IN1, LOW);
         digitalWrite(WIDTH_IN2, LOW);
         Serial.println("ok");
-      } else if (args[1].equals(String("1"))) {
+      } else if (args[1].equals(String("0"))) {
         digitalWrite(LIFT_IN1, LOW);
         digitalWrite(LIFT_IN2, LOW);
         Serial.println("ok");
       }
-      Serial.println("ok");
     } else {
       Serial.println("error: usage - 'mos [0/1]'");
     }

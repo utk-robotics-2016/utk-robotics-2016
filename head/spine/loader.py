@@ -1,7 +1,7 @@
 import operator
 import time
 import logging
-from head.spine.control import keyframe
+from head.spine.control import trapezoid
 
 logger = logging.getLogger(__name__)
 
@@ -152,6 +152,15 @@ class Loader(object):
                 self.s.stop_lift_motor()
                 break
 
+    def zero_lift(self):
+
+        self.widen(1)
+        self.s.set_lift_motor(500, 'cw')
+        while self.read_switches()['lift'] == 1:
+            time.sleep(.01)
+        self.s.stop_lift_motor()
+        self.s.zero_lift_encoder()
+
     def close_flaps(self):
         '''Close the loader flaps.
 
@@ -197,7 +206,7 @@ class Loader(object):
             thedir = -85
         else:
             thedir = 85
-        keyframe(self.s.move_pid, (0.5, thedir, 0), 2.15, (0, thedir, 0), (0, thedir, 0))
+        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 2.15)
         time.sleep(1)
         self.s.stop()
 

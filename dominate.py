@@ -8,6 +8,7 @@ from head.spine.arm import get_arm
 from head.spine.block_picking import BlockPicker
 from head.spine.loader import Loader
 from head.spine.control import keyframe
+from head.spine.control import trapezoid
 
 fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
 # logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
@@ -46,8 +47,8 @@ with get_spine() as s:
                 s.move(speed, self.dir_mod * dir, self.dir_mod * angle)
 
             def move_to_corner(self):
-                keyframe(self.move_pid, (1, 0, 0), 6.1, (0, 0, 0), (1, 0, 0))
-                self.bump_forward()
+                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (1, 0, 0), 6.1)
+
                 # move back a smidgen
                 self.move_pid(.75, 180, 0)
                 time.sleep(.1)
@@ -116,7 +117,7 @@ with get_spine() as s:
                         # Move away from railroad
                         s.move_for(1, 0.6, 70, 0)
                     elif currzone != -1:
-                        keyframe(self.move_pid, (0.5, 180, 0), 2.8, (0, 180, 0), (0, 180, 0))
+                        trapezoid(self.move_pid, (0, 180, 0), (0.5, 180, 0), (0, 180, 0), 2.8)
                         s.stop()
                 else:
                     raise ValueError
@@ -180,6 +181,7 @@ with get_spine() as s:
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("Done!")
+                self.ldr.open_flaps()
 
                 # self.move_pid(1, -135, -.1)
                 # time.sleep(0.15)
@@ -188,7 +190,7 @@ with get_spine() as s:
                 self.strafe_until_white()
                 s.stop()
                 thedir = 85
-                keyframe(self.move_pid, (0.5, thedir, 0), 2.20, (0, thedir, 0), (0, thedir, 0))
+                trapezoid(self.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 2.2)
                 time.sleep(0.6)
                 self.bump_forward()
                 logger.info("At zone A")
@@ -219,11 +221,11 @@ with get_spine() as s:
                 s.stop()
 
                 # Move to sea zone
-                keyframe(self.move_pid, (1, -180, 0), 4, (0, -180, 0), (0, -180, 0))
+                trapezoid(self.move_pid, (0, -180, 0), (1, -180, 0), (0, -180, 0), 4)
                 self.move_pid(0, 0, 1)
                 time.sleep(2.1)
                 s.stop()
-                keyframe(self.move_pid, (.5, 0, 0), 3, (0, 0, 0), (0, 0, 0))
+                trapezoid(self.move_pid, (0, 0, 0), (.5, 0, 0), (0, 0, 0), 3)
                 s.stop()
                 logger.info("At Sea Zone")
                 # self.ldr.dump_blocks()
@@ -248,9 +250,9 @@ with get_spine() as s:
                 s.stop()
                 self.dir_mod *= -1
                 # move forward along the central white line
-                keyframe(self.move_pid, (1, 0, 0), 4, (0, 0, 0), (0, 0, 0))
+                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 4)
                 # move into the wall of the barge -- using this instead of time
-                self.bump_forward()
+                #self.bump_forward()
                 logger.info("At Zone B... hopefully")
 
                 # from here, theoretically, we can strafe over and be ready for rail block sorting
@@ -258,11 +260,11 @@ with get_spine() as s:
                 '''
                 # LOAD RAIL BLOCKS
                 # Move from sea zone
-                keyframe(self.move_pid, (1, -180, 0), 4, (0, -180, 0), (0, -180, 0))
+                trapezoid(self.move_pid, (0, -180, 0), (1, -180, 0), (0, -180, 0), 4)
                 self.move_pid(0, 0, 1)
                 time.sleep(2.1)
                 s.stop()
-                keyframe(self.move_pid, (.7, 0, 0), 3, (0, 0, 0), (0, 0, 0))
+                trapezoid(self.move_pid, (0, 0, 0), (.7, 0, 0), (0, 0, 0), 3)
                 # self.bump_forward(bumptime=0.375)
                 s.stop()
                 # Move closer to rail zone
