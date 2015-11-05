@@ -69,11 +69,7 @@ with get_spine() as s:
 
             # These two functions could be combined into one. Code duplication
             def strafe_until_white(self):
-                # change angle for course A to fix issue where the corner of the loader jams into the course
-                if self.course == "A":
-                    angle = -85
-                else:
-                    angle = -85
+                angle = -85
 
                 self.move_pid(1, angle, 0)
                 if self.course == "B":
@@ -85,11 +81,7 @@ with get_spine() as s:
                 # This function does not stop the movement after returning!!
 
             def strafe_until_black(self):
-                # change angle for course A to fix issue where the corner of the loader jams into the course
-                if self.course == "A":
-                    angle = -85
-                else:
-                    angle = -85
+                angle = -85
 
                 self.move_pid(1, angle, 0)
                 if self.course == "B":
@@ -205,8 +197,9 @@ with get_spine() as s:
 
                 # traverse the barge area using the line sensors 
                 # special case for course A due to differences in how it aligns
-                if self.course == "A":
-                    self.strafe_until_white()
+                #if self.course == "A":
+                #    self.strafe_until_white()
+                self.strafe_until_white()
                 self.strafe_until_black()
                 self.strafe_until_white()
                 logger.info("Passing zone B")
@@ -247,7 +240,7 @@ with get_spine() as s:
 
                 # temporarily invert direction -- quick fix to use current strafe function
                 # attempt to strafe to the central white line
-                trapezoid(self.move_pid, (0, 0, 0), (.8, 89, 0), (0, 0, 0), 2.5)
+                trapezoid(self.move_pid, (0, 0, 0), (.75, 89, 0), (0, 0, 0), 2.25)
                 self.dir_mod *= -1
                 self.strafe_until_white()
                 s.stop()
