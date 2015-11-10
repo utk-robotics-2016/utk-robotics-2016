@@ -653,7 +653,7 @@ class Spine:
             The speed from 0 to 1024 to set the motor to.
         :type speed: ``int``
         :param direction:
-            'cw' should be extending out, 'ccw' should be retracting.
+            'cw' is going down, 'ccw' is going up.
         :type direction: ``string``
         '''
         assert 0 <= speed <= 1024
