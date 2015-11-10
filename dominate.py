@@ -48,23 +48,22 @@ with get_spine() as s:
 
             # rotate the orientation of the robot by 180 degrees
             def rotate_180(self):
-                self.move_pid(0, 0, 1)
-                time.sleep(2.1)
-                s.stop()
+                trapezoid(s.move_pid, (0, 0, 0), (0, 0, 1), (0, 0, 0), 1.74, rampuptime=.7, rampdowntime=1)
 
             # rotate the orientation of the robot by 90 degrees
             def rotate_90(self, dir):
-                # TODO: test this
-                if dir == 'left':
-                    dir_val = -1
-                else
-                    dir_val = 1
-                self.move_pid(0, 0, dir_val)
-                time.sleep(1.1)
-                s.stop()
+                if dir == 'right':
+                    angle = 0.5
+                elif dir == 'left':
+                    angle = -0.5
+                else:
+                    raise ValueError
+
+                trapezoid(s.move_pid, (0, 0, 0), (0, 0, angle), (0, 0, 0), 1.74, rampuptime=.7, rampdowntime=1)
 
             def move_to_corner(self):
                 trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (1, 0, 0), 6.1)
+                s.stop()
 
                 # move back a smidgen
                 self.move_pid(.75, 180, 0)
@@ -72,19 +71,28 @@ with get_spine() as s:
                 self.move(1, 90, 0)
                 time.sleep(.375)
 
-            def strafe_until_line(self, color, dir):
+            def strafe_until_line(self, color, dir, sensor='auto'):
                 # determine movement and sensor
                 if dir == 'left':
-                    angle = -85
-                    sensor = 'left'
+                    angle = 90
                 elif dir == 'right':
-                    angle = 85
-                    sensor = 'right'
-                else
+                    angle = -90
+                else:
                     raise ValueError
 
+                if sensor == 'auto':
+                    if self.course == 'B':
+                        sensor = 'left'
+                    else:
+                        sensor = 'right'
+
+                    if self.course == 'A':
+                        sensor = 'right'
+                    else:
+                        sensor = 'left'
+
                 # start moving
-                s.move_pid(1, angle, 0)
+                s.move_pid(0.6, angle, 0)
 
                 # read the line sensor and stop when desired color is detected
                 if color == 'black':
@@ -96,16 +104,6 @@ with get_spine() as s:
                 else:
                     raise ValueError
                 # This function does not stop the movement after returning!
-
-            # takes into account the course layout
-            def strafe_until_line_with_course_info(self, color, dir):
-                if self.course == 'B':
-                    if dir == 'left':
-                        dir = 'right'
-                    else
-                        dir = 'left'
-
-                self.strafe_until_line(color, dir)
 
             def wait_until_arm_limit_pressed(self):
                 logging.info("Waiting for arm limit press.")
@@ -191,52 +189,41 @@ with get_spine() as s:
                 # self.ldr.open_flaps()
 
                 # LOAD SEA BLOCKS
-                self.strafe_until_line_with_course_info('white', 'left')
+                self.strafe_until_line('white', 'right', 'left')
                 s.stop()
                 thedir = 85
-                trapezoid(self.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 2.2)
+                trapezoid(self.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
                 time.sleep(0.6)
                 logger.info("At zone A")
                 # self.wait_until_arm_limit_pressed()
                 # self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
                 # self.wait_until_arm_limit_pressed()
 
-                # UNLOAD SEA BLOCKS
-                #self.move_pid(.5, 180, 0)
-                #time.sleep(.1)
                 s.stop()
 
                 # back away from zone A
-                self.move_pid(.5, 180, 0)
-                while s.read_ultrasonics('front_right', 'inches') < 2.5:
-                    time.sleep(0.01)
-                s.stop()
+                trapezoid(self.move_pid, (0, 180, 0), (.5, 180, 0), (0, 180, 0), 1.8)
                 logging.info("Backed away from zone A")
 
                 # move to center white line
-                self.strafe_until_line_with_course_info('white', 'right')
+                self.strafe_until_line('white', 'right', 'right')
                 s.stop()
                 logging.info("At center white line")
 
                 # bump middle barge
                 self.rotate_180()
-                self.move_pid(.75, 180, 0)
-                time.sleep(1.5)
-                s.stop()
+                trapezoid(self.move_pid, (0, 180, 0), (.75, 180, 0), (0, 180, 0), 1.8)
 
                 # move to wall opposite of the barges
-                trapzeoid(self.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 7.0)
+                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 5.6)
 
                 # back away from the wall
-                self.move_pid(1, 180, 0)
-                time.sleep(0.75)
+                trapezoid(self.move_pid, (0, 180, 0), (.7, 180, 0), (0, 180, 0), 1.0)
                 s.stop()
 
                 # turn and slowly move to the sea zone
                 self.rotate_90('left')
-                self.move_pid(0.5, 0, 0)
-                time.sleep(1.0)
-                s.stop()
+                trapezoid(self.move_pid, (0, 0, 0), (.45, 0, 0), (0, 0, 0), 1.5)
                 logging.info("Unloading at sea zone")
                 # self.ldr.dump_blocks()
 
