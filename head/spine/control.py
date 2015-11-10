@@ -26,7 +26,10 @@ def keyframe(f, startargs, endargs, seconds, callback=defaultCallback):
 
 def trapezoid(f, startargs, middleargs, endargs, totaltime, rampuptime=1.0, rampdowntime=1.0, callback=defaultCallback):
     constanttime = totaltime - rampdowntime - rampuptime
-    assert constanttime > 0
-    keyframe(f, startargs, middleargs, rampuptime, callback)
-    keyframe(f, middleargs, middleargs, constanttime, callback)
-    keyframe(f, middleargs, endargs, rampdowntime, callback)
+    if constanttime > 0:
+        keyframe(f, startargs, middleargs, rampuptime, callback)
+        keyframe(f, middleargs, middleargs, constanttime, callback)
+        keyframe(f, middleargs, endargs, rampdowntime, callback)
+    else:
+        keyframe(f, startargs, middleargs, totaltime / 2.0, callback)
+        keyframe(f, middleargs, endargs, totaltime / 2.0, callback)
