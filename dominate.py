@@ -245,7 +245,7 @@ with get_spine() as s:
                 else:
                     self.rotate_90('right')
 
-                trapezoid(self.move, (0, 0, 0), (.45, 0, 0), (0, 0, 0), 1.5)
+                trapezoid(self.move, (0, 0, 0), (.85, 0, 0), (0, 0, 0), 1.5)
                 logging.info("Unloading at sea zone")
                 # self.ldr.dump_blocks()
 
