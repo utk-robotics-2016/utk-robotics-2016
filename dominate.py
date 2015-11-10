@@ -47,11 +47,12 @@ with get_spine() as s:
                 s.move(speed, self.dir_mod * dir, self.dir_mod * angle)
 
             def move_to_corner(self):
-                trapezoid(self.move_pid, (1, 0, 0), (0, 0, 0), (1, 0, 0), 6.1)
+                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (1, 0, 0), 6.1)
+
                 # move back a smidgen
-                self.move(.75, 180, 0)
+                self.move_pid(.75, 180, 0)
                 time.sleep(.1)
-                self.move(1, 75, 0)
+                self.move(1, 90, 0)
                 time.sleep(.375)
 
             def bump_forward(self, bumptime=0.2, **kwargs):
@@ -68,7 +69,9 @@ with get_spine() as s:
 
             # These two functions could be combined into one. Code duplication
             def strafe_until_white(self):
-                self.move_pid(1, -85, 0)
+                angle = -85
+
+                self.move_pid(1, angle, 0)
                 if self.course == "B":
                     while s.read_line_sensors()['left'] > self.qtr_threshold:
                         time.sleep(0.01)
@@ -78,14 +81,16 @@ with get_spine() as s:
                 # This function does not stop the movement after returning!!
 
             def strafe_until_black(self):
-                self.move_pid(1, -85, 0)
+                angle = -85
+
+                self.move_pid(1, angle, 0)
                 if self.course == "B":
                     while s.read_line_sensors()['left'] < self.qtr_threshold:
                         time.sleep(0.01)
                 else:
                     while s.read_line_sensors()['right'] < self.qtr_threshold:
                         time.sleep(0.01)
-                # This function does not stop the movement after returning!!
+                # This function does not stop the movement after returning!
 
             def wait_until_arm_limit_pressed(self):
                 logging.info("Waiting for arm limit press.")
@@ -104,7 +109,7 @@ with get_spine() as s:
                         # Move away from railroad
                         s.move_for(1, 0.6, 70, 0)
                     elif currzone != -1:
-                        trapezoid(self.move_pid, (0.5, 180, 0), (0, 180, 0), (0, 180, 0), 2.8)
+                        trapezoid(self.move_pid, (0, 180, 0), (0.5, 180, 0), (0, 180, 0), 2.8)
                         s.stop()
                 else:
                     raise ValueError
@@ -165,9 +170,10 @@ with get_spine() as s:
                         lastzid = zid
 
             def start(self):
-                # '''
+                # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("Done!")
+                # self.ldr.open_flaps()
 
                 # self.move_pid(1, -135, -.1)
                 # time.sleep(0.15)
@@ -176,41 +182,85 @@ with get_spine() as s:
                 self.strafe_until_white()
                 s.stop()
                 thedir = 85
-                trapezoid(self.move_pid, (0.5, thedir, 0), (0, thedir, 0), (0, thedir, 0), 2.2)
+                trapezoid(self.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 2.2)
                 time.sleep(0.6)
-                self.bump_forward()
+                #self.bump_forward()
+                logger.info("At zone A")
                 # self.wait_until_arm_limit_pressed()
-                self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                # self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
                 # self.wait_until_arm_limit_pressed()
 
                 # UNLOAD SEA BLOCKS
+                #self.move_pid(.5, 180, 0)
+                #time.sleep(.1)
+                s.stop()
+
+                # traverse the barge area using the line sensors 
+                # special case for course A due to differences in how it aligns
+                #if self.course == "A":
+                #    self.strafe_until_white()
+                self.strafe_until_white()
                 self.strafe_until_black()
                 self.strafe_until_white()
+                logger.info("Passing zone B")
                 self.strafe_until_black()
                 self.strafe_until_white()
                 s.stop()
+                logger.info("Passing zone C")
                 time.sleep(0.5)
+                
                 # back away from the rail zone
-                self.move(1, 80, 0)
-                time.sleep(0.275)
+                self.move_pid(1, 85, 0)
+                time.sleep(1.15)
+                #time.sleep(0.275)
                 s.stop()
+
                 # Move to sea zone
-                trapezoid(self.move_pid, (1, -180, 0), (0, -180, 0), (0, -180, 0), 4)
+                trapezoid(self.move_pid, (0, -180, 0), (1, -180, 0), (0, -180, 0), 2.5)
                 self.move_pid(0, 0, 1)
                 time.sleep(2.1)
                 s.stop()
-                trapezoid(self.move_pid, (.5, 0, 0), (0, 0, 0), (0, 0, 0), 3)
+                trapezoid(self.move_pid, (0, 0, 0), (.5, 0, 0), (0, 0, 0), 2.5)
                 s.stop()
-                self.ldr.dump_blocks()
+                logger.info("At Sea Zone")
+                # self.ldr.dump_blocks()
+
+                # Move from sea zone to Zone B
+                self.move(1, -180, 0)
+                time.sleep(.2)
+                s.stop()
+                self.move(1, -90, 0)
+                time.sleep(.3)
+                s.stop()
+                
+                # turn around
+                self.move_pid(0, 0, 1)
+                time.sleep(2.1)
+                s.stop()
+
+                # temporarily invert direction -- quick fix to use current strafe function
+                # attempt to strafe to the central white line
+                trapezoid(self.move_pid, (0, 0, 0), (.75, 89, 0), (0, 0, 0), 2.25)
+                self.dir_mod *= -1
+                self.strafe_until_white()
+                s.stop()
+                self.dir_mod *= -1
+                # move forward along the central white line
+                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 4)
+                # move into the wall of the barge -- using this instead of time
+                #self.bump_forward()
+                logger.info("At Zone B... hopefully")
+
+                # from here, theoretically, we can strafe over and be ready for rail block sorting
 
                 '''
                 # LOAD RAIL BLOCKS
                 # Move from sea zone
-                trapezoid(self.move_pid, (1, -180, 0), (0, -180, 0), (0, -180, 0), 4)
+                trapezoid(self.move_pid, (0, -180, 0), (1, -180, 0), (0, -180, 0), 4)
                 self.move_pid(0, 0, 1)
                 time.sleep(2.1)
                 s.stop()
-                trapezoid(self.move_pid, (.7, 0, 0), (0, 0, 0), (0, 0, 0), 3)
+                trapezoid(self.move_pid, (0, 0, 0), (.7, 0, 0), (0, 0, 0), 3)
                 # self.bump_forward(bumptime=0.375)
                 s.stop()
                 # Move closer to rail zone

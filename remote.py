@@ -53,6 +53,53 @@ fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=fmt, level=logging.INFO, datefmt='%I:%M:%S')
 logger = logging.getLogger(__name__)
 
+
+def handle_commands(s, arm, line):
+    # Read input as json
+    obj = json.loads(line)
+
+    if "arm" in obj:
+        # If command is arm, move arm to requested location
+        try:
+            arm.move_to(Vec3d(obj.get("arm")[0], obj.get("arm")[1], obj.get("arm")[2]), obj.get("arm")[3] * 3.14, 0)
+        except ValueError:
+            # If a ValueError exception is thrown, nothing is done.
+            print "Out of reach"
+        except AssertionError:
+            # If a AssertionError exception is thrown, then turn remote off
+            print "Out of reach, closing remote"
+            wsServerRead.terminate()
+            wsServerWrite.terminate()
+
+    elif "suction" in obj:
+        # If command is suction, either turn the suction on or off
+        if obj.get("suction"):
+            s.set_release_suction(False)
+            s.set_suction(True)
+        else:
+            s.set_suction(False)
+            s.set_release_suction(True)
+
+    elif "move" in obj:
+        # If command is move, move the robot in the desired direction
+        # Assume max velocity
+        # params: speed 0 <= speed <= 1
+        # params: direction -180 <= dir <= 180
+        # params: angular (default to straight ahead)
+        s.move_pid(1, obj.get("move"), 0)
+
+    elif "stop" in obj:
+        # tell robot to stop
+        s.move_pid(0, 0, 0)
+
+    elif "rotate" in obj:
+        # deal with turn commands
+        # give it a velocity of 0
+        s.move_pid(0, 0, obj.get("rotate"))
+
+    else:
+        print "invalid command", obj
+
 # Initliatize robot
 with get_spine() as s:
     with get_arm(s) as arm:
@@ -87,33 +134,7 @@ with get_spine() as s:
                 open = False
                 continue
 
-            # Read input as json
-            obj = json.loads(line[1])
-
-            if "arm" in obj:
-                # If command is arm, move arm to requested location
-                try:
-                    arm.move_to(Vec3d(obj.get("arm")[0], obj.get("arm")[1], obj.get("arm")[2]), obj.get("arm")[3] * 3.14, 0)
-                except ValueError:
-                    # If a ValueError exception is thrown, nothing is done.
-                    print "Out of reach"
-                except AssertionError:
-                    # If a AssertionError exception is thrown, then turn remote off
-                    print "Out of reach, closing remote"
-                    wsServerRead.terminate()
-                    wsServerWrite.terminate()
-
-            elif "suction" in obj:
-                # If command is suction, either turn the suction on or off
-                if obj.get("suction"):
-                    s.set_release_suction(False)
-                    s.set_suction(True)
-                else:
-                    s.set_suction(False)
-                    s.set_release_suction(True)
-
-            else:
-                print "invalid command", obj
+            handle_commands(s, arm, line[1])
 
 # Close the wsServers
 wsServerRead.terminate()

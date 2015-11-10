@@ -49,10 +49,6 @@ void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
 
-    // Init Sharp GP2D12 IR Rangefinder
-    pinMode(IR_A, INPUT);
-    pinMode(IR_B, INPUT);
-
     pinMode(SUCTION, OUTPUT);
     pinMode(RELEASE_SUCTION, OUTPUT);
     pinMode(ARM_LIMIT, INPUT);
@@ -321,7 +317,7 @@ void parseAndExecuteCommand(String command) {
     }
     else if(args[0].equals(String("rsw"))) { // read limit switches
         if(numArgs == 1) {
-            String out = ""
+            String out = "";
             out += digitalRead(COURSE_MIRROR_LIMIT_SWITCH);
             out += " ";
             out += digitalRead(LIFT_LIMIT_SWITCH);

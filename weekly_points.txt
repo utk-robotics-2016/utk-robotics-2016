@@ -12,6 +12,7 @@ DATE    RUN #1   |   RUN #2   |   RUN #3   |     AVG
 10/14:  50 pts   |   50 pts   |   50 pts   |   50 pts   
 10/21: --------------------------------------------------
 10/28:  93 pts   |   60 pts   |   84 pts   |   79 pts    
+11/4:   64 pts   |   -- pts   |   -- pts   |   -- pts    
 
 
 NOTES:
@@ -30,3 +31,5 @@ NOTES:
 10/21/15: No test today.
 
 10/28/15: The loader now works mostly. There are issues with the flaps on the loader getting stuck and not fully loading all of the blocks. Version 1 (or A) was untested prior to this, but the robot partially worked in this configuration. 
+
+11/4/15: Run #1 - Robot had some navigation difficulties due to change from keyframe to trapezoid function. The robot also failed to properly load all of the zone A blocks. We stopped to fix issues, so we only ran one test. 

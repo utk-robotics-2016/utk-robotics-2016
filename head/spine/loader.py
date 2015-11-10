@@ -1,7 +1,7 @@
 import operator
 import time
 import logging
-from head.spine.control import keyframe
+from head.spine.control import trapezoid
 
 logger = logging.getLogger(__name__)
 
@@ -206,7 +206,7 @@ class Loader(object):
             thedir = -85
         else:
             thedir = 85
-        keyframe(self.s.move_pid, (0.5, thedir, 0), 2.15, (0, thedir, 0), (0, thedir, 0))
+        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 2.15)
         time.sleep(1)
         self.s.stop()
 
