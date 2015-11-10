@@ -1,20 +1,34 @@
 import math
-from control import keyframe
+
 
 def ultrasonic_go_to_position(s, front, left, right, unit='inch', p=.1):
     assert unit in ['inch', 'cm']
     if front != float('inf') and left == float('inf') and right == float('inf'):
+        threshold = 1.0
+        if unit == 'cm':
+            threshold = 2.54
         curr_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
-        if front > curr_front:
-            s.move_pid(-1, 0, 0)
-            while(front > curr_front):
-                curr_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
-            s.stop()
-        elif front < curr_front:
-            s.move_pid(1, 0, 0)
-            while(front < curr_front):
-                curr_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
-            s.stop()
+        delta_front = front - curr_front
+        speed = delta_front * p
+        dir = 0
+        if speed < 0.0:
+            speed = -1.0*speed
+            dir = 1
+        if speed > 1.0:
+            speed = 1.0
+        s.move_pid(speed, 180*dir, 0)
+        while(abs(delta_front) > threshold):
+            curr_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+            delta_front = front - curr_front
+            speed = delta_front*p
+            dir = 0
+            if speed < 0.0:
+                speed = -1.0*speed
+                dir = 1
+            if speed > 1.0:
+                speed = 1.0
+            s.move_pid(speed, 180*dir, 0)
+        s.stop()
 
     elif front != float('inf') and left != float('inf') and right == float('inf'):
         curr_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
@@ -83,22 +97,35 @@ def ultrasonic_go_to_position(s, front, left, right, unit='inch', p=.1):
         s.stop()
 
     elif front == float('inf') and left == float('inf') and right != float('inf'):
+        threshold = 1.0
+        if unit == 'cm':
+            threshold = 2.54
         curr_right = s.read_ultrasonics('right', unit)
-        # positive is right
-        if right > curr_right:
-            s.move_pid(1, 90, 0)
-            while(right > curr_right):
-                curr_right = s.read_ultrasonics('right', unit)
-            s.stop()
-        elif right < curr_right:
-            s.move_pid(1, -90, 0)
-            while(right < curr_right):
-                curr_right = s.read_ultrasonics('right', unit)
-            s.stop()
+        delta_right = right - curr_right
+        speed = delta_right*p
+        dir = 1
+        if speed < 0.0:
+            speed = -1.0*speed
+            dir = -1
+        if speed > 1.0:
+            speed = 1.0
+        s.move_pid(speed, 90*dir, 0)
+        while(abs(delta_right) > threshold):
+            curr_right = s.read_ultrasonics('right', unit)
+            delta_right = right - curr_right
+            speed = delta_right*p
+            dir = 1
+            if speed < 0.0:
+                speed = -1.0*speed
+                dir = -1
+            if speed > 1.0:
+                speed = 1.0
+            s.move_pid(speed, 90*dir, 0)
+        s.stop()
 
     elif front == float('inf') and left != float('inf') and right == float('inf'):
         threshold = 1.0
-        if units == 'cm':
+        if unit == 'cm':
             threshold = 2.54
         curr_left = s.read_ultrasonics('left', unit)
         delta_left = left - curr_left
@@ -118,7 +145,7 @@ def ultrasonic_go_to_position(s, front, left, right, unit='inch', p=.1):
             if speed < 0.0:
                 speed = -1.0*speed
                 dir = -1
-             if speed > 1.0:
-                 speed = 1.0
-             s.move_pid(speed, -90*dir, 0)
+            if speed > 1.0:
+                speed = 1.0
+            s.move_pid(speed, -90*dir, 0)
         s.stop()
