@@ -6,6 +6,10 @@ from head.spine.control import trapezoid
 logger = logging.getLogger(__name__)
 
 
+class EStopException(Exception):
+    pass
+
+
 class Loader(object):
     '''An abstraction for the loader that simplifies many aspects of programming
     the loader.
@@ -71,7 +75,7 @@ class Loader(object):
             if time.time() - starttime > kwargs.get('e_stop', 4):
                 for i in encoders:
                     self.s.stop_loader_motor(i)
-                break
+                raise EStopException
             for i in range(len(encoders)):
                 if motorrunning[i]:
                     encVal = self.s.get_loader_encoder(encoders[i])
@@ -108,7 +112,7 @@ class Loader(object):
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 4):
                 self.s.stop_width_motor()
-                break
+                raise EStopException
             encVal = self.s.get_loader_encoder(2)
             if op(encVal, pos):
                 self.s.stop_width_motor()
@@ -146,7 +150,7 @@ class Loader(object):
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 10):
                 self.s.stop_lift_motor()
-                break
+                raise EStopException
             encVal = encoder_inches()
             if op(encVal, pos):
                 self.s.stop_lift_motor()
@@ -206,15 +210,17 @@ class Loader(object):
             thedir = -85
         else:
             thedir = 85
-        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 2.15)
+        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.6)
         time.sleep(1)
         self.s.stop()
 
         # Compress blocks
+        self.s.move(1, 0, 0)
         if strafe_dir == 'right':
             self.extend(FWD_EXTEND_ROTS, 'right')
         else:
             self.extend(FWD_EXTEND_ROTS, 'left')
+        self.s.stop()
         self.widen(1)
         '''
         # Manually enable compression

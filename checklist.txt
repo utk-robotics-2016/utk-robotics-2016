@@ -1,0 +1,7 @@
+run diag.py
+bend back metal back flaps so as not to point forward
+course orientation
+compress arms
+correct lift height
+wire tangles
+
