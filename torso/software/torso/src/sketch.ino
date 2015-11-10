@@ -34,14 +34,14 @@ const char LEFT_LINE_SENSOR = 3; // Analog
 
 const char FRONT_LEFT_ULTRASONIC = 22;
 const char FRONT_RIGHT_ULTRASONIC = 23;
-const char LEFT_ULTRASONIC = 24; // Get checked
-const char RIGHT_ULTRASONIC = 25; // Get checked
+const char LEFT_ULTRASONIC = 25; // Get checked
+const char RIGHT_ULTRASONIC = 24; // Get checked
 const char LIFT_LIMIT_SWITCH = 26;
 
 NewPing front_left_sonar(FRONT_LEFT_ULTRASONIC,FRONT_LEFT_ULTRASONIC);
 NewPing front_right_sonar(FRONT_RIGHT_ULTRASONIC,FRONT_RIGHT_ULTRASONIC);
-//NewPing left_sonar(LEFT_ULTRASONIC,LEFT_ULTRASONIC);
-//NewPing right_sonar(RIGHT_ULTRASONIC,RIGHT_ULTRASONIC);
+NewPing left_sonar(LEFT_ULTRASONIC,LEFT_ULTRASONIC);
+NewPing right_sonar(RIGHT_ULTRASONIC,RIGHT_ULTRASONIC);
 
 const char COURSE_MIRROR_LIMIT_SWITCH = 44;
 
@@ -284,13 +284,13 @@ void parseAndExecuteCommand(String command) {
             {
                 uS = front_right_sonar.ping();
             }
-            else if(args[2].equals(String("l")))
+            else if(args[1].equals(String("l")))
             {
-//                uS = left_sonar.ping();
+                uS = left_sonar.ping();
             }
-            else if(args[3].equals(String("r")))
+            else if(args[1].equals(String("r")))
             {
-//                uS = right_sonar.ping();
+                uS = right_sonar.ping();
             }
             else
             {
