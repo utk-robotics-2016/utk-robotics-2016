@@ -80,18 +80,18 @@ def ultrasonic_go_to_position(s, front, left, right, unit='inch'):
 
             delta_forward = front - curr_front
             delta_right = right - curr_right
-        s.stop
+        s.stop()
 
     elif front == float('inf') and left == float('inf') and right != float('inf'):
         curr_right = s.read_ultrasonics('right', unit)
         # positive is right
         if right > curr_right:
-            s.move_pid(1, -90, 0)
+            s.move_pid(1, 90, 0)
             while(right > curr_right):
                 curr_right = s.read_ultrasonics('right', unit)
             s.stop()
         elif right < curr_right:
-            s.move_pid(1, 90, 0)
+            s.move_pid(1, -90, 0)
             while(right < curr_right):
                 curr_right = s.read_ultrasonics('right', unit)
             s.stop()
@@ -99,12 +99,12 @@ def ultrasonic_go_to_position(s, front, left, right, unit='inch'):
     elif front == float('inf') and left != float('inf') and right == float('inf'):
         curr_left = s.read_ultrasonics('left', unit)
         if left > curr_left:
-            s.move_pid(1, 90, 0)
+            s.move_pid(1, -90, 0)
             while(left > curr_left):
                 curr_left = s.read_ultrasonics('left', unit)
             s.stop()
         elif left < curr_left:
-            s.move_pid(1, -90, 0)
+            s.move_pid(1, 90, 0)
             while(left < curr_left):
                 curr_left = s.read_ultrasonics('left', unit)
             s.stop()
