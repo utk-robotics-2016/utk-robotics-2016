@@ -62,7 +62,7 @@ with get_spine() as s:
                 trapezoid(s.move_pid, (0, 0, 0), (0, 0, angle), (0, 0, 0), 1.74, rampuptime=.7, rampdowntime=1)
 
             def move_to_corner(self):
-                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (1, 0, 0), 6.1)
+                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (1, 0, 0), 5.8)
                 s.stop()
 
                 # move back a smidgen
@@ -71,7 +71,7 @@ with get_spine() as s:
                 self.move(1, 90, 0)
                 time.sleep(.375)
 
-            def strafe_until_line(self, color, dir, sensor='auto'):
+            def strafe_until_line_abs(self, color, dir, sensor='auto'):
                 # determine movement and sensor
                 if dir == 'left':
                     angle = 90
@@ -91,6 +91,8 @@ with get_spine() as s:
                     else:
                         sensor = 'left'
 
+                logging.info("moving %s with sensor %s" % (dir, sensor))
+
                 # start moving
                 s.move_pid(0.6, angle, 0)
 
@@ -104,6 +106,23 @@ with get_spine() as s:
                 else:
                     raise ValueError
                 # This function does not stop the movement after returning!
+
+            def strafe_until_line(self, color, dir, sensor):
+                # flip stuff for course A
+                if self.course == 'A':
+                    logging.info("Flipping command for A req: dir %s, sensor %s" % (dir, sensor))
+                    if dir == 'left':
+                        dir = 'right'
+                    elif dir == 'right':
+                        dir = 'left'
+
+                    if sensor == 'left':
+                        sensor = 'right'
+                    elif sensor == 'right':
+                        sensor = 'left'
+
+                # call the actual strafe function
+                self.strafe_until_line_abs(color, dir, sensor)
 
             def wait_until_arm_limit_pressed(self):
                 logging.info("Waiting for arm limit press.")
@@ -222,8 +241,12 @@ with get_spine() as s:
                 s.stop()
 
                 # turn and slowly move to the sea zone
-                self.rotate_90('left')
-                trapezoid(self.move_pid, (0, 0, 0), (.45, 0, 0), (0, 0, 0), 1.5)
+                if self.course == 'B':
+                    self.rotate_90('left')
+                else:
+                    self.rotate_90('right')
+
+                trapezoid(self.move, (0, 0, 0), (.45, 0, 0), (0, 0, 0), 1.5)
                 logging.info("Unloading at sea zone")
                 # self.ldr.dump_blocks()
 
