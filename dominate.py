@@ -7,7 +7,6 @@ from head.spine.core import get_spine
 from head.spine.arm import get_arm
 from head.spine.block_picking import BlockPicker
 from head.spine.loader import Loader
-from head.spine.control import keyframe
 from head.spine.control import trapezoid
 
 fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'

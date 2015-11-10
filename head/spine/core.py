@@ -366,7 +366,7 @@ class Spine:
 
         response = self.send('mega', command)
 
-        assert unit in ['inch','cm']
+        assert unit in ['inch', 'cm']
         if unit == 'inch':
             response = float(response) / 2.0 / 73.746
         elif unit == 'cm':
