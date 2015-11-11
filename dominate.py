@@ -61,7 +61,9 @@ with get_spine() as s:
                 trapezoid(s.move_pid, (0, 0, 0), (0, 0, angle), (0, 0, 0), 1.74, rampuptime=.7, rampdowntime=1)
 
             def move_to_corner(self):
-                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (1, 0, 0), 5.8)
+                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (1, 0, 0), 3.8)
+                self.move(0.9, -10, 0)
+                time.sleep(5)
                 s.stop()
 
                 # move back a smidgen
@@ -210,11 +212,11 @@ with get_spine() as s:
                 self.strafe_until_line('white', 'right', 'left')
                 s.stop()
                 thedir = 85
-                trapezoid(self.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
+                trapezoid(self.move_pid, (0, thedir, 0), (0.6, thedir, 0), (0, thedir, 0), 1.3)
                 time.sleep(0.6)
                 logger.info("At zone A")
                 # self.wait_until_arm_limit_pressed()
-                # self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
                 # self.wait_until_arm_limit_pressed()
 
                 s.stop()
@@ -247,7 +249,7 @@ with get_spine() as s:
 
                 trapezoid(self.move, (0, 0, 0), (.85, 0, 0), (0, 0, 0), 1.5)
                 logging.info("Unloading at sea zone")
-                # self.ldr.dump_blocks()
+                self.ldr.dump_blocks()
 
         bot = Robot()
 

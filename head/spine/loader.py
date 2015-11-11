@@ -221,7 +221,9 @@ class Loader(object):
         else:
             self.extend(FWD_EXTEND_ROTS, 'left')
         self.s.stop()
-        self.widen(1)
+
+        # Do this when our compression issues are fixed
+        # self.widen(1)
         '''
         # Manually enable compression
         self.s.set_width_motor(750, 'ccw')
@@ -232,7 +234,11 @@ class Loader(object):
         self.s.stop_width_motor()
         self.s.stop()
         '''
-        self.widen(1.6)
+        # Remove this 'except' when our compression issues are fixed
+        try:
+            self.widen(1.6)
+        except EStopException:
+            logging.warning('Caught EStopException!!!!!')
 
         # Bring home the bacon
         self.s.move(1, 0, 0)
