@@ -13,6 +13,7 @@ DATE    RUN #1   |   RUN #2   |   RUN #3   |     AVG
 10/21: --------------------------------------------------
 10/28:  93 pts   |   60 pts   |   84 pts   |   79 pts    
 11/4:   64 pts   |   -- pts   |   -- pts   |   -- pts    
+11/11:  87 pts   |  108 pts   |   63 pts   |   86 pts    
 
 
 NOTES:
@@ -33,3 +34,5 @@ NOTES:
 10/28/15: The loader now works mostly. There are issues with the flaps on the loader getting stuck and not fully loading all of the blocks. Version 1 (or A) was untested prior to this, but the robot partially worked in this configuration. 
 
 11/4/15: Run #1 - Robot had some navigation difficulties due to change from keyframe to trapezoid function. The robot also failed to properly load all of the zone A blocks. We stopped to fix issues, so we only ran one test. 
+
+11/11/15: Run #1 (rail zone right) - Loader failure due to the flap not being bent enough. Successfully transported 9 blocks to the sea zone, but we deposited one block outside the course area (unsure of effect on scoring). Run #2 (rail zone right) - Essentially a perfect run - all 16 zone A blocks landed in the sea zone. Run #3 (rail zone left) - Loader failed by running the arm into the barge - miraculously we still transported a single black successfully.
