@@ -63,14 +63,14 @@ with get_spine() as s:
             def move_to_corner(self):
                 trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (1, 0, 0), 3.8)
                 self.move(0.9, -10, 0)
-                time.sleep(5)
+                time.sleep(4)
                 s.stop()
 
                 # move back a smidgen
                 self.move_pid(.75, 180, 0)
                 time.sleep(.1)
                 self.move(1, 90, 0)
-                time.sleep(.375)
+                time.sleep(1)
 
             def strafe_until_line_abs(self, color, dir, sensor='auto'):
                 # determine movement and sensor
@@ -247,7 +247,7 @@ with get_spine() as s:
                 else:
                     self.rotate_90('right')
 
-                trapezoid(self.move, (0, 0, 0), (.85, 0, 0), (0, 0, 0), 1.5)
+                trapezoid(self.move, (0, 0, 0), (.85, 0, 0), (0, 0, 0), 3)
                 logging.info("Unloading at sea zone")
                 self.ldr.dump_blocks()
 
