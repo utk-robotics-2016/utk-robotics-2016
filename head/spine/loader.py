@@ -141,7 +141,7 @@ class Loader(object):
         elif pos < encVal:
             direction = 'cw'
             op = operator.le
-            self.s.set_lift_motor(500, direction)
+            self.s.set_lift_motor(700, direction)
         else:
             raise ValueError
 
@@ -155,15 +155,6 @@ class Loader(object):
             if op(encVal, pos):
                 self.s.stop_lift_motor()
                 break
-
-    def zero_lift(self):
-
-        self.widen(1)
-        self.s.set_lift_motor(500, 'cw')
-        while self.read_switches()['lift'] == 1:
-            time.sleep(.01)
-        self.s.stop_lift_motor()
-        self.s.zero_lift_encoder()
 
     def close_flaps(self):
         '''Close the loader flaps.
@@ -184,6 +175,16 @@ class Loader(object):
         self.extend(6.0, 'both')
         self.extend(0.0, 'both')
         self.s.close_loader_flaps()
+
+    def initial_zero_lift(self):
+        self.widen(2)
+        self.s.set_lift_motor(1000, 'cw')
+        while not self.s.read_switches()['lift']:
+            time.sleep(.01)
+        self.s.stop_lift_motor()
+        self.s.zero_lift_encoder()
+        # raw_input('')
+        # self.widen(0)
 
     def load(self, **kwargs):
         '''Execute a sequence of Loader methods that will load a set of blocks.
