@@ -116,6 +116,14 @@ with get_spine() as s:
             s.set_release_suction(False)
         test(vacuum, "Did the suction and release_suction appear to work?")
 
+        def lift_up_down():
+            s.set_lift_motor(750, 'ccw')
+            time.sleep(1)
+            s.set_lift_motor(500, 'cw')
+            time.sleep(1)
+            s.stop_lift_motor()
+        test(lift_up_down, "Did the lift go up and down?")
+
         def voltage_adc():
             for i in range(5):
                 print get_battery_voltage()
