@@ -11,7 +11,8 @@ green = [np.array([70, 128, 0]), np.array([100, 255, 120])]
 blue = [np.array([100, 128, 100]), np.array([105, 255, 150])]
 yellow = [np.array([20, 150, 220]), np.array([30, 255, 255])]
 
-img = cv2.imread("bins.jpg")
+camera = cv2.VideoCapture(0)
+retval, img = camera.read()
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 mask = cv2.inRange(hsv, lower, upper)
 res = cv2.bitwise_and(img, img, mask=mask)
@@ -89,6 +90,27 @@ def reimg(pos):
         cv2.circle(res, cg, 5, (0, 255, 0), 9)
         cv2.circle(res, cb, 5, (255, 0, 0), 9)
         cv2.circle(res, cy, 5, (0, 255, 255), 9)
+
+#function to get position of red cart
+def get_color(color):
+    global mask
+    mask = cv2.inRange(hsv, color[0], color[1])
+    c = findCenterOfBiggestMass(mask)  #considering just returning the value of findCenterOfBiggestMass
+    return c
+
+def getKey(pos):
+    return pos[0][0]
+
+def get_rail_zone_order():
+    cr = ('red', get_color(red))
+    cb = ('blue', get_color(blue))
+    cg = ('green', get_color(green))
+    cy = ('yellow', get_color(yellow))
+    bins = [cr, cb, cg, cy]
+    sorted(bins, key=getKey)
+    bin_colors = [bins[0][0], bins[1][0], bins[2][0], bins[3][0]]
+    return bin_colors
+    
 
 if mode == "Ranger":
     cv2.createTrackbar('Lower H','image',0,180,remask)
