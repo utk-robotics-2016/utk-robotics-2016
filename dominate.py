@@ -23,6 +23,10 @@ with get_spine() as s:
                 self.ldr = Loader(s)
                 self.bp = BlockPicker(s, arm)
 
+                # flag to determine if the loader is enabled
+                # this allows for a pure navigational run when set to False
+                self.use_loader = True
+
                 # set a threshold for white vs black values from the QTR sensor
                 self.qtr_threshold = 800
 
@@ -72,6 +76,14 @@ with get_spine() as s:
                 self.move(1, 90, 0)
                 time.sleep(1)
 
+            def detect_line(self, color, sensor):
+                if color == 'black':
+                    return s.read_line_sensors()[sensor] < self.qtr_threshold
+                elif color == 'white':
+                    return s.read_line_sensors()[sensor] > self.qtr_threshold
+                else
+                    raise ValueError
+
             def strafe_until_line_abs(self, color, dir, sensor='auto'):
                 # determine movement and sensor
                 if dir == 'left':
@@ -92,26 +104,17 @@ with get_spine() as s:
                     else:
                         sensor = 'left'
 
-                logging.info("moving %s with sensor %s" % (dir, sensor))
-
                 # start moving
                 s.move_pid(0.6, angle, 0)
 
                 # read the line sensor and stop when desired color is detected
-                if color == 'black':
-                    while s.read_line_sensors()[sensor] < self.qtr_threshold:
-                        time.sleep(0.01)
-                elif color == 'white':
-                    while s.read_line_sensors()[sensor] > self.qtr_threshold:
-                        time.sleep(0.01)
-                else:
-                    raise ValueError
+                while self.detect_line(color, sensor)
+                    time.sleep(0.01)
                 # This function does not stop the movement after returning!
 
             def strafe_until_line(self, color, dir, sensor):
                 # flip stuff for course A
                 if self.course == 'A':
-                    logging.info("Flipping command for A req: dir %s, sensor %s" % (dir, sensor))
                     if dir == 'left':
                         dir = 'right'
                     elif dir == 'right':
@@ -206,7 +209,8 @@ with get_spine() as s:
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("Done!")
-                # self.ldr.open_flaps()
+                if self.use_loader == True:
+                    self.ldr.open_flaps()
 
                 # LOAD SEA BLOCKS
                 self.strafe_until_line('white', 'right', 'left')
@@ -215,10 +219,10 @@ with get_spine() as s:
                 trapezoid(self.move_pid, (0, thedir, 0), (0.6, thedir, 0), (0, thedir, 0), 1.3)
                 time.sleep(0.6)
                 logger.info("At zone A")
-                # self.wait_until_arm_limit_pressed()
-                self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
-                # self.wait_until_arm_limit_pressed()
-
+                if self.use_loader == True:
+                    self.wait_until_arm_limit_pressed()
+                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                    self.wait_until_arm_limit_pressed()
                 s.stop()
 
                 # back away from zone A
@@ -246,10 +250,44 @@ with get_spine() as s:
                     self.rotate_90('left')
                 else:
                     self.rotate_90('right')
-
                 trapezoid(self.move, (0, 0, 0), (.85, 0, 0), (0, 0, 0), 3)
+
+                # unload blocks
                 logging.info("Unloading at sea zone")
-                self.ldr.dump_blocks()
+                if self.use_loader == True:
+                    self.ldr.dump_blocks()
+
+                # -- UNTESTED BELOW THIS LINE -- #
+
+                # move backwards to the center line
+                self.move_pid(0.6, 180, 0)
+                while self.detect_line('white', 'left')
+                    sleep(0.01)
+
+                # turn and realign
+                if self.course == 'B':
+                    self.rotate_90('left')
+                else:
+                    self.rotate_90('right')
+                trapezoid(self.move_pid, (0, 180, 0), (0.80, 180, 0), (0, 180, 0))
+
+                # move forward to zone B
+                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 5.6)
+
+                # determine our alignment and realign to a known position
+                if self.detect_line('white', 'left') and self.detect_line('white', 'right'):
+                    # robot is on the white tile
+                elif self.detect_line('white', 'left') and self.detect_line('black', 'right'):
+                    # robot is right of center
+                    self.strafe_until_line_abs('white', 'left', 'right')
+                    s.stop()
+                elif self.detect_line('black', 'left') and self.detect_line('white', 'right'):
+                    # robot is left of center
+                    self.strafe_until_line_abs('white', 'right', 'left')
+                    s.stop()
+                else:
+                    # robot might be lost
+                    logger.info("Robot appears to be lost")
 
         bot = Robot()
 
