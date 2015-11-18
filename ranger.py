@@ -13,6 +13,7 @@ yellow = [np.array([20, 150, 220]), np.array([30, 255, 255])]
 
 camera = cv2.VideoCapture(0)
 retval, img = camera.read()
+#img = cv2.imread("tmp.jpg")
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 mask = cv2.inRange(hsv, lower, upper)
 res = cv2.bitwise_and(img, img, mask=mask)
