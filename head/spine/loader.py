@@ -41,9 +41,9 @@ class Loader(object):
               destination after ``e_stop`` seconds. Defaults to 4.
         '''
         if side == 'left':
-            encoders = [1]
-        elif side == 'right':
             encoders = [0]
+        elif side == 'right':
+            encoders = [1]
         elif side == 'both':
             encoders = [0, 1]
 
@@ -199,11 +199,13 @@ class Loader(object):
         # Open flaps and extend left
         self.open_flaps()
         self.widen(4.5)
+        self.s.move(1, 0, 0)
         if strafe_dir == 'right':
             self.extend(FWD_EXTEND_ROTS, 'left')
         else:
-            self.extend(FWD_EXTEND_ROTS, 'right')
+            self.extend(FWD_EXTEND_ROTS+1, 'right')
         time.sleep(1)
+        self.s.stop()
 
         # Strafe right to compress left side
         # self.s.move_pid(.5, -90, 0)
@@ -218,9 +220,9 @@ class Loader(object):
         # Compress blocks
         self.s.move(1, 0, 0)
         if strafe_dir == 'right':
-            self.extend(FWD_EXTEND_ROTS, 'right')
+            self.extend(FWD_EXTEND_ROTS+1, 'right')
         else:
-            self.extend(FWD_EXTEND_ROTS, 'left')
+            self.extend(FWD_EXTEND_ROTS+1, 'left')
         self.s.stop()
 
         # Do this when our compression issues are fixed
