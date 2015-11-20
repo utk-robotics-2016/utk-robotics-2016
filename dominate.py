@@ -81,7 +81,7 @@ with get_spine() as s:
                     return s.read_line_sensors()[sensor] < self.qtr_threshold
                 elif color == 'white':
                     return s.read_line_sensors()[sensor] > self.qtr_threshold
-                else
+                else:
                     raise ValueError
 
             def strafe_until_line_abs(self, color, dir, sensor='auto'):
@@ -108,7 +108,7 @@ with get_spine() as s:
                 s.move_pid(0.6, angle, 0)
 
                 # read the line sensor and stop when desired color is detected
-                while self.detect_line(color, sensor)
+                while self.detect_line(color, sensor):
                     time.sleep(0.01)
                 # This function does not stop the movement after returning!
 
@@ -261,7 +261,7 @@ with get_spine() as s:
 
                 # move backwards to the center line
                 self.move_pid(0.6, 180, 0)
-                while self.detect_line('white', 'left')
+                while self.detect_line('white', 'left'):
                     sleep(0.01)
 
                 # turn and realign
@@ -274,9 +274,11 @@ with get_spine() as s:
                 # move forward to zone B
                 trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 5.6)
 
+                logging.info("Aligning at zone B")
                 # determine our alignment and realign to a known position
                 if self.detect_line('white', 'left') and self.detect_line('white', 'right'):
                     # robot is on the white tile
+                    s.stop()
                 elif self.detect_line('white', 'left') and self.detect_line('black', 'right'):
                     # robot is right of center
                     self.strafe_until_line_abs('white', 'left', 'right')
@@ -287,7 +289,22 @@ with get_spine() as s:
                     s.stop()
                 else:
                     # robot might be lost
-                    logger.info("Robot appears to be lost")
+                    logging.info("Robot appears to be lost")
+                    
+                # pick up the blocks in zone b
+                # TODO #
+                logging.info("Picking up zone B blocks")
+
+                # move to the rail zone
+                # TODO #
+                logging.info("Moving to rail zone")
+                self.strafe_until_line('black', 'right', 'right')
+                self.strafe_until_line('white', 'right', 'right')
+                s.stop()
+
+                # sort and unload blocks into bins in rail zone
+                # TODO #
+                # logging.info("At rail zone")
 
         bot = Robot()
 
