@@ -497,7 +497,7 @@ class Spine:
         response = self.send('mega', command)
         assert response == 'ok'
 
-    calibrated_right = 180
+    calibrated_right = 175
     calibrated_left = 5
 
     def open_loader_flaps(self):

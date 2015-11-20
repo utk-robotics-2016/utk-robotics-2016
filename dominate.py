@@ -212,7 +212,7 @@ with get_spine() as s:
                 self.strafe_until_line('white', 'right', 'left')
                 s.stop()
                 thedir = 85
-                trapezoid(self.move_pid, (0, thedir, 0), (0.6, thedir, 0), (0, thedir, 0), 1.3)
+                trapezoid(self.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.3)
                 time.sleep(0.6)
                 logger.info("At zone A")
                 # self.wait_until_arm_limit_pressed()

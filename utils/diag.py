@@ -4,7 +4,7 @@ import logging
 
 # Local modules
 from head.spine.core import get_spine
-# from head.spine.loader import Loader
+from head.spine.loader import Loader
 from head.spine.arm import get_arm
 from head.spine.voltage import get_battery_voltage
 from head.spine.Vec3d import Vec3d
@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 with get_spine() as s:
     with get_arm(s) as arm:
+        ldr = Loader(s)
+
         def test(f, prompt):
             while True:
                 print ''
@@ -38,6 +40,26 @@ with get_spine() as s:
                     return False
                 if ans == 'n':
                     return False
+
+        def ultrasonics():
+            starttime = time.time()
+            while (time.time() - starttime) < 15:
+                us = {}
+                for pos in ['front_left', 'front_right', 'left', 'right']:
+                    try:
+                        us[pos] = int(round(s.read_ultrasonics(pos, 'cm')))
+                    except:
+                        us[pos] = -99
+                print us
+        test(ultrasonics, "Did the ultrasonic sensors appear to work?")
+
+        def loader_flaps():
+            ldr.open_flaps()
+            time.sleep(2)
+            ldr.close_flaps()
+            time.sleep(2)
+            s.detach_loader_servos()
+        test(loader_flaps, "Did the loader flaps open then close?")
 
         def arm_move_then_park():
             # right/left, forward, height
