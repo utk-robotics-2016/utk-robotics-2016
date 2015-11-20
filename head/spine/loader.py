@@ -203,7 +203,7 @@ class Loader(object):
         if strafe_dir == 'right':
             self.extend(FWD_EXTEND_ROTS, 'left')
         else:
-            self.extend(FWD_EXTEND_ROTS+1, 'right')
+            self.extend(FWD_EXTEND_ROTS + 1, 'right')
         time.sleep(1)
         self.s.stop()
 
@@ -220,9 +220,9 @@ class Loader(object):
         # Compress blocks
         self.s.move(1, 0, 0)
         if strafe_dir == 'right':
-            self.extend(FWD_EXTEND_ROTS+1, 'right')
+            self.extend(FWD_EXTEND_ROTS + 1, 'right')
         else:
-            self.extend(FWD_EXTEND_ROTS+1, 'left')
+            self.extend(FWD_EXTEND_ROTS + 1, 'left')
         self.s.stop()
 
         # Do this when our compression issues are fixed

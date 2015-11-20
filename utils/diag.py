@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 with get_spine() as s:
     with get_arm(s) as arm:
         ldr = Loader(s)
+
         def test(f, prompt):
             while True:
                 print ''
