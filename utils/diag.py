@@ -4,7 +4,7 @@ import logging
 
 # Local modules
 from head.spine.core import get_spine
-# from head.spine.loader import Loader
+from head.spine.loader import Loader
 from head.spine.arm import get_arm
 from head.spine.voltage import get_battery_voltage
 from head.spine.Vec3d import Vec3d
@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 
 with get_spine() as s:
     with get_arm(s) as arm:
+        ldr = Loader(s)
+
         def test(f, prompt):
             while True:
                 print ''
@@ -38,6 +40,41 @@ with get_spine() as s:
                     return False
                 if ans == 'n':
                     return False
+
+        def ultrasonics():
+            starttime = time.time()
+            while (time.time() - starttime) < 15:
+                us = {}
+                for pos in ['front_left', 'front_right', 'left', 'right']:
+                    try:
+                        us[pos] = int(round(s.read_ultrasonics(pos, 'cm')))
+                    except:
+                        us[pos] = -99
+                print us
+        test(ultrasonics, "Did the ultrasonic sensors appear to work?")
+
+        def loader_flaps():
+            ldr.open_flaps()
+            time.sleep(2)
+            ldr.close_flaps()
+            time.sleep(2)
+            s.detach_loader_servos()
+        test(loader_flaps, "Did the loader flaps open then close?")
+
+        def wings_extend_retract():
+            power = 100
+            s.set_loader_motor(0, power, 'fw')
+            s.set_loader_motor(1, int(power * 3 / 4), 'fw')
+            time.sleep(2)
+            s.stop_loader_motor(0)
+            s.stop_loader_motor(1)
+            time.sleep(1)
+            s.set_loader_motor(0, int(power * 3 / 4), 'bw')
+            s.set_loader_motor(1, power, 'bw')
+            time.sleep(4)
+            s.stop_loader_motor(0)
+            s.stop_loader_motor(1)
+        test(wings_extend_retract, "Did the wings extend forward then retract?")
 
         def arm_move_then_park():
             # right/left, forward, height
@@ -117,9 +154,9 @@ with get_spine() as s:
         test(vacuum, "Did the suction and release_suction appear to work?")
 
         def lift_up_down():
-            s.set_lift_motor(750, 'ccw')
+            s.set_lift_motor(255, 'ccw')
             time.sleep(1)
-            s.set_lift_motor(500, 'cw')
+            s.set_lift_motor(255, 'cw')
             time.sleep(1)
             s.stop_lift_motor()
         test(lift_up_down, "Did the lift go up and down?")

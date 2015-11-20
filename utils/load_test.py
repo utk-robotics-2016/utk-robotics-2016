@@ -14,3 +14,4 @@ logger = logging.getLogger(__name__)
 with get_spine() as s:
     ldr = Loader(s)
     ldr.load(strafe_dir='right')
+    # ldr.load(strafe_dir='left')
