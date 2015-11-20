@@ -61,6 +61,21 @@ with get_spine() as s:
             s.detach_loader_servos()
         test(loader_flaps, "Did the loader flaps open then close?")
 
+        def wings_extend_retract():
+            power = 100
+            s.set_loader_motor(0, power, 'fw')
+            s.set_loader_motor(1, int(power * 3 / 4), 'fw')
+            time.sleep(2)
+            s.stop_loader_motor(0)
+            s.stop_loader_motor(1)
+            time.sleep(1)
+            s.set_loader_motor(0, int(power * 3 / 4), 'bw')
+            s.set_loader_motor(1, power, 'bw')
+            time.sleep(4)
+            s.stop_loader_motor(0)
+            s.stop_loader_motor(1)
+        test(wings_extend_retract, "Did the wings extend forward then retract?")
+
         def arm_move_then_park():
             # right/left, forward, height
             # right side
@@ -139,9 +154,9 @@ with get_spine() as s:
         test(vacuum, "Did the suction and release_suction appear to work?")
 
         def lift_up_down():
-            s.set_lift_motor(750, 'ccw')
+            s.set_lift_motor(255, 'ccw')
             time.sleep(1)
-            s.set_lift_motor(500, 'cw')
+            s.set_lift_motor(255, 'cw')
             time.sleep(1)
             s.stop_lift_motor()
         test(lift_up_down, "Did the lift go up and down?")
