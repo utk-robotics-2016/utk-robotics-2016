@@ -650,16 +650,17 @@ class Spine:
             higher level interface for the loader.
 
         :param speed:
-            The speed from 0 to 1024 to set the motor to.
+            The speed from 0 to 255 to set the motor to.
         :type speed: ``int``
         :param direction:
             'cw' is going down, 'ccw' is going up.
         :type direction: ``string``
         '''
-        assert 0 <= speed <= 1024
+        assert 0 <= speed <= 255
         assert direction in ['cw', 'ccw']
-        command = 'mod ' + str(0) + ' ' + str(speed) + ' ' + direction
-        response = self.send('teensy', command)
+        direction = {'cw': 'bw', 'ccw': 'fw'}[direction]
+        command = 'mod ' + str(2) + ' ' + str(speed) + ' ' + direction
+        response = self.send('loadmega', command)
         assert response == 'ok'
 
     def stop_lift_motor(self):
@@ -671,8 +672,8 @@ class Spine:
             higher level interface for the loader.
         '''
 
-        command = 'mos ' + str(0)
-        response = self.send('teensy', command)
+        command = 'mos ' + str(2)
+        response = self.send('loadmega', command)
         assert response == 'ok'
 
     def read_lift_encoder(self):

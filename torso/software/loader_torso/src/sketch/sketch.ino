@@ -28,10 +28,31 @@ int inApin[2] = {7, 4};  // INA: Clockwise input
 int inBpin[2] = {8, 9}; // INB: Counter-clockwise input
 int pwmpin[2] = {5, 6}; // PWM input
 int cspin[2] = {2, 3}; // CS: Current sense ANALOG input
-int enpin[2] = {0, 1}; // EN: Status of switches output (Analog pin)
+int wing_extend_enpin[2] = {A0, A1};
+int lift_enpin[2] = {A4, A5};
 
 // For encoders:
 I2CEncoder encoders[3];
+
+void switch_to_wing_extend() {
+    for (int i=0; i<2; i++)
+    {
+        // Disable lift motor driver
+        digitalWrite(lift_enpin[i], LOW);
+        // Enable wing motor drivers
+        digitalWrite(wing_extend_enpin[i], HIGH);
+    }
+}
+
+void switch_to_lift() {
+    for (int i=0; i<2; i++)
+    {
+        // Disable wing motor drivers
+        digitalWrite(wing_extend_enpin[i], LOW);
+        // Enable lift motor driver
+        digitalWrite(lift_enpin[i], HIGH);
+    }
+}
 
 void setup() {
     // Init LED pin
@@ -49,7 +70,11 @@ void setup() {
         pinMode(inApin[i], OUTPUT);
         pinMode(inBpin[i], OUTPUT);
         pinMode(pwmpin[i], OUTPUT);
+
+        pinMode(wing_extend_enpin[i], OUTPUT);
+        pinMode(lift_enpin[i], OUTPUT);
     }
+    switch_to_wing_extend();
     // Initialize braked
     for (int i=0; i<2; i++)
     {
@@ -90,7 +115,7 @@ void motorOff(int motor)
  2: CounterClockwise
  3: Brake to GND
  
- pwm: should be a value between ? and 1023, higher the number, the faster
+ pwm: should be a value between ? and 255, higher the number, the faster
  it'll go
  */
 void motorGo(uint8_t motor, uint8_t direct, uint8_t pwm)
@@ -233,19 +258,29 @@ void parseAndExecuteCommand(String command) {
                 dir = BW;
             }
 
+            if (mot >= 2) {
+                switch_to_lift();
+                mot = mot - 2;
+            } else {
+                switch_to_wing_extend();
+            }
+
             motorGo(mot, dir, speed);
             Serial.println("ok");
         } else {
-            Serial.println("error: usage - 'mod [0/1] [speed] [fw/bw]'");
+            Serial.println("error: usage - 'mod [0/1/2/3] [speed] [fw/bw]'");
         }
     }
     else if(args[0].equals(String("mos"))) { // motor stop
         if(numArgs == 2) {
             int mot = args[1].toInt();
+            if (mot >= 2) {
+                mot = mot - 2;
+            }
             motorOff(mot);
             Serial.println("ok");
         } else {
-            Serial.println("error: usage - 'mos [0/1]'");
+            Serial.println("error: usage - 'mos [0/1/2/3]'");
         }
     }
     else if(args[0].equals(String("ep"))) { // encoder position (in rotations)
