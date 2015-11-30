@@ -38,6 +38,13 @@ with get_spine() as s:
                     self.dir_mod = -1
                 logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
 
+                # Initialize before button press
+                self.ldr.initial_zero_lift()
+                self.ldr.lift(1.9)
+                arm.move_to(Vec3d(11, -1, 10), 0, 180)
+                self.ldr.widen(0.1)
+                arm.park()
+
             def move_pid(self, speed, dir, angle):
                 s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
 
