@@ -26,7 +26,7 @@ with get_spine() as s:
 
                 # flag to determine if the loader is enabled
                 # this allows for a pure navigational run when set to False
-                self.use_loader = True
+                self.use_loader = False
 
                 # set a threshold for white vs black values from the QTR sensor
                 self.qtr_threshold = 800
@@ -247,7 +247,8 @@ with get_spine() as s:
                 trapezoid(self.move_pid, (0, 180, 0), (.75, 180, 0), (0, 180, 0), 1.8)
 
                 # move to wall opposite of the barges
-                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 5.6)
+                # use -5 degrees to counteract the drift left
+                trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
 
                 # back away from the wall
                 trapezoid(self.move_pid, (0, 180, 0), (.7, 180, 0), (0, 180, 0), 1.0)
@@ -258,56 +259,44 @@ with get_spine() as s:
                     self.rotate_90('left')
                 else:
                     self.rotate_90('right')
-                trapezoid(self.move, (0, 0, 0), (.85, 0, 0), (0, 0, 0), 3)
+                # move with a slight rotation to correctly align at the sea zone
+                trapezoid(self.move, (0, 0, 0), (.9, 0, -0.2), (0, 0, 0), 3.2)
 
                 # unload blocks
                 logging.info("Unloading at sea zone")
                 if self.use_loader == True:
                     self.ldr.dump_blocks()
 
-                # -- UNTESTED BELOW THIS LINE -- #
-
                 # move backwards to the center line
                 self.move_pid(0.6, 180, 0)
                 while self.detect_line('white', 'left'):
-                    sleep(0.01)
+                    time.sleep(0.01)
 
                 # turn and realign
                 if self.course == 'B':
                     self.rotate_90('left')
                 else:
                     self.rotate_90('right')
-                trapezoid(self.move_pid, (0, 180, 0), (0.80, 180, 0), (0, 180, 0))
+                trapezoid(self.move_pid, (0, 180, 0), (0.85, 180, 0), (0, 180, 0), 1.5)
+                self.strafe_until_line('white', 'right', 'left')
+                s.stop()
 
                 # move forward to zone B
-                trapezoid(self.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 5.6)
+                trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
 
-                logging.info("Aligning at zone B")
-                # determine our alignment and realign to a known position
-                if self.detect_line('white', 'left') and self.detect_line('white', 'right'):
-                    # robot is on the white tile
-                    s.stop()
-                elif self.detect_line('white', 'left') and self.detect_line('black', 'right'):
-                    # robot is right of center
-                    self.strafe_until_line_abs('white', 'left', 'right')
-                    s.stop()
-                elif self.detect_line('black', 'left') and self.detect_line('white', 'right'):
-                    # robot is left of center
-                    self.strafe_until_line_abs('white', 'right', 'left')
-                    s.stop()
-                else:
-                    # robot might be lost
-                    logging.info("Robot appears to be lost")
-                    
                 # pick up the blocks in zone b
                 # TODO #
                 logging.info("Picking up zone B blocks")
+                time.sleep(1.5)
 
                 # move to the rail zone
                 # TODO #
                 logging.info("Moving to rail zone")
                 self.strafe_until_line('black', 'right', 'right')
+                s.stop()
+                trapezoid(self.move_pid, (0, 0, 0), (0.9, 0, 0), (0, 0, 0), 1.2)
                 self.strafe_until_line('white', 'right', 'right')
+                self.strafe_until_line('white', 'right', 'left')
                 s.stop()
 
                 # sort and unload blocks into bins in rail zone
