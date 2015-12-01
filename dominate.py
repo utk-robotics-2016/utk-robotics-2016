@@ -260,7 +260,7 @@ with get_spine() as s:
                 else:
                     self.rotate_90('right')
                 # move with a slight rotation to correctly align at the sea zone
-                trapezoid(self.move, (0, 0, 0), (.9, 0, -0.2), (0, 0, 0), 3.2)
+                trapezoid(self.move, (0, 0, 0), (.9, 0, -0.15), (0, 0, 0), 3.3)
 
                 # unload blocks
                 logging.info("Unloading at sea zone")
@@ -277,12 +277,17 @@ with get_spine() as s:
                     self.rotate_90('left')
                 else:
                     self.rotate_90('right')
-                trapezoid(self.move_pid, (0, 180, 0), (0.85, 180, 0), (0, 180, 0), 1.5)
+                trapezoid(self.move_pid, (0, 180, 0), (0.95, 180, 0), (0, 180, 0), 1.5)
+                trapezoid(self.move_pid, (0, 0, 0), (0.8, 0, 0), (0, 0, 0), 1.0)
                 self.strafe_until_line('white', 'right', 'left')
                 s.stop()
 
                 # move forward to zone B
                 trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
+
+                # algin at zone B
+                self.strafe_until_line_abs('black', 'left', 'left')
+                trapezoid(s.move_pid, (0, -90, 0), (0.65, -90, 0), (0, -90, 0), 1.25)
 
                 # pick up the blocks in zone b
                 # TODO #
