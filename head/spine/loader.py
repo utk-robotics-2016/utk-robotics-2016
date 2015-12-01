@@ -112,6 +112,8 @@ class Loader(object):
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 4):
                 self.s.stop_width_motor()
+                print self.s.get_loader_encoder(2)
+                print self.s.get_loader_encoder(2, raw=True)
                 raise EStopException
             encVal = self.s.get_loader_encoder(2)
             if op(encVal, pos):
@@ -177,7 +179,9 @@ class Loader(object):
         self.s.close_loader_flaps()
 
     def initial_zero_lift(self):
+        # So the wings do not collide with the beaglebone, etc
         self.widen(2)
+
         self.s.set_lift_motor(255, 'cw')
         while not self.s.read_switches()['lift']:
             time.sleep(.01)
