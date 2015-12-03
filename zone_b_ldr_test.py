@@ -1,4 +1,4 @@
-# Python modules
+#Python modules
 import time
 import logging
 
@@ -221,20 +221,20 @@ with get_spine() as s:
                 s.stop()
 
                 # move forward to zone B
-                trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
+                trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.5)
                 self.ldr.open_flaps()
+                s.stop()
 
                 # align at zone B
-                ultrasonic_go_to_position(s,left=115.0,unit='cm')
-                #self.strafe_until_line_abs('black', 'left', 'left')
-                #trapezoid(s.move_pid, (0, -90, 0), (0.65, -90, 0), (0, -90, 0), 1.15)
+                ultrasonic_go_to_position(s, left=105.0, unit='cm')
+                s.move(1, 0, 0)
+                time.sleep(0.75)
+                s.stop()
 
                 # pick up the blocks in zone b
-                # TODO #
                 logging.info("Picking up zone B blocks")
                 time.sleep(0.5)
                 self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
-                
 
 
         bot = Robot()

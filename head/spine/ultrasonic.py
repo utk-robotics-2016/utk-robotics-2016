@@ -1,7 +1,9 @@
 import time
 import math
+import logging
 from control import keyframe
 
+logger = logging.getLogger(__name__)
 
 # TO BE TESTED
 def strafe_at_distance(s, dist, unit, dir, total_time, rampUp=1.0, rampDown=1.0):
@@ -71,7 +73,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
         else:
             current = s.read_ultrasonics(side, unit)
 
-        delta = target - current
+        delta = current - target 
 
         if abs(delta/unit_mult) > 16:
             speed = 1.0 * delta / abs(delta)
@@ -93,8 +95,9 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
             if(side == 'front'):
                 current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
             else:
-                current = s.read_ultrasonics('side', unit)
-            delta = target - current
+                current = s.read_ultrasonics(side, unit)
+            delta = current - target 
+            logger.info("Delta: %s Current: %s Target: %s" % (delta, current, target))
             if abs(delta/unit_mult) > 16:
                 speed = 1.0 * delta / abs(delta)
             elif abs(delta/unit_mult) > 6:
@@ -174,8 +177,8 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
 
     # right sensor
     elif front == float('inf') and left == float('inf') and right != float('inf'):
-        one_sensor(s, 'right', right, 90, -90, unit)
+        one_sensor(s, 'right', right, -90, 90, unit)
 
     # left sensor
     elif front == float('inf') and left != float('inf') and right == float('inf'):
-        one_sensor(s, 'left', left, -90, 90, unit)
+        one_sensor(s, 'left', left, 90, -90, unit)
