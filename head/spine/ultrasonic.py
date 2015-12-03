@@ -58,7 +58,7 @@ def strafe_at_distance(s, dist, unit, dir, total_time, rampUp=1.0, rampDown=1.0)
 
 
 # TO BE TESTED
-def ultrasonic_go_to_position(s, front, left, right, unit='inch', p=.1):
+def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=float('inf'), unit='inch'):
     assert unit in ['inch', 'cm']
 
     def one_sensor(s, side, target, dir_pos, dir_neg, unit):

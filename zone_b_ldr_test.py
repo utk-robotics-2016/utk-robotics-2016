@@ -9,6 +9,7 @@ from head.spine.block_picking import BlockPicker
 from head.spine.loader import Loader
 from head.spine.control import trapezoid
 from head.spine.Vec3d import Vec3d
+from head.spine.ultrasonic import ultrasonic_go_to_position
 
 fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
 # logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
@@ -224,8 +225,9 @@ with get_spine() as s:
                 self.ldr.open_flaps()
 
                 # align at zone B
-                self.strafe_until_line_abs('black', 'left', 'left')
-                trapezoid(s.move_pid, (0, -90, 0), (0.65, -90, 0), (0, -90, 0), 1.15)
+                ultrasonic_go_to_position(s,left=115.0,unit='cm')
+                #self.strafe_until_line_abs('black', 'left', 'left')
+                #trapezoid(s.move_pid, (0, -90, 0), (0.65, -90, 0), (0, -90, 0), 1.15)
 
                 # pick up the blocks in zone b
                 # TODO #
