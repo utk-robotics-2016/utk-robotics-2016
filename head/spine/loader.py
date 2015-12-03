@@ -202,8 +202,8 @@ class Loader(object):
         FWD_EXTEND_ROTS = 6.5
         # Open flaps and extend left
         self.open_flaps()
-        self.widen(4.5)
         self.s.move(1, 0, 0)
+        self.widen(4.5)
         if strafe_dir == 'right':
             self.extend(FWD_EXTEND_ROTS, 'left')
         else:
