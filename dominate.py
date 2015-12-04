@@ -9,6 +9,7 @@ from head.spine.block_picking import BlockPicker
 from head.spine.loader import Loader
 from head.spine.control import trapezoid
 from head.spine.Vec3d import Vec3d
+from head.spine.ultrasonic import ultrasonic_go_to_position
 
 fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
 # logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
@@ -223,15 +224,21 @@ with get_spine() as s:
                 # LOAD SEA BLOCKS
                 self.strafe_until_line('white', 'right', 'left')
                 s.stop()
-                thedir = 85
-                trapezoid(self.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.3)
-                time.sleep(0.6)
+
+                # align for pickup with ultrasonics
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, right=26.0, unit='cm')
+                else: 
+                    ultrasonic_go_to_position(s, left=26.0, unit='cm')
+
+                # move up to barge after aligning with ultrasonics
+                trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.5)
+
                 logger.info("At zone A")
                 if self.use_loader == True:
-                    self.wait_until_arm_limit_pressed()
+                    #self.wait_until_arm_limit_pressed()
                     self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
-                    self.wait_until_arm_limit_pressed()
-                s.stop()
+                    #self.wait_until_arm_limit_pressed()
 
                 # back away from zone A
                 trapezoid(self.move_pid, (0, 180, 0), (.5, 180, 0), (0, 180, 0), 1.8)
@@ -244,7 +251,7 @@ with get_spine() as s:
 
                 # bump middle barge
                 self.rotate_180()
-                trapezoid(self.move_pid, (0, 180, 0), (.75, 180, 0), (0, 180, 0), 1.8)
+                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 2.0)
 
                 # move to wall opposite of the barges
                 # use -5 degrees to counteract the drift left
@@ -277,32 +284,37 @@ with get_spine() as s:
                     self.rotate_90('left')
                 else:
                     self.rotate_90('right')
-                trapezoid(self.move_pid, (0, 180, 0), (0.95, 180, 0), (0, 180, 0), 1.5)
+                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 2.0)
                 trapezoid(self.move_pid, (0, 0, 0), (0.8, 0, 0), (0, 0, 0), 1.0)
                 self.strafe_until_line('white', 'right', 'left')
                 s.stop()
 
                 # move forward to zone B
                 trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
+                if self.use_loader == True:
+                    self.ldr.open_flaps()
 
-                # algin at zone B
-                self.strafe_until_line_abs('black', 'left', 'left')
-                trapezoid(s.move_pid, (0, -90, 0), (0.65, -90, 0), (0, -90, 0), 1.25)
+                # align at zone B
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, right=105.0, unit='cm')
+                else:
+                    ultrasonic_go_to_position(s, left=105.0, unit='cm')
+
+                # make sure we are against the barge after ultrasonic alignment
+                trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.2)
 
                 # pick up the blocks in zone b
-                # TODO #
                 logging.info("Picking up zone B blocks")
-                time.sleep(1.5)
+                if self.use_loader == True:
+                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
                 # move to the rail zone
                 # TODO #
                 logging.info("Moving to rail zone")
-                self.strafe_until_line('black', 'right', 'right')
-                s.stop()
-                trapezoid(self.move_pid, (0, 0, 0), (0.9, 0, 0), (0, 0, 0), 1.2)
-                self.strafe_until_line('white', 'right', 'right')
-                self.strafe_until_line('white', 'right', 'left')
-                s.stop()
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, left=20.0, unit='cm')
+                else:
+                    ultrasonic_go_to_position(s, right=20.0, unit='cm')
 
                 # sort and unload blocks into bins in rail zone
                 # TODO #
