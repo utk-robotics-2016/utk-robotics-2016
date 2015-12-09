@@ -135,7 +135,6 @@ with get_spine() as s:
 
             handle_commands(s, arm, line[1])
 
-
 # Close the wsServers
 wsServerRead.terminate()
 wsServerWrite.terminate()
