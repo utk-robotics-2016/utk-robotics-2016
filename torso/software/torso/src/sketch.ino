@@ -1,5 +1,6 @@
 #include <Servo.h>
-/*#include "includes/gp2d12_ir.h"*/
+#include <Encoder.h>
+#include <NewPing.h>
 
 #define STR1(x)  #x
 #define STR(x)  STR1(x)
@@ -17,9 +18,11 @@ Servo elbow;
 Servo wrist;
 Servo wristrotate;
 
-//Left is 12, right is 13
+//Left is 19, right is 18
 Servo loader_right;
 Servo loader_left;
+
+Encoder lift(20,21);
 
 // Pin definitions
 const char LED = 13;
@@ -28,25 +31,31 @@ const char SUCTION = 47;
 const char RELEASE_SUCTION = 46;
 const char RIGHT_LINE_SENSOR = 2; // Analog
 const char LEFT_LINE_SENSOR = 3; // Analog
-const char RIGHT_LIMIT_SWITCH = 32;
-const char LEFT_LIMIT_SWITCH = 33;
+
+const char FRONT_LEFT_ULTRASONIC = 22;
+const char FRONT_RIGHT_ULTRASONIC = 23;
+const char LEFT_ULTRASONIC = 25; // Get checked
+const char RIGHT_ULTRASONIC = 24; // Get checked
+const char LIFT_LIMIT_SWITCH = 26;
+
+NewPing front_left_sonar(FRONT_LEFT_ULTRASONIC,FRONT_LEFT_ULTRASONIC);
+NewPing front_right_sonar(FRONT_RIGHT_ULTRASONIC,FRONT_RIGHT_ULTRASONIC);
+NewPing left_sonar(LEFT_ULTRASONIC,LEFT_ULTRASONIC);
+NewPing right_sonar(RIGHT_ULTRASONIC,RIGHT_ULTRASONIC);
+
 const char COURSE_MIRROR_LIMIT_SWITCH = 44;
-const char IR_A = 4; // Analog
 
 void setup() {
     // Init LED pin
     pinMode(LED, OUTPUT);
 
-    // Init Sharp GP2D12 IR Rangefinder
-    /*init_ir(IR_A);*/
-
     pinMode(SUCTION, OUTPUT);
     pinMode(RELEASE_SUCTION, OUTPUT);
     pinMode(ARM_LIMIT, INPUT);
-    pinMode(RIGHT_LIMIT_SWITCH, INPUT);
-    pinMode(LEFT_LIMIT_SWITCH, INPUT);
     pinMode(COURSE_MIRROR_LIMIT_SWITCH, INPUT);
 
+
+    pinMode(LIFT_LIMIT_SWITCH, INPUT_PULLUP);
     // Init serial
     Serial.begin(115200);
 
@@ -194,10 +203,10 @@ void parseAndExecuteCommand(String command) {
             int rightpos = args[1].toInt();
             int leftpos = args[2].toInt();
             if (!loader_right.attached()) {
-                loader_right.attach(10);
+                loader_right.attach(18);
             }
             if (!loader_left.attached()) {
-                loader_left.attach(12);
+                loader_left.attach(19);
             }
             loader_right.write(rightpos);
             loader_left.write(leftpos);
@@ -264,12 +273,37 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'ral'");
         }
     }
-    /*else if(args[0].equals(String("irac"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (CLOSE RANGE, i.e. <=17cm)*/
-        /*read_ir(IR_A,0xFF);*/
-    /*}*/
-    /*else if(args[0].equals(String("ira"))) { // read Sharp GP2D12 IR Rangefinder & return in cm (Not Close Range, i.e. >17cm)*/
-        /*read_ir(IR_A,0x00);*/
-    /*}*/
+    else if(args[0].equals(String("rus"))){ // read ultrasonic
+        if(numArgs == 2){
+            unsigned int uS;
+            if(args[1].equals(String("fl")))
+            {
+                uS = front_left_sonar.ping();
+            }
+            else if(args[1].equals(String("fr")))
+            {
+                uS = front_right_sonar.ping();
+            }
+            else if(args[1].equals(String("l")))
+            {
+                uS = left_sonar.ping();
+            }
+            else if(args[1].equals(String("r")))
+            {
+                uS = right_sonar.ping();
+            }
+            else
+            {
+                Serial.println("error: usage - 'rus [fl/fr/l/r]'");
+                return;
+            }
+            Serial.println(uS);
+        }
+        else
+        {
+            Serial.println("error: usage - 'rus [fl/fr/l/r]'");
+        }
+    }
     else if(args[0].equals(String("rls"))) { // read line sensors
         if(numArgs == 1) {
             String out = "";
@@ -284,14 +318,29 @@ void parseAndExecuteCommand(String command) {
     else if(args[0].equals(String("rsw"))) { // read limit switches
         if(numArgs == 1) {
             String out = "";
-            out += digitalRead(RIGHT_LIMIT_SWITCH);
-            out += " ";
-            out += digitalRead(LEFT_LIMIT_SWITCH);
-            out += " ";
             out += digitalRead(COURSE_MIRROR_LIMIT_SWITCH);
+            out += " ";
+            out += digitalRead(LIFT_LIMIT_SWITCH);
             Serial.println(out);
         } else {
             Serial.println("error: usage - 'rsw'");
+        }
+    }
+    else if(args[0].equals(String("rle"))){ // read lift encoder
+        if(numArgs == 1){
+            Serial.println(lift.read());
+        }
+        else{
+            Serial.println("error: usage - 'rle'");
+        }
+    }
+    else if(args[0].equals(String("zle"))){ // zero lift encoder
+        if(numArgs == 1){
+            lift.write(0);
+            Serial.println("ok");
+        }
+        else{
+            Serial.println("error: usage - 'zle'");
         }
     }
     else if(args[0].equals(String("ver"))) { // version information

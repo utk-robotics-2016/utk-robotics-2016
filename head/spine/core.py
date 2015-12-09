@@ -20,7 +20,7 @@ DEF_PORTS = {
     'teensy': '/dev/teensy',
     # When enabling this line, make sure to re-enable the zero_loader_encoder
     # line in Spine.__init__
-    # 'loadmega': '/dev/loadmega', # Currently not on robot
+    'loadmega': '/dev/loadmega',
 }
 
 
@@ -80,7 +80,11 @@ class get_spine:
             time.sleep(0.1)
 
         self.s.stop()
-        # self.s.detach_loader_servos()
+        for i in range(2):
+            self.s.stop_loader_motor(i)
+        self.s.stop_width_motor()
+        self.s.stop_lift_motor()
+        self.s.detach_loader_servos()
         self.s.set_release_suction(False)
         self.s.set_suction(False)
         self.s.close()
@@ -148,10 +152,9 @@ class Spine:
         self.wsServer = Popen(['wsServer', '9000'], stdout=PIPE, stdin=PIPE)
 
         # Startup commands
-        '''
-        for i in range(2):
+        for i in range(3):
             self.zero_loader_encoder(i)
-        '''
+        self.zero_lift_encoder()
 
     def send(self, devname, command):
         '''Send a command to a device and return the result.
@@ -183,6 +186,7 @@ class Spine:
         except AssertionError:
             logger.warning('Echo error to %s.' % repr(devname))
             logger.warning('Actual echo was %s.' % repr(echo))
+            logger.warning('Command was %s.' % repr(command))
             raise
         logger.debug("Response: %s" % repr(response[:-2]))
         # Be sure to chop off newline. We don't need it.
@@ -342,19 +346,36 @@ class Spine:
         command = 'rsw'
         response = self.send('mega', command)
         response = response.split(' ')
-        return {'right': int(response[0]),
-                'left': int(response[1]),
-                'course_mirror': int(response[2])}
+        return {'course_mirror': int(response[0]), 'lift': int(response[1])}
 
-    def read_ir_a(self):
-        '''Reads Sharp GP2D12 IR Rangefinder mounted between two wheels on the lower chassis
-
-        :return: Double for the distance value in centimeters
+    def read_ultrasonics(self, pos, unit):
+        '''Reads the ultrasonics
+        :return: distance in specified unit
         '''
+        command = 'rus'
 
-        command = 'ira'
+        assert pos in ['front_left', 'front_right', 'left', 'right']
+        if pos == 'front_left':
+            command += ' fl'
+        elif pos == 'front_right':
+            command += ' fr'
+        elif pos == 'left':
+            command += ' l'
+        elif pos == 'right':
+            command += ' r'
+
         response = self.send('mega', command)
-        return float(response[:-2])
+
+        assert unit in ['inch', 'cm']
+        if unit == 'inch':
+            response = float(response) / 2.0 / 73.746
+        elif unit == 'cm':
+            response = float(response) / 2.0 / 29.1
+
+        if response == 0:
+            response = float('inf')
+
+        return response
 
     def detach_arm_servos(self):
         '''Cause the arm servos to go limp.
@@ -477,21 +498,19 @@ class Spine:
         assert response == 'ok'
 
     calibrated_right = 175
-    calibrated_left = 87
+    calibrated_left = 5
 
-    def open_loader_flap(self):
-        '''Set the loader servos to close the flap.
+    def open_loader_flaps(self):
+        '''Set the loader servos to open the flaps.
         '''
-        # self.set_loader_servos(85, 160)
-        off = 90
+        off = 87
         self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
 
-    def close_loader_flap(self):
-        '''Set the loader servos to open the flap.
+    def close_loader_flaps(self):
+        '''Set the loader servos to close the flaps.
         '''
-        off = -10
+        off = 0
         self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
-        # self.set_loader_servos(175+15, 70-15)
 
     def get_loader_encoder(self, encoder_id, raw=False):
         '''Get the current encoder position (in rotations) on one of the
@@ -511,7 +530,7 @@ class Spine:
         :type raw: ``bool``
         '''
 
-        assert encoder_id in [0, 1]
+        assert encoder_id in [0, 1, 2]
         if raw:
             command = 'erp '
         else:
@@ -535,7 +554,7 @@ class Spine:
             Should be the same as the motor ID.
         :type encoder_id: ``int``
         '''
-        assert encoder_id in [0, 1]
+        assert encoder_id in [0, 1, 2]
         command = 'ez %d' % encoder_id
         response = self.send('loadmega', command)
         assert response == 'ok'
@@ -564,8 +583,6 @@ class Spine:
         assert m_id in [0, 1]
         assert 0 <= speed <= 1024
         assert direction in ['fw', 'bw']
-        if m_id == 1:
-            direction = {'fw': 'bw', 'bw': 'fw'}[direction]
         command = 'mod ' + str(m_id) + ' ' + str(speed) + ' ' + direction
         response = self.send('loadmega', command)
         assert response == 'ok'
@@ -587,6 +604,102 @@ class Spine:
         assert m_id in [0, 1]
         command = 'mos ' + str(m_id)
         response = self.send('loadmega', command)
+        assert response == 'ok'
+
+    def set_width_motor(self, speed, direction):
+        '''Change speed of the loader's width motor
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        :param speed:
+            The speed from 0 to 1024 to set the motor to.
+        :type speed: ``int``
+        :param direction:
+            'cw' should be extending out, 'ccw' should be retracting.
+        :type direction: ``string``
+        '''
+
+        assert 0 <= speed <= 1024
+        assert direction in ['cw', 'ccw']
+        command = 'mod ' + str(1) + ' ' + str(speed) + ' ' + direction
+        response = self.send('teensy', command)
+        assert response == 'ok'
+
+    def stop_width_motor(self):
+        '''Stopthe loader's width motor.
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+        '''
+
+        command = 'mos ' + str(1)
+        response = self.send('teensy', command)
+        assert response == 'ok'
+
+    def set_lift_motor(self, speed, direction):
+        '''Change speed of the loader's lift motor
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        :param speed:
+            The speed from 0 to 255 to set the motor to.
+        :type speed: ``int``
+        :param direction:
+            'cw' is going down, 'ccw' is going up.
+        :type direction: ``string``
+        '''
+        assert 0 <= speed <= 255
+        assert direction in ['cw', 'ccw']
+        direction = {'cw': 'bw', 'ccw': 'fw'}[direction]
+        command = 'mod ' + str(2) + ' ' + str(speed) + ' ' + direction
+        response = self.send('loadmega', command)
+        assert response == 'ok'
+
+    def stop_lift_motor(self):
+        '''Stop the loader's lift motor.
+
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+        '''
+
+        command = 'mos ' + str(2)
+        response = self.send('loadmega', command)
+        assert response == 'ok'
+
+    def read_lift_encoder(self):
+        ''' Read the encoder for the lift motor.
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+        '''
+        command = 'rle'
+        response = self.send('mega', command)
+        return float(response)
+
+    def zero_lift_encoder(self):
+        '''Reset the current encoder position to zero.
+        :warning:
+            This command should probably not be called directly. There is a
+            `Loader` class in the `head.spine.loader` module that provides a
+            higher level interface for the loader.
+
+        :param encoder_id:
+            Should be the same as the motor ID.
+        :type encoder_id: ``int``
+        '''
+        command = 'zle'
+        response = self.send('mega', command)
         assert response == 'ok'
 
     def set_pid_params(self, pid_id, kp, ki, kd):

@@ -53,6 +53,7 @@ fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=fmt, level=logging.INFO, datefmt='%I:%M:%S')
 logger = logging.getLogger(__name__)
 
+
 def handle_commands(s, arm, line):
     # Read input as json
     obj = json.loads(line)

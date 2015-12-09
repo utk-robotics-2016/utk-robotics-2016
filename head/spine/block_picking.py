@@ -12,13 +12,13 @@ FULL_BLOCK_FORWARD = 9
 NEAR_HALF_BLOCK_FORWARD = FULL_BLOCK_FORWARD - 2
 FAR_HALF_BLOCK_FORWARD = FULL_BLOCK_FORWARD + 3
 HEIGHT_TO_CLEAR_LOADER = 13
-RIGHT_DROP_XY = (16, 0)
+DROP_XY = {'right': (16, 0), 'left': (-16, -4)}
 # height of the top surface of the bottom level
 BOTTOM_LEVEL_HEIGHT = -3
 BLOCK_WIDTH_IN_CM = 1.5 * 2.54
 # height of the top surface of the top level
 TOP_LEVEL_HEIGHT = BOTTOM_LEVEL_HEIGHT + BLOCK_WIDTH_IN_CM
-RAIL_DROP_XY = (16 + 5, -5)
+RAIL_DROP_XY = {'right': (16 + 5, -5), 'left': (-(16 + 5), -4)}
 HEIGHT_TO_DROP_RAIL = HEIGHT_TO_CLEAR_LOADER - 11
 
 
@@ -64,20 +64,18 @@ class BlockPicker:
         self.arm.move_to(Vec3d(lateral, forward,
                          HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
 
-    def drop_block_right(self, **kwargs):
-        if kwargs.get('rail', False):
-            rail_drop = True
-        else:
-            rail_drop = False
+    def drop_block(self, **kwargs):
+        rail_drop = kwargs.get('rail', False)
+        side = kwargs.get('side', 'right')
         extend_wrist = rail_drop
         if extend_wrist:
             wrist = pi / 2
         else:
             wrist = 0
-        self.arm.move_to(Vec3d(RIGHT_DROP_XY[0], RIGHT_DROP_XY[1],
+        self.arm.move_to(Vec3d(DROP_XY[side][0], DROP_XY[side][1],
                          HEIGHT_TO_CLEAR_LOADER), wrist, 180, SPEED)
         if rail_drop:
-            self.arm.move_to(Vec3d(RAIL_DROP_XY[0], RAIL_DROP_XY[1],
+            self.arm.move_to(Vec3d(RAIL_DROP_XY[side][0], RAIL_DROP_XY[side][1],
                              HEIGHT_TO_DROP_RAIL), wrist, 180, SPEED)
         self.s.set_suction(False)
         self.s.set_release_suction(True)
@@ -85,5 +83,5 @@ class BlockPicker:
         self.s.set_release_suction(False)
         # To clear rails before returning
         if rail_drop:
-            self.arm.move_to(Vec3d(RIGHT_DROP_XY[0], RIGHT_DROP_XY[1],
+            self.arm.move_to(Vec3d(DROP_XY[side][0], DROP_XY[side][1],
                              HEIGHT_TO_CLEAR_LOADER), wrist, 180, SPEED)
