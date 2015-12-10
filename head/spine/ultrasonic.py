@@ -5,6 +5,7 @@ from control import keyframe
 
 logger = logging.getLogger(__name__)
 
+
 # TO BE TESTED
 def strafe_at_distance(s, dist, unit, dir, total_time, rampUp=1.0, rampDown=1.0):
     assert dir in ['left', 'right']
@@ -73,17 +74,17 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
         else:
             current = s.read_ultrasonics(side, unit)
 
-        delta = current - target 
+        delta = (current - target)
 
-        if abs(delta/unit_mult) > 16:
+        if abs(delta / unit_mult) > 16:
             speed = 1.0 * delta / abs(delta)
-        elif abs(delta/unit_mult) > 6:
+        elif abs(delta / unit_mult) > 6:
             speed = 0.5 * delta / abs(delta)
         else:
             speed = 0.25 * delta / abs(delta)
         dir = dir_pos
         if speed < 0.0:
-            speed = -1.0*speed
+            speed = -1.0 * speed
             dir = dir_neg
         if speed > 1.0:
             speed = 1.0
@@ -96,11 +97,11 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
                 current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
             else:
                 current = s.read_ultrasonics(side, unit)
-            delta = current - target 
+            delta = (current - target)
             logger.info("Delta: %s Current: %s Target: %s" % (delta, current, target))
-            if abs(delta/unit_mult) > 16:
+            if abs(delta / unit_mult) > 16:
                 speed = 1.0 * delta / abs(delta)
-            elif abs(delta/unit_mult) > 6:
+            elif abs(delta / unit_mult) > 6:
                 speed = 0.5 * delta / abs(delta)
             else:
                 speed = 0.25 * delta / abs(delta)
@@ -115,7 +116,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
                 last_speed = speed
         s.stop()
 
-    #TODO: update speed based on distance once values have been tuned in the the one sensor version
+    # TODO: update speed based on distance once values have been tuned in the the one sensor version
     def two_sensors(s, front_target, side, side_target, unit):
         assert side in ['left', 'right']
         unit_mult = 1.0
@@ -125,8 +126,8 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
         current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
         current_side = s.read_ultrasonics(side, unit)
 
-        delta_forward = front - current_front
-        delta_side = side_target - current_side
+        delta_forward = (front - current_front)
+        delta_side = (side_target - current_side)
 
         angle = math.degrees(math.atan2(delta_forward, delta_side))
         if(side == 'left'):
