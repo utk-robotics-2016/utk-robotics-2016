@@ -12,8 +12,8 @@ from head.spine.Vec3d import Vec3d
 from head.spine.ultrasonic import ultrasonic_go_to_position
 
 fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
-# logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
-logging.basicConfig(format=fmt, level=logging.INFO, datefmt='%I:%M:%S')
+logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
+#logging.basicConfig(format=fmt, level=logging.INFO, datefmt='%I:%M:%S')
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +27,7 @@ with get_spine() as s:
 
                 # flag to determine if the loader is enabled
                 # this allows for a pure navigational run when set to False
-                self.use_loader = False
+                self.use_loader = True
 
                 # set a threshold for white vs black values from the QTR sensor
                 self.qtr_threshold = 800
@@ -308,8 +308,8 @@ with get_spine() as s:
 
                 # pick up the blocks in zone b
                 logging.info("Picking up zone B blocks")
-                if self.use_loader == True:
-                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                #if self.use_loader == True:
+                #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
                 # move to the rail zone
                 logging.info("Moving to rail zone")

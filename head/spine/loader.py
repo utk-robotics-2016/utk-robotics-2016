@@ -175,7 +175,8 @@ class Loader(object):
     def dump_blocks(self):
         self.s.open_loader_flaps()
         self.extend(6.0, 'both')
-        self.extend(0.0, 'both')
+        # do not go back to 0.0 because it may E STOP
+        self.extend(0.1, 'both')
         self.s.close_loader_flaps()
 
     def initial_zero_lift(self):
@@ -255,7 +256,8 @@ class Loader(object):
         self.widen(1)
         self.s.stop()
         # '''
-        self.extend(0, 'both')
+        # Do not extend to 0.0 because we may E STOP
+        self.extend(0.1, 'both')
 
         # self.widen(0)
         # Allow servos time to move:
