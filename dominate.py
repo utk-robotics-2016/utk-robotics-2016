@@ -8,12 +8,12 @@ from head.spine.arm import get_arm
 from head.spine.block_picking import BlockPicker
 from head.spine.loader import Loader
 from head.spine.control import trapezoid
-from head.spine.Vec3d import Vec3d
+# from head.spine.Vec3d import Vec3d
 from head.spine.ultrasonic import ultrasonic_go_to_position
 
 fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
-#logging.basicConfig(format=fmt, level=logging.INFO, datefmt='%I:%M:%S')
+# logging.basicConfig(format=fmt, level=logging.INFO, datefmt='%I:%M:%S')
 logger = logging.getLogger(__name__)
 
 
@@ -216,7 +216,7 @@ with get_spine() as s:
                 # align for pickup with ultrasonics
                 if self.course == 'A':
                     ultrasonic_go_to_position(s, right=26.0, unit='cm')
-                else: 
+                else:
                     ultrasonic_go_to_position(s, left=26.0, unit='cm')
 
                 # move up to barge after aligning with ultrasonics
@@ -268,7 +268,7 @@ with get_spine() as s:
 
                 # move forward to zone B
                 trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
-                if self.use_loader == True:
+                if self.use_loader is True:
                     self.ldr.open_flaps()
 
                 # align at zone B
@@ -284,23 +284,23 @@ with get_spine() as s:
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("In corner")
-                if self.use_loader == True:
+                if self.use_loader is True:
                     self.ldr.open_flaps()
 
                 # LOAD SEA BLOCKS
                 self.align_zone_a()
                 logger.info("At zone A")
-                if self.use_loader == True:
-                    #self.wait_until_arm_limit_pressed()
+                if self.use_loader is True:
+                    # self.wait_until_arm_limit_pressed()
                     self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
-                    #self.wait_until_arm_limit_pressed()
+                    # self.wait_until_arm_limit_pressed()
 
                 # move from zone A to the sea zone
                 self.zone_a_to_sea_zone()
 
                 # unload blocks
                 logging.info("Unloading at sea zone")
-                if self.use_loader == True:
+                if self.use_loader is True:
                     self.ldr.dump_blocks()
 
                 # move from the sea zone to zone B
@@ -308,7 +308,7 @@ with get_spine() as s:
 
                 # pick up the blocks in zone b
                 logging.info("Picking up zone B blocks")
-                #if self.use_loader == True:
+                # if self.use_loader is True:
                 #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
                 # move to the rail zone
