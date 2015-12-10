@@ -40,6 +40,10 @@ class Loader(object):
               Abort the rail movement if the rails do not reach their
               destination after ``e_stop`` seconds. Defaults to 4.
         '''
+
+        # This is because telling it to go to zero could cause an E-stop
+        assert pos > 0.075
+
         if side == 'left':
             encoders = [0]
         elif side == 'right':
