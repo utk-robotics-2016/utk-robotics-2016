@@ -18,12 +18,13 @@ with get_spine() as s:
         ldr = Loader(s)
         # Initialize before button press
         ldr.initial_zero_lift()
-        ldr.lift(1)
+        ldr.lift(1.9)
         arm.move_to(Vec3d(11, -1, 10), 0, 180)
         ldr.widen(0.1)
         arm.park()
-        raw_input('press enter')
+        # raw_input('press enter')
 
+        '''
         # Before colliding with barge
         ldr.widen(1)
         ldr.lift(0.2)
@@ -35,3 +36,4 @@ with get_spine() as s:
         ldr.lift(1.8)
         raw_input('press enter')
         # arm.park()
+        '''
