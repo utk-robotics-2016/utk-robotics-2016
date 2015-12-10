@@ -44,4 +44,5 @@ NOTES:
 
 11/30/15: Run #1 - 2 didnt pick up, 1 went out, 1 was leaning against robot after dropping. Run #2 - E-stopped on the unwiden motion during loading - back flap jammed on a block. Run #3 - Robot needed to bump up against wall before initial load widen - left 4 on the barge before leaving.
 
-12/9/15: Run #1 - ESTOP exception due to the self.extend being set to zero when it could not reach that. Run #2 - Success Run #3 - Weird ultrasonic wondering - still a success. All three runs were on corse A (rails on left). 
+12/9/15: Run #1 - ESTOP exception due to the self.extend being set to zero when it could not reach that. Run #2 - Success Run #3 - Weird ultrasonic wondering - still a success. All three runs were on course A (rails on left).
+Important Note: This is the first time we have achieve 100% loading success. The loader (w/o lift) is approaching a mature state, and the navigation seems to be reliably (albeit sometimes strangely) aligning with the barge for pickup at zone A. With the ESTOP fix, we should be able to average 105-108 points now depending on if a block falls out of the sea zone.
