@@ -209,22 +209,34 @@ with get_spine() as s:
                         lastzid = zid
 
             def align_zone_a(self):
+                # This method is to be called after cornering at the first
+                # corner.
+
                 # move to the white rectangle
-                self.strafe_until_line('white', 'right', 'left')
+                # self.strafe_until_line('white', 'right', 'left')
+
+                # We would prefer not to use the white rectangles except for the
+                # center white rectangle (rail zone). Move sufficiently
+                # away from the corner so that the ultrasonic_go_to_position
+                # function works. Perhaps we can make that function work
+                # directly, but that is not the case right now.
+                trapezoid(self.move_pid, (0, -85, 0), (.5, -85, 0), (0, -85, 0), 3)
                 s.stop()
 
                 # align for pickup with ultrasonics
+                rldir = 80
+                dist = 25.0
                 if self.course == 'A':
-                    ultrasonic_go_to_position(s, right=26.0, unit='cm')
+                    ultrasonic_go_to_position(s, right=dist, unit='cm', right_left_dir=rldir)
                 else:
-                    ultrasonic_go_to_position(s, left=26.0, unit='cm')
+                    ultrasonic_go_to_position(s, left=dist, unit='cm', right_left_dir=rldir)
 
                 # move up to barge after aligning with ultrasonics
                 trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.5)
 
             def zone_a_to_sea_zone(self):
                 # back away from zone A
-                trapezoid(self.move_pid, (0, 180, 0), (.5, 180, 0), (0, 180, 0), 1.8)
+                trapezoid(self.move_pid, (0, 180, 0), (.5, 180, 0), (0, 180, 0), 1.5)
                 logging.info("Backed away from zone A")
 
                 # move to center white line
