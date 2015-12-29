@@ -225,10 +225,13 @@ with get_spine() as s:
 
                 # align for pickup with ultrasonics
                 rldir = 80
-                dist = 25.0
                 if self.course == 'A':
+                    dist = 25.0
                     ultrasonic_go_to_position(s, right=dist, unit='cm', right_left_dir=rldir)
                 else:
+                    # This is the course with the railroad on the right. Needs
+                    # to be a bit further away it seems.
+                    dist = 26.0
                     ultrasonic_go_to_position(s, left=dist, unit='cm', right_left_dir=rldir)
 
                 # move up to barge after aligning with ultrasonics
