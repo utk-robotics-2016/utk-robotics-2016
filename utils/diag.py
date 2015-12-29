@@ -61,6 +61,11 @@ with get_spine() as s:
             s.detach_loader_servos()
         test(loader_flaps, "Did the loader flaps open then close?")
 
+        def widen_unwiden():
+            ldr.widen(3)
+            ldr.widen(1.5)
+        test(widen_unwiden, "Did the wings widen and then unwiden?")
+
         def wings_extend_retract():
             power = 100
             s.set_loader_motor(0, power, 'fw')

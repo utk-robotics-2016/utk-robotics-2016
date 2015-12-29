@@ -40,6 +40,10 @@ class Loader(object):
               Abort the rail movement if the rails do not reach their
               destination after ``e_stop`` seconds. Defaults to 4.
         '''
+
+        # This is because telling it to go to zero could cause an E-stop
+        assert pos > 0.075
+
         if side == 'left':
             encoders = [0]
         elif side == 'right':
@@ -204,7 +208,7 @@ class Loader(object):
         # Open flaps and extend left
         self.open_flaps()
         self.s.move(1, 0, 0)
-        self.widen(4.5)
+        self.widen(4.3)
         if strafe_dir == 'right':
             self.extend(FWD_EXTEND_ROTS, 'left')
         else:
