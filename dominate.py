@@ -249,7 +249,7 @@ with get_spine() as s:
 
                 # bump middle barge
                 self.rotate_180()
-                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 2.0)
+                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 2.75)
 
                 # move to wall opposite of the barges
                 # use -5 degrees to counteract the drift left
