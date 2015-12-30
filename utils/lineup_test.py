@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 with get_spine() as s:
 #    trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (1, 0, 0), 3.1)
-    ultrasonic_go_to_position(s, left=25,unit='cm')
+    ultrasonic_go_to_position(s, left=26,unit='cm',rightt_left_dir=85)
  #   s.move_pid(.75, 45, 0)
  #   time.sleep(.3)
     s.stop()
