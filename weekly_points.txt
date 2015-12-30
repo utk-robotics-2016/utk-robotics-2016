@@ -18,6 +18,7 @@ DATE    RUN #1   |   RUN #2   |   RUN #3   |     AVG
 11/30:  96 pts   |   60 pts   |   96 pts   |   84 pts   
 12/9:   60 pts   |  108 pts   |  108 pts   |   92 pts 
 12/15: 105 pts   |  108 pts   |   60 pts   |   91 pts   
+12/29:  96 pts   |   60 pts   |  108 pts   |   88 pts
 
 
 NOTES:
@@ -49,3 +50,6 @@ NOTES:
 Important Note: This is the first time we have achieve 100% loading success. The loader (w/o lift) is approaching a mature state, and the navigation seems to be reliably (albeit sometimes strangely) aligning with the barge for pickup at zone A. With the ESTOP fix, we should be able to average 105-108 points now depending on if a block falls out of the sea zone.
 
 12/15/15: Run #1 - one block fell outside the sea zone... can be solved by pushing blocks out closer to the wall. Run #2 - Overything worked. Run #3 - Loader flaps hit the blocks thus causing the loader to be unable to pull the blocks onto the loader platform. THe run was aborted to prevent damage to the robot.
+
+
+12/29/15: Run #1 - Robot was misaligned when going down long white line causing the robot to be misaligned when it dropped off blocks at the sea zone. Run #2 - Loader failure because dead reckoning went too far right. Run #3 - Perfect. 
