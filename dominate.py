@@ -81,7 +81,7 @@ with get_spine() as s:
                 self.ldr.open_flaps()
 
                 # approach the barge
-                trapezoid(s.move_pid, (1, -5, 0), (1, -5, 0), (0, -5, 0), 3.0)
+                trapezoid(s.move_pid, (1, -5, 0), (1, -5, 0), (0, -5, 0), 2.0)
 
             def detect_line(self, color, sensor):
                 if color == 'black':
@@ -213,8 +213,10 @@ with get_spine() as s:
                 # away from the corner so that the ultrasonic_go_to_position
                 # function works. Perhaps we can make that function work
                 # directly, but that is not the case right now.
-                trapezoid(self.move_pid, (0, -85, 0), (.5, -85, 0), (0, -85, 0), 3)
-                s.stop()
+
+                # Not needed after ultrasonic lineup
+                # trapezoid(self.move_pid, (0, -85, 0), (.5, -85, 0), (0, -85, 0), 3)
+                # s.stop()
 
                 # align for pickup with ultrasonics
                 rldir = 80
