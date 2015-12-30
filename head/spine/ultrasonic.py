@@ -61,8 +61,15 @@ def strafe_at_distance(s, dist, unit, dir, total_time, rampUp=1.0, rampDown=1.0)
 
 
 # TO BE TESTED
-def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=float('inf'), unit='inch'):
+# Update December 14 - This function is used in dominate.py. Is that tested
+# enough? If not, please test what needs to be tested.
+def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=float('inf'), unit='inch', **kwargs):
     assert unit in ['inch', 'cm']
+
+    # This allows us to strafe at e.g. 85 and -85 rather than 90 and -90 to
+    # stay brushed up against a barge for example. Probably a hacky solution,
+    # but it works. Andrew, you can fix this up if you would like.
+    right_left_dir = kwargs.get('right_left_dir', 90)
 
     def one_sensor(s, side, target, dir_pos, dir_neg, unit):
         unit_mult = 1.0
@@ -178,8 +185,8 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
 
     # right sensor
     elif front == float('inf') and left == float('inf') and right != float('inf'):
-        one_sensor(s, 'right', right, -90, 90, unit)
+        one_sensor(s, 'right', right, -right_left_dir, right_left_dir, unit)
 
     # left sensor
     elif front == float('inf') and left != float('inf') and right == float('inf'):
-        one_sensor(s, 'left', left, 90, -90, unit)
+        one_sensor(s, 'left', left, right_left_dir, -right_left_dir, unit)
