@@ -267,7 +267,10 @@ class Loader(object):
         # Allow servos time to move:
         time.sleep(2)
         # '''
-        self.s.detach_loader_servos()
+
+        # we no longer want the servos to be depowered
+        # self.s.detach_loader_servos()
+
         # self.lift(0.3)
         # raw_input("continue...")
         # self.lift(0)
