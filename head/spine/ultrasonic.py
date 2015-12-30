@@ -75,7 +75,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
         unit_mult = 1.0
         if unit == 'cm':
             unit_mult = 2.54
-        threshold = .5 * unit_mult
+        threshold = 1.0 * unit_mult
         if(side == 'front'):
             current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
         else:
