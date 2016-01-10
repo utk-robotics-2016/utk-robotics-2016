@@ -81,7 +81,7 @@ with get_spine() as s:
                 self.ldr.open_flaps()
 
                 # approach the barge
-                trapezoid(s.move_pid, (1, -5, 0), (1, -5, 0), (0, -5, 0), 2.0)
+                trapezoid(s.move_pid, (1, -5, 0), (1, -5, 0), (0, -5, 0), 3.0)
 
             def detect_line(self, color, sensor):
                 if color == 'black':
@@ -213,10 +213,8 @@ with get_spine() as s:
                 # away from the corner so that the ultrasonic_go_to_position
                 # function works. Perhaps we can make that function work
                 # directly, but that is not the case right now.
-
-                # Not needed after ultrasonic lineup
-                # trapezoid(self.move_pid, (0, -85, 0), (.5, -85, 0), (0, -85, 0), 3)
-                # s.stop()
+                trapezoid(self.move_pid, (0, -85, 0), (.5, -85, 0), (0, -85, 0), 3)
+                s.stop()
 
                 # align for pickup with ultrasonics
                 rldir = 80
@@ -244,7 +242,7 @@ with get_spine() as s:
 
                 # bump middle barge
                 self.rotate_180()
-                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 2.75)
+                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 2.0)
 
                 # move to wall opposite of the barges
                 # use -5 degrees to counteract the drift left
@@ -254,13 +252,23 @@ with get_spine() as s:
                 trapezoid(self.move_pid, (0, 180, 0), (.65, 180, 0), (0, 180, 0), 0.75)
                 s.stop()
 
-                # turn and slowly move to the sea zone
+                # turn to face the sea zone
                 if self.course == 'B':
                     self.rotate_90('left')
                 else:
                     self.rotate_90('right')
+
                 # move with a slight rotation to correctly align at the sea zone
-                trapezoid(self.move, (0, 0, 0), (.9, 0, -0.15), (0, 0, 0), 3.3)
+                # trapezoid(self.move, (0, 0, 0), (0.9, 0, -0.15), (0, 0, 0), 3.3)
+
+                # ultrasonic align such that blocks do not fall off the edge
+                if self.course == 'B':
+                    ultrasonic_go_to_position(s, right=8.0, unit='cm')
+                else:
+                    ultrasonic_go_to_position(s, left=8.0, unit='cm')
+
+                # advance to the sea zone
+                trapezoid(self.move, (0, 0, 0), (0.9, 0, 0), (0, 0, 0), 3.5)
 
             def sea_zone_to_zone_b(self):
                 # move backwards to the center line
