@@ -10,7 +10,6 @@ DATE    RUN #1   |   RUN #2   |   RUN #3   |     AVG
 9/30:   50 pts   |   50 pts   |   50 pts   |   50 pts   
 10/7:   50 pts   |   50 pts   |   50 pts   |   50 pts    
 10/14:  50 pts   |   50 pts   |   50 pts   |   50 pts   
-10/21: --------------------------------------------------
 10/28:  93 pts   |   60 pts   |   84 pts   |   79 pts    
 11/4:   64 pts   |   -- pts   |   -- pts   |   -- pts    
 11/11:  87 pts   |  108 pts   |   63 pts   |   86 pts    
@@ -19,6 +18,7 @@ DATE    RUN #1   |   RUN #2   |   RUN #3   |     AVG
 12/9:   60 pts   |  108 pts   |  108 pts   |   92 pts 
 12/15: 105 pts   |  108 pts   |   60 pts   |   91 pts   
 12/29:  96 pts   |   60 pts   |  108 pts   |   88 pts
+1/6:   105 pts   |  105 pts   |  105 pts   |  105 pts 
 
 
 NOTES:
@@ -51,5 +51,6 @@ Important Note: This is the first time we have achieve 100% loading success. The
 
 12/15/15: Run #1 - one block fell outside the sea zone... can be solved by pushing blocks out closer to the wall. Run #2 - Overything worked. Run #3 - Loader flaps hit the blocks thus causing the loader to be unable to pull the blocks onto the loader platform. THe run was aborted to prevent damage to the robot.
 
-
 12/29/15: Run #1 - Robot was misaligned when going down long white line causing the robot to be misaligned when it dropped off blocks at the sea zone. Run #2 - Loader failure because dead reckoning went too far right. Run #3 - Perfect. 
+
+1/6/16: Run #1 - One block fell out of the sea zone as the robot backed away. Run #2 - One block fell out to the side when unloaded. Run #3 - Same as run #2 except on version A. 
