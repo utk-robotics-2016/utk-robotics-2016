@@ -205,17 +205,6 @@ with get_spine() as s:
                 # This method is to be called after cornering at the first
                 # corner.
 
-                # move to the white rectangle
-                # self.strafe_until_line('white', 'right', 'left')
-
-                # We would prefer not to use the white rectangles except for the
-                # center white rectangle (rail zone). Move sufficiently
-                # away from the corner so that the ultrasonic_go_to_position
-                # function works. Perhaps we can make that function work
-                # directly, but that is not the case right now.
-                trapezoid(self.move_pid, (0, -85, 0), (.5, -85, 0), (0, -85, 0), 3)
-                s.stop()
-
                 # align for pickup with ultrasonics
                 rldir = 80
                 if self.course == 'A':
@@ -242,7 +231,7 @@ with get_spine() as s:
 
                 # bump middle barge
                 self.rotate_180()
-                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 2.0)
+                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 3.0)
 
                 # move to wall opposite of the barges
                 # use -5 degrees to counteract the drift left
