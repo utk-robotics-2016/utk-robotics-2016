@@ -27,7 +27,7 @@ with get_spine() as s:
 
                 # flag to determine if the loader is enabled
                 # this allows for a pure navigational run when set to False
-                self.use_loader = True
+                self.use_loader = False
 
                 # set a threshold for white vs black values from the QTR sensor
                 self.qtr_threshold = 800
@@ -238,23 +238,24 @@ with get_spine() as s:
                 trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
 
                 # back away from the wall
-                trapezoid(self.move_pid, (0, 180, 0), (.65, 180, 0), (0, 180, 0), 0.75)
+                trapezoid(self.move_pid, (0, 180, 0), (.65, 180, 0), (0, 180, 0), 1.25)
                 s.stop()
+
+                # move with a slight rotation to correctly align at the sea zone
+                # trapezoid(self.move, (0, 0, 0), (0.9, 0, -0.15), (0, 0, 0), 3.3)
+
+                # ultrasonic align such that blocks do not fall off the edge
+                dist = 18.0
+                if self.course == 'B':
+                    ultrasonic_go_to_position(s, front=dist, unit='cm')
+                else:
+                    ultrasonic_go_to_position(s, front=dist, unit='cm')
 
                 # turn to face the sea zone
                 if self.course == 'B':
                     self.rotate_90('left')
                 else:
                     self.rotate_90('right')
-
-                # move with a slight rotation to correctly align at the sea zone
-                # trapezoid(self.move, (0, 0, 0), (0.9, 0, -0.15), (0, 0, 0), 3.3)
-
-                # ultrasonic align such that blocks do not fall off the edge
-                if self.course == 'B':
-                    ultrasonic_go_to_position(s, right=8.0, unit='cm')
-                else:
-                    ultrasonic_go_to_position(s, left=8.0, unit='cm')
 
                 # advance to the sea zone
                 trapezoid(self.move, (0, 0, 0), (0.9, 0, 0), (0, 0, 0), 3.5)
@@ -274,16 +275,16 @@ with get_spine() as s:
                 s.stop()
 
                 # open the flaps before approaching the barge
-                s.ldr.open_flaps()
+                self.ldr.open_flaps()
 
                 # move forward to zone B
                 trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
 
                 # align at zone B
                 if self.course == 'A':
-                    ultrasonic_go_to_position(s, right=105.0, unit='cm')
+                    ultrasonic_go_to_position(s, left=78.0, unit='cm')
                 else:
-                    ultrasonic_go_to_position(s, left=105.0, unit='cm')
+                    ultrasonic_go_to_position(s, right=78.0, unit='cm')
 
                 # make sure we are against the barge after ultrasonic alignment
                 trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.2)
@@ -319,10 +320,6 @@ with get_spine() as s:
 
                 # move to the rail zone
                 logging.info("Moving to rail zone")
-                if self.course == 'A':
-                    ultrasonic_go_to_position(s, left=16.0, unit='cm')
-                else:
-                    ultrasonic_go_to_position(s, right=16.0, unit='cm')
 
                 # sort and unload blocks into bins in rail zone
                 # TODO #
