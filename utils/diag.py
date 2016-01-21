@@ -171,4 +171,13 @@ with get_spine() as s:
                 print get_battery_voltage()
         test(voltage_adc, "Does the voltage ADC reading line up with the actual voltage?")
 
+        def camera():
+            camera = cv2.VideoCapture(0)
+            retval, img = camera.read()
+            if (retval):
+                print("Camera is good")
+            else
+                print("Camera did not respond, try unplugging and replugging the cable on the camera.")
+        test(camera, "Did the camera work?")
+
         logger.info("Passed!")
