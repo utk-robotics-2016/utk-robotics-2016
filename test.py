@@ -5,7 +5,7 @@ import numpy as np
 camera = cv2.VideoCapture(0)
 retval, im = camera.read()
 print retval
-cv2.imwrite("/home/anthony/tmp.jpg", im)
+cv2.imwrite("/home/Kevin/tmp.jpg", im)
 camera.release()
 
 '''
@@ -20,7 +20,7 @@ dst = cv2.inRange(hsv, np.array([105, 50, 50],np.uint8), np.array([135, 255, 255
 cv2.imwrite("/home/anthony/bgr.jpg", dst)
 '''
 #rgb = cv2.cvtColor(dst, cv2.COLOR_BGR2RGB)
-#cv2.imwrite("/home/anthony/rgb.jpg", rgb)
+#cv2.imwrite("/home/Kevin/utk-robotics-2016/rgb.jpg", rgb)
 
 #cp = color_point((shp[0] / 2, shp[1] / 2), rgb, hsv)
 #print cp.get_hsv_color()

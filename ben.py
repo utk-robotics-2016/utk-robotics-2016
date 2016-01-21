@@ -8,13 +8,59 @@ from head.spine.arm import get_arm
 from head.spine.block_picking import BlockPicker
 from head.spine.loader import Loader
 from head.spine.Vec3d import Vec3d
-from ranger import get_rail_zone_order
 
 fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
 # logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
 logging.basicConfig(format=fmt, level=logging.INFO, datefmt='%I:%M:%S')
 logger = logging.getLogger(__name__)
 
+def findCenterOfBiggestMass(mask):
+    contours, hierarchy = cv2.findContours(mask, 1, 2)
+    biggestArea = -1
+    biggestIndex = -1
+    for i, cnt in enumerate(contours):
+        area = cv2.contourArea(cnt)
+        if area > biggestArea:
+            biggestArea = area
+            biggestIndex = i
+    M = cv2.moments(contours[biggestIndex])
+    if M['m00'] != 0:
+        cx = int(M['m10']/M['m00'])
+        cy = int(M['m01']/M['m00'])
+        return (cx, cy)
+    return (-1, -1)
+	
+# function to get position of cart
+def get_color(color, hsv):
+    mask = cv2.inRange(hsv, color[0], color[1])
+    c = findCenterOfBiggestMass(mask)  #considering just returning the value of findCenterOfBiggestMass
+    return c
+	
+def get_rail_zone_order():
+	camera = cv2.VideoCapture(0)
+	retval, img = camera.read()
+    print(retval)
+    cv2.imwrite("/home/kevin/tmp.jpg", img)
+    camera.release()
+	hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+	red = [np.array([160, 128, 0]), np.array([180, 255, 255])]
+	green = [np.array([70, 128, 0]), np.array([100, 255, 120])]
+	blue = [np.array([100, 128, 100]), np.array([105, 255, 150])]
+	yellow = [np.array([20, 150, 220]), np.array([30, 255, 255])]
+    cr = ('red', get_color(red, hsv))
+    cb = ('blue', get_color(blue, hsv))
+    cg = ('green', get_color(green, hsv))
+    cy = ('yellow', get_color(yellow, hsv))
+    bins = [cr, cb, cg, cy]
+    bins = sorted(bins, key=lambda color: color[1][0])
+    # if there's an error, the coords will be (-1, -1) and the missing bin will be sorted into bins[0] 
+    width = img.shape[1]    # get the width of the img to calculate the midpoint
+    avg = np.mean([bins[1][0], bins[2][0], bins[3][0]])
+    if (avg > width/2): # hard coding in the bin locations, I'm sure there's a better way
+        bin_colors = [bins[1][0], bins[2][0], bins[3][0], bins[0][0]]
+    else:
+        bin_colors = [bins[0][0], bins[1][0], bins[2][0], bins[3][0]]
+    return bin_colors
 
 with get_spine() as s:
     with get_arm(s) as arm:

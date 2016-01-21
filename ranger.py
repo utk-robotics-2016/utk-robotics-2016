@@ -92,7 +92,7 @@ def reimg(pos):
         cv2.circle(res, cb, 5, (255, 0, 0), 9)
         cv2.circle(res, cy, 5, (0, 255, 255), 9)
 
-#function to get position of cart
+# function to get position of cart
 def get_color(color):
     global mask
     mask = cv2.inRange(hsv, color[0], color[1])
@@ -106,10 +106,10 @@ def get_rail_zone_order():
     cy = ('yellow', get_color(yellow))
     bins = [cr, cb, cg, cy]
     bins = sorted(bins, key=lambda color: color[1][0])
-    #if there's an error, the coords will be (-1, -1) and the missing bin will be sorted into bins[0] 
-    width = img.shape[1]    #get the width of the img to calculate the midpoint
+    # if there's an error, the coords will be (-1, -1) and the missing bin will be sorted into bins[0] 
+    width = img.shape[1]    # get the width of the img to calculate the midpoint
     avg = np.mean([bins[1][0], bins[2][0], bins[3][0]])
-    if (avg > width/2): #hard coding in the bin locations, I'm sure there's a better way
+    if (avg > width/2): # hard coding in the bin locations, I'm sure there's a better way
         bin_colors = [bins[1][0], bins[2][0], bins[3][0], bins[0][0]]
     else:
         bin_colors = [bins[0][0], bins[1][0], bins[2][0], bins[3][0]]
