@@ -222,7 +222,7 @@ class Loader(object):
             thedir = -85
         else:
             thedir = 85
-        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.6)
+        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
         time.sleep(1)
         self.s.stop()
 
