@@ -1,6 +1,7 @@
 # Python modules
 import time
 import logging
+import cv2
 
 # Local modules
 from head.spine.core import get_spine
@@ -176,7 +177,7 @@ with get_spine() as s:
             retval, img = camera.read()
             if (retval):
                 print("Camera is good")
-            else
+            else:
                 print("Camera did not respond, try unplugging and replugging the cable on the camera.")
         test(camera, "Did the camera work?")
 
