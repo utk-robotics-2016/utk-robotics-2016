@@ -74,10 +74,14 @@ with get_spine() as s:
                 trapezoid(s.move_pid, (0, 0, 0), (0, 0, angle), (0, 0, 0), 1.74, rampuptime=.7, rampdowntime=1)
 
             def move_to_corner(self):
-                trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (1, -5, 0), 5.6)
-                self.move(1, 0, 0)
-                time.sleep(2.0)
-                s.stop()
+                # advance through the tunnel
+                trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (1, -5, 0), 3.0)
+
+                # open loader flaps before impacting the barge
+                self.ldr.open_flaps()
+
+                # approach the barge
+                trapezoid(s.move_pid, (1, -5, 0), (1, -5, 0), (0, -5, 0), 2.0)
 
             def detect_line(self, color, sensor):
                 if color == 'black':
@@ -87,7 +91,7 @@ with get_spine() as s:
                 else:
                     raise ValueError
 
-            def strafe_until_line_abs(self, color, dir, sensor='auto'):
+            def strafe_until_line_abs(self, color, dir, sensor):
                 # determine movement and sensor
                 if dir == 'left':
                     angle = 90
@@ -95,17 +99,6 @@ with get_spine() as s:
                     angle = -90
                 else:
                     raise ValueError
-
-                if sensor == 'auto':
-                    if self.course == 'B':
-                        sensor = 'left'
-                    else:
-                        sensor = 'right'
-
-                    if self.course == 'A':
-                        sensor = 'right'
-                    else:
-                        sensor = 'left'
 
                 # start moving
                 s.move_pid(0.6, angle, 0)
@@ -220,8 +213,10 @@ with get_spine() as s:
                 # away from the corner so that the ultrasonic_go_to_position
                 # function works. Perhaps we can make that function work
                 # directly, but that is not the case right now.
-                trapezoid(self.move_pid, (0, -85, 0), (.5, -85, 0), (0, -85, 0), 3)
-                s.stop()
+
+                # Not needed after ultrasonic lineup
+                # trapezoid(self.move_pid, (0, -85, 0), (.5, -85, 0), (0, -85, 0), 3)
+                # s.stop()
 
                 # align for pickup with ultrasonics
                 rldir = 80
@@ -249,14 +244,14 @@ with get_spine() as s:
 
                 # bump middle barge
                 self.rotate_180()
-                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 2.0)
+                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 2.75)
 
                 # move to wall opposite of the barges
                 # use -5 degrees to counteract the drift left
                 trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
 
                 # back away from the wall
-                trapezoid(self.move_pid, (0, 180, 0), (.7, 180, 0), (0, 180, 0), 1.0)
+                trapezoid(self.move_pid, (0, 180, 0), (.65, 180, 0), (0, 180, 0), 0.75)
                 s.stop()
 
                 # turn and slowly move to the sea zone
@@ -281,10 +276,11 @@ with get_spine() as s:
                 trapezoid(self.move, (0, 180, 0), (1, 180, 0), (1, 180, 0), 3.5)
                 s.stop()
 
+                # open the flaps before approaching the barge
+                s.ldr.open_flaps()
+
                 # move forward to zone B
                 trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
-                if self.use_loader is True:
-                    self.ldr.open_flaps()
 
                 # align at zone B
                 if self.course == 'A':
@@ -299,8 +295,6 @@ with get_spine() as s:
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("In corner")
-                if self.use_loader is True:
-                    self.ldr.open_flaps()
 
                 # LOAD SEA BLOCKS
                 self.align_zone_a()

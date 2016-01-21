@@ -14,12 +14,12 @@ logging.basicConfig(format=fmt, level=logging.WARNING, datefmt='%I:%M:%S')
 logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser(description='Manual control of loader')
-parser.add_argument('--retract', type=int, help='Retract the loader arms for SECONDS.')
-parser.add_argument('--extend', type=int, help='Extend the loader arms for SECONDS.')
-parser.add_argument('--compress', type=int, help='Compress the loader arms for SECONDS.')
-parser.add_argument('--lift', type=int, help='Lift the loader up for SECONDS.')
-parser.add_argument('--lower', type=int, help='Lower the loader for SECONDS.')
-parser.add_argument('--power', default=100, type=int, help='Motor power to use. Default=80.')
+parser.add_argument('--retract', type=float, help='Retract the loader arms for SECONDS.')
+parser.add_argument('--extend', type=float, help='Extend the loader arms for SECONDS.')
+parser.add_argument('--compress', type=float, help='Compress the loader arms for SECONDS.')
+parser.add_argument('--lift', type=float, help='Lift the loader up for SECONDS.')
+parser.add_argument('--lower', type=float, help='Lower the loader for SECONDS.')
+parser.add_argument('--power', default=100, type=int, help='Motor power to use. Default=100.')
 args = parser.parse_args()
 
 if args.extend is None and args.retract is None and args.compress is None and args.lift is None and args.lower is None:
