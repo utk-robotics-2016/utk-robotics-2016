@@ -1,0 +1,8 @@
+run diag.py
+bend back metal back flaps so as not to point forward
+course orientation
+compress arms
+correct lift height
+wire tangles
+bend front flaps so as not to be a problem with either course orientation strafing
+long flap should be in front of the shorter flap to prevent the front flap from hitting the blue blocks
