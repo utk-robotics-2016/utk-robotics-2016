@@ -10,12 +10,15 @@ DATE    RUN #1   |   RUN #2   |   RUN #3   |     AVG
 9/30:   50 pts   |   50 pts   |   50 pts   |   50 pts   
 10/7:   50 pts   |   50 pts   |   50 pts   |   50 pts    
 10/14:  50 pts   |   50 pts   |   50 pts   |   50 pts   
-10/21: --------------------------------------------------
 10/28:  93 pts   |   60 pts   |   84 pts   |   79 pts    
 11/4:   64 pts   |   -- pts   |   -- pts   |   -- pts    
 11/11:  87 pts   |  108 pts   |   63 pts   |   86 pts    
 11/18:  50 pts   |   50 pts   |   93 pts   |   64 pts    
-11/30:  96 pts   |   60 pts   |   96 pts   |   84 pts    
+11/30:  96 pts   |   60 pts   |   96 pts   |   84 pts   
+12/9:   60 pts   |  108 pts   |  108 pts   |   92 pts 
+12/15: 105 pts   |  108 pts   |   60 pts   |   91 pts   
+12/29:  96 pts   |   60 pts   |  108 pts   |   88 pts
+1/6:   105 pts   |  105 pts   |  105 pts   |  105 pts 
 
 
 NOTES:
@@ -42,3 +45,12 @@ NOTES:
 11/18/15: Run #1 - A certain team member did not load proper competition code. Failure. Run #2 - Loader failure resulted in an e stop which terminated dominate.py. Run #3 - Loader arm failed during the loading process causing only a partial load, and then the arm couldn't push out so some blocks were left unloaded. 
 
 11/30/15: Run #1 - 2 didnt pick up, 1 went out, 1 was leaning against robot after dropping. Run #2 - E-stopped on the unwiden motion during loading - back flap jammed on a block. Run #3 - Robot needed to bump up against wall before initial load widen - left 4 on the barge before leaving.
+
+12/9/15: Run #1 - ESTOP exception due to the self.extend being set to zero when it could not reach that. Run #2 - Success Run #3 - Weird ultrasonic wondering - still a success. All three runs were on course A (rails on left).
+Important Note: This is the first time we have achieve 100% loading success. The loader (w/o lift) is approaching a mature state, and the navigation seems to be reliably (albeit sometimes strangely) aligning with the barge for pickup at zone A. With the ESTOP fix, we should be able to average 105-108 points now depending on if a block falls out of the sea zone.
+
+12/15/15: Run #1 - one block fell outside the sea zone... can be solved by pushing blocks out closer to the wall. Run #2 - Overything worked. Run #3 - Loader flaps hit the blocks thus causing the loader to be unable to pull the blocks onto the loader platform. THe run was aborted to prevent damage to the robot.
+
+12/29/15: Run #1 - Robot was misaligned when going down long white line causing the robot to be misaligned when it dropped off blocks at the sea zone. Run #2 - Loader failure because dead reckoning went too far right. Run #3 - Perfect. 
+
+1/6/16: Run #1 - One block fell out of the sea zone as the robot backed away. Run #2 - One block fell out to the side when unloaded. Run #3 - Same as run #2 except on version A. 

@@ -40,6 +40,10 @@ class Loader(object):
               Abort the rail movement if the rails do not reach their
               destination after ``e_stop`` seconds. Defaults to 4.
         '''
+
+        # This is because telling it to go to zero could cause an E-stop
+        assert pos > 0.075
+
         if side == 'left':
             encoders = [0]
         elif side == 'right':
@@ -112,6 +116,8 @@ class Loader(object):
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 4):
                 self.s.stop_width_motor()
+                print self.s.get_loader_encoder(2)
+                print self.s.get_loader_encoder(2, raw=True)
                 raise EStopException
             encVal = self.s.get_loader_encoder(2)
             if op(encVal, pos):
@@ -173,11 +179,14 @@ class Loader(object):
     def dump_blocks(self):
         self.s.open_loader_flaps()
         self.extend(6.0, 'both')
-        self.extend(0.0, 'both')
+        # do not go back to 0.0 because it may E STOP
+        self.extend(0.1, 'both')
         self.s.close_loader_flaps()
 
     def initial_zero_lift(self):
+        # So the wings do not collide with the beaglebone, etc
         self.widen(2)
+
         self.s.set_lift_motor(255, 'cw')
         while not self.s.read_switches()['lift']:
             time.sleep(.01)
@@ -198,8 +207,8 @@ class Loader(object):
         FWD_EXTEND_ROTS = 6.5
         # Open flaps and extend left
         self.open_flaps()
-        self.widen(4.5)
         self.s.move(1, 0, 0)
+        self.widen(4.3)
         if strafe_dir == 'right':
             self.extend(FWD_EXTEND_ROTS, 'left')
         else:
@@ -251,7 +260,8 @@ class Loader(object):
         self.widen(1)
         self.s.stop()
         # '''
-        self.extend(0, 'both')
+        # Do not extend to 0.0 because we may E STOP
+        self.extend(0.1, 'both')
 
         # self.widen(0)
         # Allow servos time to move:
