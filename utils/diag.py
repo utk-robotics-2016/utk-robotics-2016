@@ -9,10 +9,9 @@ from head.spine.loader import Loader
 from head.spine.arm import get_arm
 from head.spine.voltage import get_battery_voltage
 from head.spine.Vec3d import Vec3d
+from head.spine.ourlogging import setup_logging
 
-fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
-logging.basicConfig(format=fmt, level=logging.WARNING, datefmt='%I:%M:%S')
-# logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
+setup_logging(__file__)
 logger = logging.getLogger(__name__)
 
 with get_spine() as s:
