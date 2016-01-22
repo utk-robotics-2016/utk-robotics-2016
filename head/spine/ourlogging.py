@@ -3,6 +3,7 @@ import logging.handlers
 import os
 import sys
 
+
 def setup_logging(fn):
 
     fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
@@ -12,7 +13,7 @@ def setup_logging(fn):
     # create file handler which logs even debug messages
     logfn = '/var/log/spine/%s.log' % os.path.split(fn)[-1].split('.')[0]
     # fh_ = logging.FileHandler('/var/log/spine/%s.log' % os.path.split(__file__)[-1])
-    fh_ = logging.handlers.RotatingFileHandler(logfn, maxBytes=1024*1024*5, backupCount=10)
+    fh_ = logging.handlers.RotatingFileHandler(logfn, maxBytes=1024 * 1024 * 5, backupCount=10)
     fh_.setLevel(logging.DEBUG)
     fh = logging.handlers.MemoryHandler(1024 * 1, logging.ERROR, fh_)
 
