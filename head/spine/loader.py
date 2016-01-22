@@ -185,7 +185,7 @@ class Loader(object):
 
     def initial_zero_lift(self):
         # So the wings do not collide with the beaglebone, etc
-        self.widen(2)
+        self.widen(3)
 
         self.s.set_lift_motor(255, 'cw')
         while not self.s.read_switches()['lift']:
@@ -222,7 +222,7 @@ class Loader(object):
             thedir = -85
         else:
             thedir = 85
-        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.6)
+        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
         time.sleep(1)
         self.s.stop()
 

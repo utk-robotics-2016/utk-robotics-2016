@@ -19,9 +19,12 @@ with get_spine() as s:
         # Initialize before button press
         ldr.initial_zero_lift()
         ldr.lift(1.9)
+        import IPython
+        IPython.embed()
         arm.move_to(Vec3d(11, -1, 10), 0, 180)
         ldr.widen(0.1)
         arm.park()
+
         # raw_input('press enter')
 
         '''
