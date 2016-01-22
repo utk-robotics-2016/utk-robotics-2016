@@ -318,7 +318,7 @@ with get_spine() as s:
                 # pick up the blocks in zone b
                 logging.info("Picking up zone B blocks")
                 # Lift to proper loading height for rail blocks.
-                ldr.lift(4.875)
+                self.ldr.lift(4.875)
                 # if self.use_loader is True:
                 #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
