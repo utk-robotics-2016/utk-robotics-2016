@@ -86,7 +86,7 @@ def handle_commands(s, arm, line):
         # params: speed 0 <= speed <= 1
         # params: direction -180 <= dir <= 180
         # params: angular (default to straight ahead)
-        s.move_pid(1, obj.get("move"), 0)
+        s.move_pid(obj.get("move")[0], obj.get("move")[1], 0)
 
     elif "stop" in obj:
         # tell robot to stop

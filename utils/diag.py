@@ -1,6 +1,7 @@
 # Python modules
 import time
 import logging
+import cv2
 
 # Local modules
 from head.spine.core import get_spine
@@ -8,10 +9,9 @@ from head.spine.loader import Loader
 from head.spine.arm import get_arm
 from head.spine.voltage import get_battery_voltage
 from head.spine.Vec3d import Vec3d
+from head.spine.ourlogging import setup_logging
 
-fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
-logging.basicConfig(format=fmt, level=logging.WARNING, datefmt='%I:%M:%S')
-# logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
+setup_logging(__file__)
 logger = logging.getLogger(__name__)
 
 with get_spine() as s:
@@ -170,5 +170,14 @@ with get_spine() as s:
             for i in range(5):
                 print get_battery_voltage()
         test(voltage_adc, "Does the voltage ADC reading line up with the actual voltage?")
+
+        def camera():
+            camera = cv2.VideoCapture(0)
+            retval, img = camera.read()
+            if (retval):
+                print("Camera is good")
+            else:
+                print("Camera did not respond, try unplugging and replugging the cable on the camera.")
+        test(camera, "Did the camera work?")
 
         logger.info("Passed!")

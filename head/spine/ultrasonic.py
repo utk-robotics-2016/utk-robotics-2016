@@ -87,9 +87,9 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
 
         if abs(delta / unit_mult) > 16:
             speed = 1.0 * delta / abs(delta)
-        else:# abs(delta / unit_mult) > 6:
+        else:  # abs(delta / unit_mult) > 6:
             speed = 0.5 * delta / abs(delta)
-        #else:
+        # else:
         #    speed = 0.25 * delta / abs(delta)
         dir = dir_pos
         if speed < 0.0:
@@ -111,9 +111,9 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
             logger.info("Delta: %s Current: %s Target: %s" % (delta, current, target))
             if abs(delta / unit_mult) > 16:
                 speed = 1.0 * delta / abs(delta)
-            else:# abs(delta / unit_mult) > 6:
+            else:  # abs(delta / unit_mult) > 6:
                 speed = 0.5 * delta / abs(delta)
-            #else:
+            # else:
             #    speed = 0.25 * delta / abs(delta)
             dir = dir_pos
             if speed < 0.0:
