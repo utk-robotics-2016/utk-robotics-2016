@@ -126,7 +126,7 @@ with get_spine() as s:
             def wait_until_arm_limit_pressed(self):
                 logging.info("Waiting for arm limit press.")
                 while not s.read_arm_limit():
-                    pass
+                    time.sleep(0.1)
 
             def move_to_rail_zone(self, currzone, destzone, method='deadreckon'):
                 if method == 'manual':

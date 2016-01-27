@@ -15,7 +15,9 @@ def setup_logging(fn):
     # fh_ = logging.FileHandler('/var/log/spine/%s.log' % os.path.split(__file__)[-1])
     fh_ = logging.handlers.RotatingFileHandler(logfn, maxBytes=1024 * 1024 * 5, backupCount=10)
     fh_.setLevel(logging.DEBUG)
-    fh = logging.handlers.MemoryHandler(1024 * 1, logging.ERROR, fh_)
+    # Normally our Python scripts steady-state at 3.8%. With memory log buffering, this will increase.
+    # Can be 5.0% after running arm_test.py now.
+    fh = logging.handlers.MemoryHandler(1024 * 1024 * 10, logging.ERROR, fh_)
 
     # create console handler with a higher log level
     ch = logging.StreamHandler()

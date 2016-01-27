@@ -2,6 +2,7 @@
 import time
 import logging
 import cv2
+import os
 
 # Local modules
 from head.spine.core import get_spine
@@ -170,6 +171,10 @@ with get_spine() as s:
             for i in range(5):
                 print get_battery_voltage()
         test(voltage_adc, "Does the voltage ADC reading line up with the actual voltage?")
+
+        def disk_usage():
+            os.system('df -h | grep -P "Filesystem|rootfs"')
+        test(disk_usage, "Does the disk usage look good?")
 
         def camera():
             camera = cv2.VideoCapture(0)
