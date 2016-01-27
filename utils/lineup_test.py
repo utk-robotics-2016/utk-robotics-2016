@@ -6,7 +6,7 @@ import logging
 from head.spine.core import get_spine
 # from head.spine.control import keyframe
 # from head.spine.ultrasonic import strafe_at_distance
-# from head.spine.ultrasonic import ultrasonic_go_to_position
+from head.spine.ultrasonic import ultrasonic_go_to_position
 # from head.spine.control import trapezoid
 from head.spine.loader import Loader
 fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
