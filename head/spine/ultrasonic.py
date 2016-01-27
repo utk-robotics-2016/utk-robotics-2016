@@ -82,7 +82,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
                 current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
             else:
                 current = s.read_ultrasonics(side, unit)
-        
+
         delta = (current - target)
 
         if abs(delta / unit_mult) > 16:

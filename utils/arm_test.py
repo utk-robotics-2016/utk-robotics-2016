@@ -8,7 +8,7 @@ from head.spine.arm import get_arm
 from head.spine.loader import Loader
 from head.spine.block_picking import BlockPicker
 from head.spine.Vec3d import Vec3d
-from head.spine.ourlogging import setup_logging
+# from head.spine.ourlogging import setup_logging
 
 # setup_logging(__file__)
 logger = logging.getLogger(__name__)

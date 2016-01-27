@@ -30,8 +30,8 @@ class BlockPicker:
     def pick_block(self, col, level, desc='full'):
         # lateral, forward, height
         def get_lateral(thecol):
-            far_left_lateral = 11.645+1  # col index 0
-            far_right_lateral = -11.645+1  # col index 7
+            far_left_lateral = 11.645 + 1  # col index 0
+            far_right_lateral = -11.645 + 1  # col index 7
             lateral_inc = (far_right_lateral - far_left_lateral) / 7
             return far_left_lateral + lateral_inc * thecol
         lateral = get_lateral(col)
