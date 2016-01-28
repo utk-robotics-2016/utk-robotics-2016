@@ -1,19 +1,27 @@
 import cv2
 import numpy as np
+import sys
 
 
 class railorder:
 
-    def __init__(self):
+    def __init__(self, course):
         self.red = [np.array([0, 160, 155]), np.array([180, 215, 200])]
         self.green = [np.array([50, 50, 60]), np.array([80, 160, 180])]
         self.blue = [np.array([90, 80, 0]), np.array([120, 255, 255])]
         self.yellow = [np.array([0, 200, 210]), np.array([40, 255, 255])]
 
-        self.y1 = 200
-        self.y2 = 300
-        self.x1 = 260
-        self.x2 = 640
+        if course == 'A':
+            self.y1 = 150
+            self.y2 = 300
+            self.x1 = 0
+            self.x2 = 380
+        else: 
+            self.y1 = 200
+            self.y2 = 300
+            self.x1 = 260
+            self.x2 = 640
+
         self.w = self.x2 - self.x1
         self.h = self.y2 - self.y1
 
@@ -23,8 +31,10 @@ class railorder:
         retval, self.origImg = camera.read()
         camera.release()
 
+        cv2.imwrite("/home/kevin/utk-robotics-2016/tmp.jpeg", self.origImg)
+
     def findCenterOfBiggestMass(self, mask):
-        contours, hierarchy = cv2.findContours(mask, 1, 2)
+        _,contours, hierarchy = cv2.findContours(mask, 1, 2)
         biggestArea = -1
         biggestIndex = -1
         for i, cnt in enumerate(contours):
@@ -55,6 +65,10 @@ class railorder:
         colors = ['red', 'green', 'blue', 'yellow']
         # assume that only one of the bins is not viewable from the camera
         railorder = sorted(zip(points, colors), key=lambda coord: coord[0][0])
+        # if less than 3 bins are visible throw an error
+        # if railorder[1][0] the x of the second lowest value is -1
+        if railorder[1][0] == -1: 
+            sys.stderr.write("not all bins were visible. Readjust the camera\n")
         if course == 'B':
             # set the leftmost color's x coord to 1000 and resort, putting it on the right
             railorder[0][0] = 1000
