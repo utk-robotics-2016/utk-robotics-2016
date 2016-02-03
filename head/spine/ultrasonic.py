@@ -77,6 +77,10 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
             unit_mult = 2.54
         threshold = 1.0 * unit_mult
         current = float('inf')
+        if(side == 'front'):
+            current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+        else:
+            current = s.read_ultrasonics(side, unit)
         while current == float('inf'):
             if(side == 'front'):
                 current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
@@ -101,6 +105,10 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
         last_speed = speed
 
         while(abs(delta) > threshold):
+            if(side == 'front'):
+                current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+            else:
+                current = s.read_ultrasonics(side, unit)
             while current == float('inf'):
                 if(side == 'front'):
                     current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
