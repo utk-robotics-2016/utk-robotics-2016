@@ -44,11 +44,13 @@ with get_spine() as s:
                 logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
 
                 # Initialize before button press
+                '''
                 self.ldr.initial_zero_lift()
                 self.ldr.lift(1.9)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
+                '''
 
             def move_pid(self, speed, dir, angle):
                 s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
@@ -317,7 +319,7 @@ with get_spine() as s:
                 # pick up the blocks in zone b
                 logging.info("Picking up zone B blocks")
                 # Lift to proper loading height for rail blocks.
-                self.ldr.lift(4.875)
+                # self.ldr.lift(4.875)
                 # if self.use_loader is True:
                 #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
