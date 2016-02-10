@@ -293,43 +293,69 @@ with get_spine() as s:
                 else:
                     ultrasonic_go_to_position(s, right=dist, unit='cm')
 
+            def align_zone_b(self):
+
+                # back up from the white squares
+                trapezoid(s.move_pid, (0, 180, 0), (1, 180, 0), (0, 0, 0), 2.0)
+
+                # strafe to the center white line
+                self.strafe_until_line(self, "white", "right", "left")
+                
+                # move forward to the barge
+                trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 3.0)
+
+                # ultrasonic alignment prior to calling the load function
+                dist = 79.0
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, left=dist, unit='cm')
+                else:
+                    ultrasonic_go_to_position(s, right=dist, unit='cm')
+
             def start(self):
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("In corner")
 
+                # Move to Zone B from the corner
+                self.align_zone_b()
+                logger.info("At zone B")
+
+                # Load at Zone B
+                # if self.use_loader is True:
+                #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+
                 # LOAD SEA BLOCKS
-                self.align_zone_a()
-                logger.info("At zone A")
+                # self.align_zone_a()
+                # logger.info("At zone A")
                 # note: the life is already set to the correct height for Zone A (1.9)
-                if self.use_loader is True:
-                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                # if self.use_loader is True:
+                #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
                 # move from zone A to the sea zone
-                self.zone_a_to_sea_zone()
+                # self.zone_a_to_sea_zone()
 
                 # unload blocks
-                logging.info("Unloading at sea zone")
-                if self.use_loader is True:
-                    self.ldr.dump_blocks()
+                # logging.info("Unloading at sea zone")
+                # if self.use_loader is True:
+                #    self.ldr.dump_blocks()
 
                 # move from the sea zone to zone B
-                self.sea_zone_to_zone_b()
+                # self.sea_zone_to_zone_b()
 
                 # pick up the blocks in zone b
-                logging.info("Picking up zone B blocks")
+                # logging.info("Picking up zone B blocks")
                 # Lift to proper loading height for rail blocks.
-                self.ldr.lift(4.875)
+                # self.ldr.lift(4.875)
                 # if self.use_loader is True:
                 #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
                 # move to the rail zone
-                logging.info("Moving to rail zone")
-                self.zone_b_to_rail_zone()
+                # logging.info("Moving to rail zone")
+                # self.zone_b_to_rail_zone()
 
                 # sort and unload blocks into bins in rail zone
                 # TODO #
-                logging.info("At rail zone")
+                # logging.info("At rail zone")
 
         bot = Robot()
 
