@@ -7,10 +7,9 @@ import sys
 # Local modules
 from head.spine.core import get_spine
 # from head.spine.loader import Loader
+from head.spine.ourlogging import setup_logging
 
-fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
-logging.basicConfig(format=fmt, level=logging.WARNING, datefmt='%I:%M:%S')
-# logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
+setup_logging(__file__)
 logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser(description='Manual control of loader')

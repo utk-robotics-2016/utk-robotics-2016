@@ -76,19 +76,24 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
         if unit == 'cm':
             unit_mult = 2.54
         threshold = 1.0 * unit_mult
+        current = float('inf')
         if(side == 'front'):
             current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
         else:
             current = s.read_ultrasonics(side, unit)
+        while current == float('inf'):
+            if(side == 'front'):
+                current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+            else:
+                current = s.read_ultrasonics(side, unit)
 
         delta = (current - target)
 
         if abs(delta / unit_mult) > 16:
             speed = 1.0 * delta / abs(delta)
-        else:  # abs(delta / unit_mult) > 6:
+        else:
             speed = 0.5 * delta / abs(delta)
-        # else:
-        #    speed = 0.25 * delta / abs(delta)
+
         dir = dir_pos
         if speed < 0.0:
             speed = -1.0 * speed
@@ -104,14 +109,18 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
                 current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
             else:
                 current = s.read_ultrasonics(side, unit)
+            while current == float('inf'):
+                if(side == 'front'):
+                    current = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+                else:
+                    current = s.read_ultrasonics(side, unit)
             delta = (current - target)
             logger.info("Delta: %s Current: %s Target: %s" % (delta, current, target))
             if abs(delta / unit_mult) > 16:
                 speed = 1.0 * delta / abs(delta)
-            else:  # abs(delta / unit_mult) > 6:
+            else:
                 speed = 0.5 * delta / abs(delta)
-            # else:
-            #    speed = 0.25 * delta / abs(delta)
+
             dir = dir_pos
             if speed < 0.0:
                 speed = -1.0 * speed

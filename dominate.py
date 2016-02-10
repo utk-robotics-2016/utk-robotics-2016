@@ -10,10 +10,9 @@ from head.spine.loader import Loader
 from head.spine.control import trapezoid
 from head.spine.Vec3d import Vec3d
 from head.spine.ultrasonic import ultrasonic_go_to_position
+from head.spine.ourlogging import setup_logging
 
-fmt = '%(asctime)s.%(msecs)03d - %(name)s - %(levelname)s - %(message)s'
-logging.basicConfig(format=fmt, level=logging.DEBUG, datefmt='%I:%M:%S')
-# logging.basicConfig(format=fmt, level=logging.INFO, datefmt='%I:%M:%S')
+setup_logging(__file__)
 logger = logging.getLogger(__name__)
 
 
@@ -45,11 +44,13 @@ with get_spine() as s:
                 logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
 
                 # Initialize before button press
+                '''
                 self.ldr.initial_zero_lift()
                 self.ldr.lift(1.9)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
+                '''
 
             def move_pid(self, speed, dir, angle):
                 s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
@@ -117,7 +118,7 @@ with get_spine() as s:
             def wait_until_arm_limit_pressed(self):
                 logging.info("Waiting for arm limit press.")
                 while not s.read_arm_limit():
-                    pass
+                    time.sleep(0.1)
 
             def move_to_rail_zone(self, currzone, destzone, method='deadreckon'):
                 if method == 'manual':
