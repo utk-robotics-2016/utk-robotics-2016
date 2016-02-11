@@ -14,14 +14,14 @@ class block_detector:
     def __init__(self, s):
 
         self.s = s
-        self.top_points = ((65, 187), (65, 382),
+        self.top_points = ((100, 187), (100, 382),
                            (220, 187), (220, 382),
                            (390, 187), (390, 382),
                            (521, 187), (521, 372),
                            (70, 100), (70, 325),
                            (215, 100), (215, 325),
                            (370, 100), (370, 325),
-                           (500, 100), (500, 325))
+                           (550, 100), (550, 325))
 
         self.bottom_points = ((124, 187), (124, 382),
                               (257, 187), (257, 382),
@@ -272,5 +272,8 @@ class block_detector:
                     self.mark_point(cp_top, 0)
 
         self.s.writeWs({"type": "Blocks", "val": rv})
+        if display:
+            cv2.imshow("Left", self.left_frame)
+            cv2.imshow("Right",self.right_frame)
         logger.info("Block Array: %s" % rv)
         return rv
