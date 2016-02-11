@@ -26,7 +26,7 @@ with get_spine() as s:
 
                 # flag to determine if the loader is enabled
                 # this allows for a pure navigational run when set to False
-                self.use_loader = False
+                self.use_loader = True
 
                 # set a threshold for white vs black values from the QTR sensor
                 self.qtr_threshold = 800
@@ -44,13 +44,13 @@ with get_spine() as s:
                 logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
 
                 # Initialize before button press
-                '''
+               
                 self.ldr.initial_zero_lift()
                 self.ldr.lift(1.9)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
-                '''
+                
 
             def move_pid(self, speed, dir, angle):
                 s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
@@ -306,7 +306,7 @@ with get_spine() as s:
                 trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 3.0)
 
                 # ultrasonic alignment prior to calling the load function
-                dist = 78.0
+                dist = 88.0
                 if self.course == 'A':
                     ultrasonic_go_to_position(s, left=dist, unit='cm')
                 else:
@@ -323,6 +323,12 @@ with get_spine() as s:
                 self.align_zone_b()
                 logger.info("At zone B")
 
+                self.ldr.lift(4.875)
+
+                self.wait_until_arm_limit_pressed()
+                if self.use_loader is True:
+                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                
                 # Load at Zone B
                 # if self.use_loader is True:
                 #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
