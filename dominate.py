@@ -297,20 +297,22 @@ with get_spine() as s:
             def align_zone_b(self):
 
                 # back up from the white squares
-                trapezoid(s.move_pid, (0, 180, 0), (1, 180, 0), (0, 0, 0), 2.0)
+                trapezoid(s.move_pid, (0, 180, 0), (1, 180, 0), (0, 0, 0), 1.75)
 
                 # strafe to the center white line
-                self.strafe_until_line(self, "white", "right", "left")
+                self.strafe_until_line("white", "right", "left")
                 
                 # move forward to the barge
-                trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 3.0)
+                trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 3.0)
 
                 # ultrasonic alignment prior to calling the load function
-                dist = 79.0
+                dist = 78.0
                 if self.course == 'A':
                     ultrasonic_go_to_position(s, left=dist, unit='cm')
                 else:
                     ultrasonic_go_to_position(s, right=dist, unit='cm')
+
+                trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.5)
 
             def start(self):
                 # Moves from start square to corner near Zone A
