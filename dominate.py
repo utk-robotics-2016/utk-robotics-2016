@@ -323,7 +323,7 @@ with get_spine() as s:
                 self.align_zone_b()
                 logger.info("At zone B")
 
-                self.ldr.lift(4.875)
+                self.ldr.lift(4.8)
 
                 self.wait_until_arm_limit_pressed()
                 if self.use_loader is True:
