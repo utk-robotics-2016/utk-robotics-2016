@@ -10,7 +10,7 @@ from head.spine.Vec3d import Vec3d
 SPEED = 1
 FULL_BLOCK_FORWARD = 11
 NEAR_HALF_BLOCK_FORWARD = FULL_BLOCK_FORWARD - 2
-FAR_HALF_BLOCK_FORWARD = FULL_BLOCK_FORWARD + 3
+FAR_HALF_BLOCK_FORWARD = FULL_BLOCK_FORWARD + 2
 HEIGHT_TO_CLEAR_LOADER = 13
 DROP_XY = {'right': (16, 0), 'left': (-16, -4)}
 # height of the top surface of the bottom level
@@ -56,6 +56,10 @@ class BlockPicker:
         # Special case!
         if col == 0 and desc == 'full':
             forward -= 2
+        '''
+        if col == 0 and desc == 'far_half':
+            forward += 1
+        '''
         self.arm.move_to(Vec3d(lateral, forward,
                          level_height + 4), 0, 180, SPEED)
         self.s.set_suction(True)
@@ -64,7 +68,7 @@ class BlockPicker:
         time.sleep(0.5)
         # Special case!
         # To avoid the math domain errors on retract
-        if (col in [0, 7] and desc == 'far_half'):
+        if (col in [0, 1, 7] and desc == 'far_half'):
             forward = FULL_BLOCK_FORWARD
         self.arm.move_to(Vec3d(lateral, forward,
                          HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
