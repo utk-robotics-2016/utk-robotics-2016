@@ -45,13 +45,11 @@ with get_spine() as s:
                 logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
 
                 # Initialize before button press
-                '''
                 self.ldr.initial_zero_lift()
                 self.ldr.lift(1.9)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
-                '''
 
             def move_pid(self, speed, dir, angle):
                 s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
@@ -301,16 +299,14 @@ with get_spine() as s:
 
             def start(self):
                 # Moves from start square to corner near Zone A
-                #self.move_to_corner()
-                #logger.info("In corner")
+                self.move_to_corner()
+                logger.info("In corner")
 
                 self.arm_to_vertical()
                 binStuff = railorder(self.course)
                 bin_order = binStuff.get_rail_order(self.course)
                 print(bin_order)
                 arm.park()
-
-                exit(0)
 
                 # LOAD SEA BLOCKS
                 self.align_zone_a()
@@ -351,6 +347,6 @@ with get_spine() as s:
 
         bot = Robot()
 
-        #bot.wait_until_arm_limit_pressed()
+        bot.wait_until_arm_limit_pressed()
         time.sleep(0.5)
         bot.start()
