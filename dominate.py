@@ -45,11 +45,11 @@ with get_spine() as s:
 
                 # Initialize before button press
                
-                self.ldr.initial_zero_lift()
-                self.ldr.lift(1.9)
-                arm.move_to(Vec3d(11, -1, 10), 0, 180)
-                self.ldr.widen(0.1)
-                arm.park()
+                # self.ldr.initial_zero_lift()
+                # self.ldr.lift(1.9)
+                # arm.move_to(Vec3d(11, -1, 10), 0, 180)
+                # self.ldr.widen(0.1)
+                # arm.park()
                 
 
             def move_pid(self, speed, dir, angle):
@@ -314,8 +314,28 @@ with get_spine() as s:
 
                 trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.5)
 
+            def go_to_rail_cars(self):
+
+                # back up from the barge zone
+                trapezoid(s.move_pid, (0, 180, 0), (1, 180, 0), (0, 0, 0), 1.75)
+
+                dist = 20.0
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, left=dist, unit='cm')
+                else:
+                    ultrasonic_go_to_position(s, right=dist, unit='cm')
+
+                # move forward to the barge to square up
+                trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 4.0)
+
+                # back up slightly
+                trapezoid(s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 1)
+
+                self.ldr.initial_zero_lift()
+
             def start(self):
                 # Moves from start square to corner near Zone A
+                '''
                 self.move_to_corner()
                 logger.info("In corner")
 
@@ -328,7 +348,16 @@ with get_spine() as s:
                 self.wait_until_arm_limit_pressed()
                 if self.use_loader is True:
                     self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
-                
+                '''
+
+                # self.go_to_rail_cars()
+                # I took a picture of everythign that happens up to this point
+
+                blocks = arm.detect_blocks('top')
+                logger.info(blocks)
+
+
+
                 # Load at Zone B
                 # if self.use_loader is True:
                 #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
