@@ -4,6 +4,7 @@ import time
 
 # Local modules
 from head.spine.Vec3d import Vec3d
+from head.spine.ultrasonic import ultrasonic_go_to_position
 from head.spine.block_picking import BlockPicker
 from head.spine.control import trapezoid
 
@@ -14,7 +15,7 @@ class RailSorter:
         self.arm = arm
         self.bp = BlockPicker(s, arm)
 
-    def move_to_rail_zone(self, currzone, destzone, method='deadreckon'):
+    def move_to_rail_zone(self, currzone, destzone, course, method='deadreckon'):
         if method == 'manual':
             raw_input('Move me to zone %d' % (destzone))
         elif method == 'deadreckon':
@@ -28,6 +29,19 @@ class RailSorter:
             elif currzone != -1:
                 trapezoid(self.s.move_pid, (0, 180, 0), (0.5, 180, 0), (0, 180, 0), 2.0)
                 self.s.stop()
+                if currzone == 1 and destzone == 2:
+                    back_away_time = 1.0
+                    if course == 'A':
+                        trapezoid(self.s.move_pid, (0, -90, 0), (0.5, -90, 0), (0, -90, 0), back_away_time)
+                    else:
+                        trapezoid(self.s.move_pid, (0, 90, 0), (0.5, 90, 0), (0, 90, 0), back_away_time)
+                    '''
+                    dist = 18.0
+                    if course == 'A':
+                        ultrasonic_go_to_position(self.s, left=dist, unit='cm')
+                    else:
+                        ultrasonic_go_to_position(self.s, right=dist, unit='cm')
+                    '''
         else:
             raise ValueError
 
@@ -100,7 +114,7 @@ class RailSorter:
         for level in ['top']:
             blocks = self.detect_blocks(level)
             for zid in range(4):
-                self.move_to_rail_zone(lastzid, zid)
+                self.move_to_rail_zone(lastzid, zid, course)
                 color = self.get_rail_zone_color(zid)
                 indices = []
                 for i, col in enumerate(blocks):
