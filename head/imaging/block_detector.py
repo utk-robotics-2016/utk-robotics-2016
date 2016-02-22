@@ -8,6 +8,8 @@ from color_point import color_point
 
 logger = logging.getLogger(__name__)
 
+SAVE_LOC = '/tmp'
+
 
 class block_detector:
 
@@ -41,7 +43,7 @@ class block_detector:
         logger.info("Disconnecting from camera")
         self.camera.release()
         if saveImage:
-            cv2.imwrite("/tmp/%s_right.jpg" % datetime.now(), image)
+            cv2.imwrite(SAVE_LOC + "/%s_right.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), -18, 1)
         self.right_frame = cv2.warpAffine(image, M, (cols, rows))
@@ -57,7 +59,7 @@ class block_detector:
         logger.info("Disconnecting from camera")
         self.camera.release()
         if saveImage:
-            cv2.imwrite("/tmp/%s_left.jpg" % datetime.now(), image)
+            cv2.imwrite(SAVE_LOC + "/%s_left.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 29, 1)
         self.left_frame = cv2.warpAffine(image, M, (cols, rows))
@@ -276,4 +278,6 @@ class block_detector:
             cv2.imshow("Left", self.left_frame)
             cv2.imshow("Right",self.right_frame)
         logger.info("Block Array: %s" % rv)
+        with open(SAVE_LOC + '/%s_parsed.txt' % datetime.now(), 'a') as the_file:
+            the_file.write(rv)
         return rv
