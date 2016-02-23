@@ -11,6 +11,7 @@ from head.spine.control import trapezoid
 from head.spine.Vec3d import Vec3d
 from head.spine.ultrasonic import ultrasonic_go_to_position
 from head.spine.ourlogging import setup_logging
+from head.imaging.railorder import railorder
 
 setup_logging(__file__)
 logger = logging.getLogger(__name__)
@@ -44,13 +45,13 @@ with get_spine() as s:
                 logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
 
                 # Initialize before button press
-               
+
                 self.ldr.initial_zero_lift()
                 self.ldr.lift(1.9)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
-                
+
 
             def move_pid(self, speed, dir, angle):
                 s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
@@ -301,7 +302,7 @@ with get_spine() as s:
 
                 # strafe to the center white line
                 self.strafe_until_line("white", "right", "left")
-                
+
                 # move forward to the barge
                 trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 3.0)
 
@@ -313,6 +314,12 @@ with get_spine() as s:
                     ultrasonic_go_to_position(s, right=dist, unit='cm')
 
                 trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.5)
+
+            def arm_to_vertical(self):
+                arm.move_to(Vec3d(11, -4, 10), 1.3, 180)
+                if self.course == 'A':
+                    arm.move_to(Vec3d(-11, -4, 10), 1.3, 180)
+                time.sleep(1)
 
             def start(self):
                 # Moves from start square to corner near Zone A
@@ -326,9 +333,13 @@ with get_spine() as s:
                 self.ldr.lift(4.875)
 
                 self.wait_until_arm_limit_pressed()
-                if self.use_loader is True:
-                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
-                
+
+                self.arm_to_vertical()
+                binStuff = railorder(self.course)
+                bin_order = binStuff.get_rail_order(self.course)
+                print(bin_order)
+                arm.park()
+
                 # Load at Zone B
                 # if self.use_loader is True:
                 #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
