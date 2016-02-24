@@ -45,12 +45,13 @@ with get_spine() as s:
                 logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
 
                 # Initialize before button press
-
+                '''
                 self.ldr.initial_zero_lift()
                 self.ldr.lift(1.9)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
+                '''
 
             def move_pid(self, speed, dir, angle):
                 s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
@@ -177,6 +178,7 @@ with get_spine() as s:
                 self.ldr.initial_zero_lift()
 
             def start(self):
+                '''
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("In corner")
@@ -203,7 +205,7 @@ with get_spine() as s:
 
                 self.go_to_rail_cars()
                 # I took a picture of everything that happens up to this point
-
+'''
                 self.rs.unload_rail(self.course)
 
                 # Load at Zone B

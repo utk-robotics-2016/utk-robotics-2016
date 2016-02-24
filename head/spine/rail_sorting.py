@@ -32,7 +32,7 @@ class RailSorter:
                 if destzone == 0:
                     front_dist = 11
                 elif destzone == 1:
-                    front_dist = 38
+                    front_dist = 36
                 elif destzone == 2:
                     front_dist = 65
                 elif destzone == 3:
@@ -40,10 +40,10 @@ class RailSorter:
 
                 ultrasonic_go_to_position( self.s, front = front_dist, unit = 'cm' )
 
-                side_dist = 11
+                side_dist = 13
                 if course == 'A':
                     ultrasonic_go_to_position( self.s, left = side_dist, unit = 'cm' )
-                else
+                else:
                     ultrasonic_go_to_position( self.s, right = side_dist, unit = 'cm' )
 
                 '''
@@ -56,13 +56,13 @@ class RailSorter:
                     else:
                         trapezoid(self.s.move_pid, (0, 90, 0), (0.5, 90, 0), (0, 90, 0), back_away_time)
                 '''
-                    '''
-                    dist = 18.0
-                    if course == 'A':
-                        ultrasonic_go_to_position(self.s, left=dist, unit='cm')
-                    else:
-                        ultrasonic_go_to_position(self.s, right=dist, unit='cm')
-                    '''
+                '''
+                dist = 18.0
+                if course == 'A':
+                    ultrasonic_go_to_position(self.s, left=dist, unit='cm')
+                else:
+                    ultrasonic_go_to_position(self.s, right=dist, unit='cm')
+                '''
         else:
             raise ValueError
 
