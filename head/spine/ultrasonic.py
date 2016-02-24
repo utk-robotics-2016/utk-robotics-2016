@@ -68,7 +68,7 @@ def ultrasonic_read_avg(s, sensor, units = 'cm', readings = 5):
     assert( readings >= 3 )
 
     # get the readings and determine the average while recording the outliers
-    for x in range( readings )
+    for x in range( readings ):
         read = s.read_ultrasonics(sensor, units)
         if read < min:
             min = read
@@ -77,13 +77,12 @@ def ultrasonic_read_avg(s, sensor, units = 'cm', readings = 5):
         avg += read
 
     # return the average without the min/max being included
-    return ( fl_avg - max - min ) / ( readings - 2 )
+    return ( avg - max - min ) / ( readings - 2 )
 
 # correct rotation using the front left and front right ultraonsic sensors
-def ultrasonic_rotate_square(s):
+def ultrasonic_rotate_square(s, tolerance = 2.5, again = 1):
     # constants
-    tolerance = 2.5
-    num_read = 5
+    num_read = 9
 
     # get averages & difference between sensors
     fl_avg = ultrasonic_read_avg(s, 'front_left', 'cm', num_read)
@@ -113,6 +112,9 @@ def ultrasonic_rotate_square(s):
 
     # stop when done
     s.stop()
+
+    if again == 1:
+        ultrasonic_rotate_square(s, 1.5, 0)
 
 
 # TO BE TESTED
