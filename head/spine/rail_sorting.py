@@ -28,6 +28,25 @@ class RailSorter:
                 # Move away from railroad
                 self.s.move_for(1, 0.6, 70, 0)
             elif currzone != -1:
+
+                if destzone == 0:
+                    front_dist = 11
+                elif destzone == 1:
+                    front_dist = 38
+                elif destzone == 2:
+                    front_dist = 65
+                elif destzone == 3:
+                    front_dist = 97
+
+                ultrasonic_go_to_position( self.s, front = front_dist, unit = 'cm' )
+
+                side_dist = 11
+                if course == 'A':
+                    ultrasonic_go_to_position( self.s, left = side_dist, unit = 'cm' )
+                else
+                    ultrasonic_go_to_position( self.s, right = side_dist, unit = 'cm' )
+
+                '''
                 trapezoid(self.s.move_pid, (0, 180, 0), (0.5, 180, 0), (0, 180, 0), 2.0)
                 self.s.stop()
                 if currzone == 1 and destzone == 2:
@@ -36,6 +55,7 @@ class RailSorter:
                         trapezoid(self.s.move_pid, (0, -90, 0), (0.5, -90, 0), (0, -90, 0), back_away_time)
                     else:
                         trapezoid(self.s.move_pid, (0, 90, 0), (0.5, 90, 0), (0, 90, 0), back_away_time)
+                '''
                     '''
                     dist = 18.0
                     if course == 'A':
