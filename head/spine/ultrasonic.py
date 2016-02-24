@@ -5,7 +5,6 @@ from control import keyframe
 
 logger = logging.getLogger(__name__)
 
-
 # TO BE TESTED
 def strafe_at_distance(s, dist, unit, dir, total_time, rampUp=1.0, rampDown=1.0):
     assert dir in ['left', 'right']
@@ -57,6 +56,62 @@ def strafe_at_distance(s, dist, unit, dir, total_time, rampUp=1.0, rampDown=1.0)
     if rampDown:
         keyframe(s.move_pid, (0.0, angle, 0), (0.0, angle, 0), rampDown)
 
+    s.stop()
+
+# read a sensor some number of times and return the average
+def ultrasonic_read_avg(s, sensor, units = 'cm', readings = 5):
+    min = 99999
+    max = -1
+    avg = 0
+
+    # this function is pointless for less than three readings
+    assert( readings >= 3 )
+
+    # get the readings and determine the average while recording the outliers
+    for x in range( readings )
+        read = s.read_ultrasonics(sensor, units)
+        if read < min:
+            min = read
+        if read > max:
+            max = read
+        avg += read
+
+    # return the average without the min/max being included
+    return ( fl_avg - max - min ) / ( readings - 2 )
+
+# correct rotation using the front left and front right ultraonsic sensors
+def ultrasonic_rotate_square(s):
+    # constants
+    tolerance = 2.5
+    num_read = 5
+
+    # get averages & difference between sensors
+    fl_avg = ultrasonic_read_avg(s, 'front_left', 'cm', num_read)
+    fr_avg = ultrasonic_read_avg(s, 'front_right', 'cm', num_read)
+    diff = abs( fl_avg - fr_avg )
+
+    print(fl_avg)
+    print(fr_avg)
+    print(diff)
+
+    while diff > tolerance:
+        # robot is angled right
+        if fl_avg > fr_avg:
+            s.move_pid(0, 0, 0.2)
+        # robot is angled left
+        else:
+            s.move_pid(0, 0, -0.2)
+
+        # get new readings
+        fl_avg = ultrasonic_read_avg(s, 'front_left', 'cm', num_read)
+        fr_avg = ultrasonic_read_avg(s, 'front_right', 'cm', num_read)
+        diff = abs( fl_avg - fr_avg )
+
+        print(fl_avg)
+        print(fr_avg)
+        print(diff)
+
+    # stop when done
     s.stop()
 
 
