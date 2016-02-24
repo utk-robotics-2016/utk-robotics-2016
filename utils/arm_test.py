@@ -25,8 +25,11 @@ with get_spine() as s:
                 self.ldr.initial_zero_lift(use_widen=False)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 # arm.move_to(Vec3d(0, 10, 10), 0, 180)
-                # self.bp.pick_block(2, 'top', 'near_half')
-                # self.bp.drop_block_right()
+                '''
+                for loc in['near_half', 'far_half']:
+                    self.bp.pick_block(0, 'top', loc)
+                    self.bp.drop_block(side='right', rail=False)
+                '''
                 # self.bp.pick_block(2, 'top', 'far_half')
                 # self.bp.drop_block_right()
                 # self.bp.pick_block(3, 'top', 'near_half')
@@ -52,6 +55,7 @@ with get_spine() as s:
                     for col in range(8):
                         self.bp.pick_block(col, level)
                         self.bp.drop_block(side='right', rail=False)
+                # '''
                 '''
                 self.ldr.lift(1.5)
                 for level in ['top']:

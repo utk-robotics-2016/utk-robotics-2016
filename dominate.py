@@ -5,7 +5,7 @@ import logging
 # Local modules
 from head.spine.core import get_spine
 from head.spine.arm import get_arm
-from head.spine.block_picking import BlockPicker
+from head.spine.rail_sorting import RailSorter
 from head.spine.loader import Loader
 from head.spine.control import trapezoid
 from head.spine.Vec3d import Vec3d
@@ -23,7 +23,7 @@ with get_spine() as s:
 
             def __init__(self):
                 self.ldr = Loader(s)
-                self.bp = BlockPicker(s, arm)
+                self.rs = RailSorter(s, arm)
 
                 # flag to determine if the loader is enabled
                 # this allows for a pure navigational run when set to False
@@ -51,7 +51,6 @@ with get_spine() as s:
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
-
 
             def move_pid(self, speed, dir, angle):
                 s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
@@ -121,78 +120,6 @@ with get_spine() as s:
                 while not s.read_arm_limit():
                     time.sleep(0.1)
 
-            def move_to_rail_zone(self, currzone, destzone, method='deadreckon'):
-                if method == 'manual':
-                    raw_input('Move me to zone %d' % (destzone))
-                elif method == 'deadreckon':
-                    if currzone == 3 and destzone == 0:
-                        # Bump up against barge
-                        s.move_for(5, 0.8, 0, 0.08)
-                        # Bump against railroad
-                        s.move_for(1, 0.6, -70, 0)
-                        # Move away from railroad
-                        s.move_for(1, 0.6, 70, 0)
-                    elif currzone != -1:
-                        trapezoid(self.move_pid, (0, 180, 0), (0.5, 180, 0), (0, 180, 0), 2.8)
-                        s.stop()
-                else:
-                    raise ValueError
-
-            def detect_blocks(self, level):
-                # logger.info(arm.detect_blocks('top'))
-                # '''
-                blocks = []
-                if level == 'bottom':
-                    # Far right
-                    blocks.append([{'color': 'blue', 'type': 'full'}])
-                    blocks.append([{'color': 'red', 'type': 'full'}])
-                    blocks.append([{'color': 'yellow', 'type': 'full'}])
-                    blocks.append([{'color': 'green', 'type': 'full'}])
-                    blocks.append([{'color': 'red', 'type': 'full'}])
-                    blocks.append([{'color': 'blue', 'type': 'full'}])
-                    blocks.append([{'color': 'green', 'type': 'full'}])
-                    blocks.append([{'color': 'green', 'type': 'full'}])
-                    # Far left
-                elif level == 'top':
-                    # Far right
-                    blocks.append([{'color': 'green', 'type': 'full'}])
-                    blocks.append([{'color': 'yellow', 'type': 'full'}])
-                    blocks.append([{'color': 'yellow', 'type': 'full'}])
-                    blocks.append([{'color': 'blue', 'type': 'full'}])
-                    blocks.append([{'color': 'blue', 'type': 'full'}])
-                    blocks.append([{'color': 'red', 'type': 'full'}])
-                    blocks.append([{'color': 'yellow', 'type': 'full'}])
-                    blocks.append([{'color': 'red', 'type': 'full'}])
-                    # Far left
-                else:
-                    raise ValueError
-                # '''
-                return blocks
-
-            def get_rail_zone_color(self, zid):
-                return ['yellow', 'blue', 'red', 'green'][zid]
-
-            def unload_rail(self):
-                lastzid = -1
-                # for level in ['top', 'bottom']:
-                for level in ['top']:
-                    blocks = self.detect_blocks(level)
-                    for b in blocks:
-                        assert b[0]['type'] == 'full'
-                    for zid in range(4):
-                        self.move_to_rail_zone(lastzid, zid)
-                        color = self.get_rail_zone_color(zid)
-                        indices = []
-                        for i, b in enumerate(blocks):
-                            if b[0]['color'] == color:
-                                indices.append(i)
-                        logging.info('%s blocks at %s.' % (color, indices))
-                        for i in indices:
-                            self.bp.pick_block(i, level, 'full')
-                            side = {'B': 'right', 'A': 'left'}[self.course]
-                            self.bp.drop_block(rail=True, side=side)
-                        lastzid = zid
-
             # Procedure to navigate from the start area through the tunnel to near Zone A
             def move_to_corner(self):
                 # advance through the tunnel
@@ -203,97 +130,6 @@ with get_spine() as s:
 
                 # approach the barge
                 trapezoid(s.move_pid, (1, -5, 0), (1, -5, 0), (0, -5, 0), 3.0)
-
-            # Proecure to align at Zone A after reaching the closest corner
-            def align_zone_a(self):
-                # This method is to be called after cornering at the first
-                # corner.
-
-                # align for pickup with ultrasonics
-                rldir = 80
-                if self.course == 'A':
-                    dist = 25.0
-                    ultrasonic_go_to_position(s, right=dist, unit='cm', right_left_dir=rldir)
-                else:
-                    # This is the course with the railroad on the right. Needs
-                    # to be a bit further away it seems.
-                    dist = 26.0
-                    ultrasonic_go_to_position(s, left=dist, unit='cm', right_left_dir=rldir)
-
-                # move up to barge after aligning with ultrasonics
-                trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.5)
-
-            # Procedure to navigate from the Zone A barge to the Sea Zone
-            def zone_a_to_sea_zone(self):
-                # back away from zone A
-                trapezoid(self.move_pid, (0, 180, 0), (.5, 180, 0), (0, 180, 0), 1.5)
-                logging.info("Backed away from zone A")
-
-                # move to center white line
-                self.strafe_until_line('white', 'right', 'right')
-                s.stop()
-                logging.info("At center white line")
-
-                # bump middle barge
-                self.rotate_180()
-                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (0, 180, 0), 4.0)
-
-                # move to wall opposite of the barges
-                # use -5 degrees to counteract the drift left
-                trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
-
-                # back away from the wall
-                trapezoid(self.move_pid, (0, 180, 0), (.65, 180, 0), (0, 180, 0), 0.70)
-                s.stop()
-
-                # turn to face the sea zone
-                if self.course == 'B':
-                    self.rotate_90('left')
-                else:
-                    self.rotate_90('right')
-
-                # move with a slight rotation to correctly align at the sea zone
-                trapezoid(self.move, (0, 0, 0), (0.9, 0, -0.15), (0, 0, 0), 3.5)
-
-            # Procedure to navigate from the Sea Zone to the Zone B barge
-            def sea_zone_to_zone_b(self):
-                # move backwards to the center line
-                self.move_pid(0.6, 180, 0)
-                while self.detect_line('white', 'left'):
-                    time.sleep(0.01)
-
-                # turn and realign
-                if self.course == 'B':
-                    self.rotate_90('left')
-                else:
-                    self.rotate_90('right')
-                trapezoid(self.move, (0, 180, 0), (1, 180, 0), (1, 180, 0), 3.5)
-                s.stop()
-
-                # open the flaps before approaching the barge
-                self.ldr.open_flaps()
-
-                # move forward to zone B
-                trapezoid(s.move_pid, (0, -5, 0), (1, -5, 0), (0, -5, 0), 5.6)
-
-                # align at zone B
-                dist = 78.0
-                if self.course == 'A':
-                    ultrasonic_go_to_position(s, left=dist, unit='cm')
-                else:
-                    ultrasonic_go_to_position(s, right=dist, unit='cm')
-
-                # make sure we are against the barge after ultrasonic alignment
-                trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.2)
-
-            # Procedure to navigate from Zone B to the first bin the Rail Zone
-            def zone_b_to_rail_zone(self):
-                # TODO: Test and implement
-                dist = 20.0
-                if self.course == 'A':
-                    ultrasonic_go_to_position(s, left=dist, unit='cm')
-                else:
-                    ultrasonic_go_to_position(s, right=dist, unit='cm')
 
             def align_zone_b(self):
 
@@ -321,24 +157,54 @@ with get_spine() as s:
                     arm.move_to(Vec3d(-11, -4, 10), 1.3, 180)
                 time.sleep(1)
 
+            def go_to_rail_cars(self):
+
+                # back up from the barge zone
+                trapezoid(s.move_pid, (0, 180, 0), (1, 180, 0), (0, 0, 0), 1.75)
+
+                dist = 20.0
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, left=dist, unit='cm')
+                else:
+                    ultrasonic_go_to_position(s, right=dist, unit='cm')
+
+                # move forward to the barge to square up
+                trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 4.0)
+
+                # back up slightly
+                trapezoid(s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 1)
+
+                self.ldr.initial_zero_lift()
+
             def start(self):
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("In corner")
 
+                self.arm_to_vertical()
+                logger.info( "Attempting to determine bin order" )
+                binStuff = railorder(self.course)
+                bin_order = binStuff.get_rail_order(self.course)
+                print( bin_order )
+                # Give the rail sorter the bins in the correct order
+                self.rs.set_rail_zone_bins( list( reversed( bin_order ) ) )
+                arm.park()
+
                 # Move to Zone B from the corner
                 self.align_zone_b()
                 logger.info("At zone B")
 
-                self.ldr.lift(4.875)
+                # Set proper lift height
+                self.ldr.lift(4.8)
 
-                self.wait_until_arm_limit_pressed()
+                # Load the blocks from zone B
+                if self.use_loader is True:
+                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
-                self.arm_to_vertical()
-                binStuff = railorder(self.course)
-                bin_order = binStuff.get_rail_order(self.course)
-                print(bin_order)
-                arm.park()
+                self.go_to_rail_cars()
+                # I took a picture of everything that happens up to this point
+
+                self.rs.unload_rail(self.course)
 
                 # Load at Zone B
                 # if self.use_loader is True:
