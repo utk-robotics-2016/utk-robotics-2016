@@ -172,7 +172,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
                 else:
                     current = s.read_ultrasonics(side, unit)
             delta = (current - target)
-            logger.info("Delta: %s Current: %s Target: %s" % (delta, current, target))
+            logger.debug("Delta: %s Current: %s Target: %s" % (delta, current, target))
             if abs(delta / unit_mult) > 16:
                 speed = 1.0 * delta / abs(delta)
             else:
