@@ -8,20 +8,22 @@ from color_point import color_point
 
 logger = logging.getLogger(__name__)
 
+SAVE_LOC = '/var/log/spine/imaging'
+
 
 class block_detector:
 
     def __init__(self, s):
 
         self.s = s
-        self.top_points = ((65, 187), (65, 382),
+        self.top_points = ((100, 187), (100, 382),
                            (220, 187), (220, 382),
                            (390, 187), (390, 382),
                            (521, 187), (521, 372),
                            (70, 100), (70, 325),
                            (215, 100), (215, 325),
                            (370, 100), (370, 325),
-                           (500, 100), (500, 325))
+                           (550, 100), (550, 325))
 
         self.bottom_points = ((124, 187), (124, 382),
                               (257, 187), (257, 382),
@@ -41,7 +43,7 @@ class block_detector:
         logger.info("Disconnecting from camera")
         self.camera.release()
         if saveImage:
-            cv2.imwrite("/tmp/%s_right.jpg" % datetime.now(), image)
+            cv2.imwrite(SAVE_LOC + "/%s_right.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), -18, 1)
         self.right_frame = cv2.warpAffine(image, M, (cols, rows))
@@ -57,7 +59,7 @@ class block_detector:
         logger.info("Disconnecting from camera")
         self.camera.release()
         if saveImage:
-            cv2.imwrite("/tmp/%s_left.jpg" % datetime.now(), image)
+            cv2.imwrite(SAVE_LOC + "/%s_left.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 29, 1)
         self.left_frame = cv2.warpAffine(image, M, (cols, rows))
@@ -272,5 +274,10 @@ class block_detector:
                     self.mark_point(cp_top, 0)
 
         self.s.writeWs({"type": "Blocks", "val": rv})
+        if display:
+            cv2.imshow("Left", self.left_frame)
+            cv2.imshow("Right", self.right_frame)
         logger.info("Block Array: %s" % rv)
+        with open(SAVE_LOC + '/%s_parsed.txt' % datetime.now(), 'a') as the_file:
+            the_file.write(rv)
         return rv
