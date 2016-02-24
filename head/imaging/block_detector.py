@@ -8,7 +8,7 @@ from color_point import color_point
 
 logger = logging.getLogger(__name__)
 
-SAVE_LOC = '/tmp'
+SAVE_LOC = '/var/log/spine/imaging'
 
 
 class block_detector:

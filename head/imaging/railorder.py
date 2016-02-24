@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
+from datetime import datetime
 import sys
+
+SAVE_LOC = '/var/log/spine/imaging'
 
 
 class railorder:
@@ -31,7 +34,8 @@ class railorder:
             camera = cv2.VideoCapture(0)
             retval, self.origImg = camera.read()
             camera.release()
-            cv2.imwrite("/home/kevin/utk-robotics-2016/tmp.jpeg", self.origImg)
+            # cv2.imwrite("/home/kevin/utk-robotics-2016/tmp.jpeg", self.origImg)
+            cv2.imwrite(SAVE_LOC + "/%s_rail_order.jpg" % datetime.now(), self.origImg)
         except:
             sys.stderr.write("Error in init\n")
 
