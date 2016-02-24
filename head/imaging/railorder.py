@@ -16,8 +16,8 @@ class railorder:
             self.yellow = [np.array([0, 200, 210]), np.array([40, 255, 255])]
 
             if course == 'A':
-                self.y1 = 150
-                self.y2 = 300
+                self.y1 = 200
+                self.y2 = 350
                 self.x1 = 0
                 self.x2 = 380
             else:

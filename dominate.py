@@ -148,7 +148,16 @@ with get_spine() as s:
                 else:
                     ultrasonic_go_to_position(s, right=dist, unit='cm')
 
-                trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.5)
+                s.move_pid(1, 0, 0)
+                time.sleep(1)
+                s.move_pid(1, 0, .3)
+                time.sleep(1)
+                s.move_pid(1, 0, -.3)
+                time.sleep(1)
+                s.stop()
+                # trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 1.5)
+                # trapezoid(s.move, (0, 180, 0), (.65, 180, 0), (0, 180, 0), 0.5)
+                # trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 3)
 
             def arm_to_vertical(self):
                 arm.move_to(Vec3d(11, -4, 10), 1.3, 180)
@@ -161,7 +170,7 @@ with get_spine() as s:
                 # back up from the barge zone
                 trapezoid(s.move_pid, (0, 180, 0), (1, 180, 0), (0, 0, 0), 1.75)
 
-                dist = 20.0
+                dist = 18.0
                 if self.course == 'A':
                     ultrasonic_go_to_position(s, left=dist, unit='cm')
                 else:
@@ -171,7 +180,7 @@ with get_spine() as s:
                 trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 4.0)
 
                 # back up slightly
-                trapezoid(s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 1)
+                trapezoid(s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 0.3)
 
                 self.ldr.initial_zero_lift()
 
