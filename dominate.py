@@ -9,7 +9,8 @@ from head.spine.rail_sorting import RailSorter
 from head.spine.loader import Loader
 from head.spine.control import trapezoid
 from head.spine.Vec3d import Vec3d
-from head.spine.ultrasonic import ultrasonic_go_to_position, ultrasonic_rotate_square
+from head.spine.ultrasonic import ultrasonic_go_to_position
+# from head.spine.ultrasonic import ultrasonic_rotate_square
 from head.spine.ourlogging import setup_logging
 from head.imaging.railorder import railorder
 
@@ -190,12 +191,12 @@ with get_spine() as s:
                 logger.info("In corner")
 
                 self.arm_to_vertical()
-                logger.info( "Attempting to determine bin order" )
+                logger.info("Attempting to determine bin order")
                 binStuff = railorder(self.course)
                 bin_order = binStuff.get_rail_order(self.course)
-                print( bin_order )
+                print(bin_order)
                 # Give the rail sorter the bins in the correct order
-                self.rs.set_rail_zone_bins( list( reversed( bin_order ) ) )
+                self.rs.set_rail_zone_bins(list(reversed(bin_order)))
                 arm.park()
 
                 # Move to Zone B from the corner

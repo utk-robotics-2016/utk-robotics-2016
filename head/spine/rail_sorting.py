@@ -1,12 +1,12 @@
 # Global modules
 import logging
-import time
+# import time
 
 # Local modules
-from head.spine.Vec3d import Vec3d
+# from head.spine.Vec3d import Vec3d
 from head.spine.ultrasonic import ultrasonic_go_to_position
 from head.spine.block_picking import BlockPicker
-from head.spine.control import trapezoid
+# from head.spine.control import trapezoid
 
 
 class RailSorter:
@@ -14,7 +14,7 @@ class RailSorter:
         self.s = s
         self.arm = arm
         self.bp = BlockPicker(s, arm)
-        self.bin_colors = ['yellow', 'green', 'red', 'blue'];
+        self.bin_colors = ['yellow', 'green', 'red', 'blue']
 
     def move_to_rail_zone(self, currzone, destzone, course, method='deadreckon'):
         if method == 'manual':
@@ -38,13 +38,13 @@ class RailSorter:
                 elif destzone == 3:
                     front_dist = 97
 
-                ultrasonic_go_to_position( self.s, front = front_dist, unit = 'cm' )
+                ultrasonic_go_to_position(self.s, front=front_dist, unit='cm')
 
                 side_dist = 13
                 if course == 'A':
-                    ultrasonic_go_to_position( self.s, left = side_dist, unit = 'cm' )
+                    ultrasonic_go_to_position(self.s, left=side_dist, unit='cm')
                 else:
-                    ultrasonic_go_to_position( self.s, right = side_dist, unit = 'cm' )
+                    ultrasonic_go_to_position(self.s, right=side_dist, unit='cm')
 
                 '''
                 trapezoid(self.s.move_pid, (0, 180, 0), (0.5, 180, 0), (0, 180, 0), 2.0)
@@ -81,9 +81,9 @@ class RailSorter:
                 # Assert that the next block is half as well.
                 assert raw_blocks[i][1] == 'H'
                 blocks.append([
-                        {'color': colors[raw_blocks[i][0]], 'type': 'far_half'},
-                        {'color': colors[raw_blocks[i+1][0]], 'type': 'near_half'}
-                    ])
+                    {'color': colors[raw_blocks[i][0]], 'type': 'far_half'},
+                    {'color': colors[raw_blocks[i + 1][0]], 'type': 'near_half'}
+                ])
                 i += 2
             else:
                 raise ValueError

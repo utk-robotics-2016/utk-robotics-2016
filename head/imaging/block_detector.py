@@ -276,7 +276,7 @@ class block_detector:
         self.s.writeWs({"type": "Blocks", "val": rv})
         if display:
             cv2.imshow("Left", self.left_frame)
-            cv2.imshow("Right",self.right_frame)
+            cv2.imshow("Right", self.right_frame)
         logger.info("Block Array: %s" % rv)
         with open(SAVE_LOC + '/%s_parsed.txt' % datetime.now(), 'a') as the_file:
             the_file.write(rv)

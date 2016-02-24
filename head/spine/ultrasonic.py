@@ -5,6 +5,7 @@ from control import keyframe
 
 logger = logging.getLogger(__name__)
 
+
 # TO BE TESTED
 def strafe_at_distance(s, dist, unit, dir, total_time, rampUp=1.0, rampDown=1.0):
     assert dir in ['left', 'right']
@@ -58,17 +59,18 @@ def strafe_at_distance(s, dist, unit, dir, total_time, rampUp=1.0, rampDown=1.0)
 
     s.stop()
 
+
 # read a sensor some number of times and return the average
-def ultrasonic_read_avg(s, sensor, units = 'cm', readings = 5):
+def ultrasonic_read_avg(s, sensor, units='cm', readings=5):
     min = 99999
     max = -1
     avg = 0
 
     # this function is pointless for less than three readings
-    assert( readings >= 3 )
+    assert (readings >= 3)
 
     # get the readings and determine the average while recording the outliers
-    for x in range( readings ):
+    for x in range(readings):
         read = s.read_ultrasonics(sensor, units)
         if read < min:
             min = read
@@ -77,17 +79,18 @@ def ultrasonic_read_avg(s, sensor, units = 'cm', readings = 5):
         avg += read
 
     # return the average without the min/max being included
-    return ( avg - max - min ) / ( readings - 2 )
+    return (avg - max - min) / (readings - 2)
+
 
 # correct rotation using the front left and front right ultraonsic sensors
-def ultrasonic_rotate_square(s, tolerance = 2.5, again = 1):
+def ultrasonic_rotate_square(s, tolerance=2.5, again=1):
     # constants
     num_read = 9
 
     # get averages & difference between sensors
     fl_avg = ultrasonic_read_avg(s, 'front_left', 'cm', num_read)
     fr_avg = ultrasonic_read_avg(s, 'front_right', 'cm', num_read)
-    diff = abs( fl_avg - fr_avg )
+    diff = abs(fl_avg - fr_avg)
 
     print(fl_avg)
     print(fr_avg)
@@ -104,7 +107,7 @@ def ultrasonic_rotate_square(s, tolerance = 2.5, again = 1):
         # get new readings
         fl_avg = ultrasonic_read_avg(s, 'front_left', 'cm', num_read)
         fr_avg = ultrasonic_read_avg(s, 'front_right', 'cm', num_read)
-        diff = abs( fl_avg - fr_avg )
+        diff = abs(fl_avg - fr_avg)
 
         print(fl_avg)
         print(fr_avg)
