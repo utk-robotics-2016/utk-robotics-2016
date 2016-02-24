@@ -3,6 +3,14 @@ import logging.handlers
 import os
 import sys
 
+class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
+    def _open(self):
+        # prevumask=os.umask(0o022)
+        prevumask=os.umask(0o000)
+        #os.fdopen(os.open('/path/to/file', os.O_WRONLY, 0600))
+        rtv=logging.handlers.RotatingFileHandler._open(self)
+        os.umask(prevumask)
+        return rtv
 
 def setup_logging(fn):
 
@@ -13,7 +21,7 @@ def setup_logging(fn):
     # create file handler which logs even debug messages
     logfn = '/var/log/spine/%s.log' % os.path.split(fn)[-1].split('.')[0]
     # fh_ = logging.FileHandler('/var/log/spine/%s.log' % os.path.split(__file__)[-1])
-    fh_ = logging.handlers.RotatingFileHandler(logfn, maxBytes=1024 * 1024 * 5, backupCount=10)
+    fh_ = GroupWriteRotatingFileHandler(logfn, maxBytes=1024 * 1024 * 5, backupCount=10)
     fh_.setLevel(logging.DEBUG)
     # Normally our Python scripts steady-state at 3.8%. With memory log buffering, this will increase.
     # Can be 5.0% after running arm_test.py now.
