@@ -18,27 +18,29 @@ int numArgs = 0;
 #define BRAKEGND 3
 
 // Pin definitions
-const char LED = 6;
-const char CH1_PWM = 24;  // Rear Left
-const char CH1_DIR = 20;
-const char CH1_CUR = 38;
-const char CH2_PWM = 25;  // Front Left
-const char CH2_DIR = 21;
-const char CH2_CUR = 39;
-const char CH3_PWM = 26;  // Front Right
-const char CH3_DIR = 22;
-const char CH3_CUR = 40;
-const char CH4_PWM = 14;  // Rear Right
-const char CH4_DIR = 23;
-const char CH4_CUR = 41;
+const char LED = A1;
+const char CH1_PWM = 3;  // Rear Left
+const char CH1_DIR = 2;
+const char CH1_CUR = 4;
+const char CH2_PWM = 5;  // Front Left
+const char CH2_DIR = A3;
+const char CH2_CUR = A2;
+const char CH3_PWM = 11;  // Front Right
+const char CH3_DIR = 7;
+const char CH3_CUR = 8;
+const char CH4_PWM = 9;  // Rear Right
+const char CH4_DIR = 12;
+const char CH4_CUR = 13;
 
-const char LIFT_PWM = 27;
-const char LIFT_IN1 = 4;
-const char LIFT_IN2 = 5;
-const char WIDTH_PWM = 16;
-const char WIDTH_IN1 = 7;
-const char WIDTH_IN2 = 8;
 
+//Moved to main mega monster motor shield - TODO: REMOVE EVERYTHING INVOLVING
+//   LIFT AND WIDTH MOTOR CONTROLS FROM WHEELS_TORSO
+const char LIFT_PWM = 10;
+const char LIFT_IN1 = A0;
+const char LIFT_IN2 = A0;
+const char WIDTH_PWM = 10;
+const char WIDTH_IN1 = A0;
+const char WIDTH_IN2 = A0;
 
 // For encoders:
 I2CEncoder encoders[4];
@@ -399,13 +401,18 @@ void parseAndExecuteCommand(String command) {
   else if (args[0].equals(String("ep"))) { // encoder position (in rotations)
     if (numArgs == 1) {
       String ret = "";
-      ret += encoders[REAR_LEFT_ENC].getPosition();
+      char dts[256];
+      dtostrf(encoders[REAR_LEFT_ENC].getPosition(), 0, 6, dts);
+      ret += dts;
       ret += " ";
-      ret += encoders[REAR_RIGHT_ENC].getPosition();
+      dtostrf(encoders[REAR_RIGHT_ENC].getPosition(), 0, 6, dts);
+      ret += dts;
       ret += " ";
-      ret += encoders[FRONT_RIGHT_ENC].getPosition();
+      dtostrf(encoders[FRONT_RIGHT_ENC].getPosition(), 0, 6, dts);
+      ret += dts;
       ret += " ";
-      ret += encoders[FRONT_LEFT_ENC].getPosition();
+      dtostrf(encoders[FRONT_LEFT_ENC].getPosition(), 0, 6, dts);
+      ret += dts;
       Serial.println(ret);
     } else {
       Serial.println("error: usage - 'ep'");
@@ -414,13 +421,18 @@ void parseAndExecuteCommand(String command) {
   else if (args[0].equals(String("erp"))) { // encoder raw position (in ticks)
     if (numArgs == 1) {
       String ret = "";
-      ret += encoders[REAR_LEFT_ENC].getRawPosition();
+      char dts[256];
+      dtostrf(encoders[REAR_LEFT_ENC].getRawPosition(), 0, 6, dts);
+      ret += dts;
       ret += " ";
-      ret += encoders[REAR_RIGHT_ENC].getRawPosition();
+      dtostrf(encoders[REAR_RIGHT_ENC].getRawPosition(), 0, 6, dts);
+      ret += dts;
       ret += " ";
-      ret += encoders[FRONT_RIGHT_ENC].getRawPosition();
+      dtostrf(encoders[FRONT_RIGHT_ENC].getRawPosition(), 0, 6, dts);
+      ret += dts;
       ret += " ";
-      ret += encoders[FRONT_LEFT_ENC].getRawPosition();
+      dtostrf(encoders[FRONT_LEFT_ENC].getRawPosition(), 0, 6, dts);
+      ret += dts;
       Serial.println(ret);
     } else {
       Serial.println("error: usage - 'erp'");
@@ -429,13 +441,18 @@ void parseAndExecuteCommand(String command) {
   else if (args[0].equals(String("es"))) { // encoder speed (in revolutions per minute)
     if (numArgs == 1) {
       String ret = "";
-      ret += encoders[REAR_LEFT_ENC].getSpeed();
+      char dts[256];
+      dtostrf(encoders[REAR_LEFT_ENC].getSpeed(), 0, 6, dts);
+      ret += dts;
       ret += " ";
-      ret += encoders[REAR_RIGHT_ENC].getSpeed();
+      dtostrf(encoders[REAR_RIGHT_ENC].getSpeed(), 0, 6, dts);
+      ret += dts;
       ret += " ";
-      ret += encoders[FRONT_RIGHT_ENC].getSpeed();
+      dtostrf(encoders[FRONT_RIGHT_ENC].getSpeed(), 0, 6, dts);
+      ret += dts;
       ret += " ";
-      ret += encoders[FRONT_LEFT_ENC].getSpeed();
+      dtostrf(encoders[FRONT_LEFT_ENC].getSpeed(), 0, 6, dts);
+      ret += dts;
       Serial.println(ret);
     } else {
       Serial.println("error: usage - 'es'");
@@ -509,7 +526,7 @@ void parseAndExecuteCommand(String command) {
       Serial.println("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'");
     }
   }
-  else if (args[0].equals(String("i"))) { // Display Inputs
+  /*else if (args[0].equals(String("i"))) { // Display Inputs
     String ret = "";
     ret += Inputs[REAR_LEFT_ENC];
     ret += " ";
@@ -568,7 +585,7 @@ void parseAndExecuteCommand(String command) {
     ret += " ";
     ret += Outputs[FRONT_LEFT_ENC];
     Serial.println(ret);
-  }
+  }*/
   else {
     // Unrecognized command
     Serial.println("error: unrecognized command");
