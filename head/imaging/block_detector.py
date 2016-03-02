@@ -16,10 +16,10 @@ class block_detector:
     def __init__(self, s):
 
         self.s = s
-        self.top_points = ((100, 187), (100, 382),
-                           (220, 187), (220, 382),
-                           (390, 187), (390, 382),
-                           (521, 187), (521, 372),
+        self.top_points = ((80, 160), (80, 360),
+                           (220, 160), (220, 360),
+                           (390, 160), (390, 360),
+                           (521, 160), (521, 360),
                            (70, 100), (70, 325),
                            (215, 100), (215, 325),
                            (370, 100), (370, 325),
@@ -47,6 +47,8 @@ class block_detector:
         rows, cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), -18, 1)
         self.right_frame = cv2.warpAffine(image, M, (cols, rows))
+        if saveImage:
+            cv2.imwrite(SAVE_LOC + "/%s_right_rotated.jpg" % datetime.now(), self.right_frame)
         self.right_hsv, self.right_gray, self.right_laplacian = self.process_frame(
             self.right_frame)
 
@@ -63,6 +65,8 @@ class block_detector:
         rows, cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 29, 1)
         self.left_frame = cv2.warpAffine(image, M, (cols, rows))
+        if saveImage:
+            cv2.imwrite(SAVE_LOC + "/%s_left_rotated.jpg"%datetime.now(),self.left_frame)
         self.left_hsv, self.left_gray, self.left_laplacian = self.process_frame(
             self.left_frame)
 
