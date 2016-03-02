@@ -154,7 +154,7 @@ class Arm(object):
         bd = block_detector(self.s)
         # First move away from rails
         self.move_to(Vec3d(11, -1, 10), 0, 180)
-        self.move_to(Vec3d(-4, 4, 17), 0.04 * 3.14, 180)
+        self.move_to(Vec3d(-3.5, 4, 17), 0.04 * 3.14, 180)
         bd.grab_left_frame()
         self.move_to(Vec3d(3, 4, 17), 0.04 * 3.14, 180)
         bd.grab_right_frame()
