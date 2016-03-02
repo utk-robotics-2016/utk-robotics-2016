@@ -29,10 +29,10 @@ class block_detector:
                               (257, 187), (257, 382),
                               (398, 187), (398, 382),
                               (521, 187), (521, 372),
-                              (107, 100), (107, 325),
-                              (250, 100), (250, 325),
-                              (400, 100), (400, 325),
-                              (520, 100), (520, 325))
+                              (107, 130), (107, 325),
+                              (250, 130), (250, 325),
+                              (400, 130), (400, 325),
+                              (520, 130), (520, 325))
 
     # Loads the frame from camera for the right side of the loader
     def grab_right_frame(self, saveImage=True):
@@ -235,7 +235,7 @@ class block_detector:
     # Determine the block colors and whether they are a full or half block.
     # This goes from the top left to the bottom right.
 
-    def get_blocks(self, top, display=False):
+    def get_blocks(self, top, saveFile=True, display=False):
         rv = ""
         if top:
             points = self.top_points
@@ -250,12 +250,12 @@ class block_detector:
             if self.check_half_block(cp_top, cp_bottom, 1):
                 rv = rv + cp_top.get_hsv_color() + "H " + \
                     cp_bottom.get_hsv_color() + "H "
-                if display:
+                if display or saveFile:
                     self.mark_point(cp_top, 1)
                     self.mark_point(cp_bottom, 1)
             else:
                 rv = rv + cp_top.get_hsv_color() + "L "
-                if display:
+                if display or saveFile:
                     cp_top.set_y((cp_top.get_y() + cp_bottom.get_y()) / 2)
                     self.mark_point(cp_top, 1)
 
@@ -268,14 +268,22 @@ class block_detector:
             if self.check_half_block(cp_top, cp_bottom, 0):
                 rv = rv + cp_top.get_hsv_color() + "H " + \
                     cp_bottom.get_hsv_color() + "H "
-                if display:
+                if display or saveFile:
                     self.mark_point(cp_top, 0)
                     self.mark_point(cp_bottom, 0)
             else:
                 rv = rv + cp_top.get_hsv_color() + "L "
-                if display:
+                if display or saveFile:
                     cp_top.set_y((cp_top.get_y() + cp_bottom.get_y()) / 2)
                     self.mark_point(cp_top, 0)
+
+        if saveFile:
+            if top:
+                cv2.imwrite( SAVE_LOC + "/%s_top_left_marked.jpg" % datetime.now(), self.left_frame)
+                cv2.imwrite( SAVE_LOC + "/%s_top_right_marked.jpg" % datetime.now(), self.right_frame)
+            else:
+                cv2.imwrite( SAVE_LOC + "/%s_bottom_left_marked.jpg" % datetime.now(), self.left_frame)
+                cv2.imwrite( SAVE_LOC + "/%s_bottom_right_marked.jpg" % datetime.now(), self.right_frame)
 
         self.s.writeWs({"type": "Blocks", "val": rv})
         if display:
