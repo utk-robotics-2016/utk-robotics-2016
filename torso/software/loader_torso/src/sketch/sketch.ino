@@ -34,6 +34,10 @@ int lift_enpin[2] = {A4, A5};
 // For encoders:
 I2CEncoder encoders[3];
 
+//Left is 19, right is 18
+Servo loader_right;
+Servo loader_left;
+
 void switch_to_wing_extend() {
     for (int i=0; i<2; i++)
     {
@@ -323,6 +327,32 @@ void parseAndExecuteCommand(String command) {
             }
         } else {
             Serial.println("error: usage - 'ez [0/1/2]'");
+        }
+    }
+    else if(args[0].equals(String("sls"))) { // set loader servos
+        if(numArgs == 3) {
+            int rightpos = args[1].toInt();
+            int leftpos = args[2].toInt();
+            if (!loader_right.attached()) {
+                loader_right.attach(3);
+            }
+            if (!loader_left.attached()) {
+                loader_left.attach(2);
+            }
+            loader_right.write(rightpos);
+            loader_left.write(leftpos);
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'sls [rightpos] [leftpos]'");
+        }
+    }
+    else if(args[0].equals(String("dls"))) { // detach loader servos
+        if(numArgs == 1) {
+            loader_right.detach();
+            loader_left.detach();
+            Serial.println("ok");
+        } else {
+            Serial.println("error: usage - 'ds'");
         }
     }
     else if(args[0].equals(String("ver"))) { // version information

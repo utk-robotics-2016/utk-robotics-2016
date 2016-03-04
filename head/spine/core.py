@@ -482,7 +482,7 @@ class Spine:
         assert 0 <= right_pos <= 255
         assert 0 <= left_pos <= 255
         command = 'sls ' + str(right_pos) + ' ' + str(left_pos)
-        response = self.send('mega', command)
+        response = self.send('loadmega', command)
         assert response == 'ok'
 
     def detach_loader_servos(self):
@@ -494,7 +494,7 @@ class Spine:
             higher level interface for the loader.
         '''
         command = 'dls'
-        response = self.send('mega', command)
+        response = self.send('loadmega', command)
         assert response == 'ok'
 
     calibrated_right = 175
@@ -583,6 +583,8 @@ class Spine:
         assert m_id in [0, 1]
         assert 0 <= speed <= 1024
         assert direction in ['fw', 'bw']
+        if m_id == 0:
+            direction = 'fw' if direction == 'bw' else 'bw'
         command = 'mod ' + str(m_id) + ' ' + str(speed) + ' ' + direction
         response = self.send('loadmega', command)
         assert response == 'ok'
