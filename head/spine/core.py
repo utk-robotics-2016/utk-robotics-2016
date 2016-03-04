@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 DEF_PORTS = {
     'mega': '/dev/mega',
-    # 'teensy': '/dev/teensy',
+    'teensy': '/dev/teensy',
     # When enabling this line, make sure to re-enable the zero_loader_encoder
     # line in Spine.__init__
     'loadmega': '/dev/loadmega',
