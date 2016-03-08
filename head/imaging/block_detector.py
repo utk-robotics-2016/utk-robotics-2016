@@ -66,7 +66,7 @@ class block_detector:
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 29, 1)
         self.left_frame = cv2.warpAffine(image, M, (cols, rows))
         if saveImage:
-            cv2.imwrite(SAVE_LOC + "/%s_left_rotated.jpg"%datetime.now(),self.left_frame)
+            cv2.imwrite(SAVE_LOC + "/%s_left_rotated.jpg" % datetime.now(), self.left_frame)
         self.left_hsv, self.left_gray, self.left_laplacian = self.process_frame(
             self.left_frame)
 
@@ -279,11 +279,11 @@ class block_detector:
 
         if saveFile:
             if top:
-                cv2.imwrite( SAVE_LOC + "/%s_top_left_marked.jpg" % datetime.now(), self.left_frame)
-                cv2.imwrite( SAVE_LOC + "/%s_top_right_marked.jpg" % datetime.now(), self.right_frame)
+                cv2.imwrite(SAVE_LOC + "/%s_top_left_marked.jpg" % datetime.now(), self.left_frame)
+                cv2.imwrite(SAVE_LOC + "/%s_top_right_marked.jpg" % datetime.now(), self.right_frame)
             else:
-                cv2.imwrite( SAVE_LOC + "/%s_bottom_left_marked.jpg" % datetime.now(), self.left_frame)
-                cv2.imwrite( SAVE_LOC + "/%s_bottom_right_marked.jpg" % datetime.now(), self.right_frame)
+                cv2.imwrite(SAVE_LOC + "/%s_bottom_left_marked.jpg" % datetime.now(), self.left_frame)
+                cv2.imwrite(SAVE_LOC + "/%s_bottom_right_marked.jpg" % datetime.now(), self.right_frame)
 
         self.s.writeWs({"type": "Blocks", "val": rv})
         if display:

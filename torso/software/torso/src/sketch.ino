@@ -22,7 +22,7 @@ Encoder lift(20,21);
 
 // Pin definitions
 const char LED = 13;
-const char ARM_LIMIT = 7;
+const char ARM_LIMIT = 43;
 const char SUCTION = 47;
 const char RELEASE_SUCTION = 46;
 const char RIGHT_LINE_SENSOR = 2; // Analog

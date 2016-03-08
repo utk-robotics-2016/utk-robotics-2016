@@ -1,6 +1,6 @@
 #include <Servo.h>
 #include <Wire.h>
-#include <I2CEncoder.h>
+#include "I2CEncoder.h"
 #include "PID.h"
 #include "vPID.h"
 
@@ -164,6 +164,7 @@ void checkInput() {
   if (Serial.available() > 0) {
     // Read only one character per call
     inbyte = Serial.read();
+    //Serial.write(inbyte);
     if (inbyte == 10 || inbyte == 13) {
       // Newline detected
       incomingBuffer[bufPosition] = '\0'; // NULL terminate the string
@@ -177,7 +178,7 @@ void checkInput() {
       incomingBuffer[bufPosition] = (char)inbyte;
       bufPosition++;
       if (bufPosition == 128) {
-        Serial.println("error: command overflow");
+        Serial.println(F("error: command overflow"));
         bufPosition = 0;
       }
     }
@@ -198,7 +199,7 @@ void parseAndExecuteCommand(String command) {
     if (numArgs == 1) {
       Serial.println("ok");
     } else {
-      Serial.println("error: usage - 'ping'");
+      Serial.println(F("error: usage - 'ping'"));
     }
   }
   else if (args[0].equals(String("le"))) { // led set
@@ -206,16 +207,16 @@ void parseAndExecuteCommand(String command) {
       if (args[1].equals(String("on"))) {
         ledState = HIGH;
         digitalWrite(LED, HIGH);
-        Serial.println("ok");
+        Serial.println(F("ok"));
       } else if (args[1].equals(String("off"))) {
         ledState = LOW;
         digitalWrite(LED, LOW);
-        Serial.println("ok");
+        Serial.println(F("ok"));
       } else {
-        Serial.println("error: usage - 'le [on/off]'");
+        Serial.println(F("error: usage - 'le [on/off]'"));
       }
     } else {
-      Serial.println("error: usage - 'le [on/off]'");
+      Serial.println(F("error: usage - 'le [on/off]'"));
     }
   }
   else if (args[0].equals(String("ma"))) { //move laterally left
@@ -239,7 +240,7 @@ void parseAndExecuteCommand(String command) {
       analogWrite(CH4_PWM, 0);
       Serial.println("ok");
     } else {
-      Serial.println("error: usage - 'ma'");
+      Serial.println(F("error: usage - 'ma'"));
     }
   }
   else if (args[0].equals(String("md"))) { //move laterally right
@@ -263,7 +264,7 @@ void parseAndExecuteCommand(String command) {
       analogWrite(CH4_PWM, 0);
       Serial.println("ok");
     } else {
-      Serial.println("error: usage - 'md'");
+      Serial.println(F("error: usage - 'md'"));
     }
   }
   else if (args[0].equals(String("mw"))) { //move laterally forward
@@ -287,7 +288,7 @@ void parseAndExecuteCommand(String command) {
       analogWrite(CH4_PWM, 0);
       Serial.println("ok");
     } else {
-      Serial.println("error: usage - 'mw'");
+      Serial.println(F("error: usage - 'mw'"));
     }
   }
   else if (args[0].equals(String("ms"))) { //move laterally backward
@@ -311,14 +312,14 @@ void parseAndExecuteCommand(String command) {
       analogWrite(CH4_PWM, 0);
       Serial.println("ok");
     } else {
-      Serial.println("error: usage - 'ms'");
+      Serial.println(F("error: usage - 'ms'"));
     }
   }
   else if (args[0].equals(String("rl"))) { // read led
     if (numArgs == 1) {
       Serial.println(ledState);
     } else {
-      Serial.println("error: usage - 'rl'");
+      Serial.println(F("error: usage - 'rl'"));
     }
   }
   else if (args[0].equals(String("go"))) {
@@ -353,7 +354,7 @@ void parseAndExecuteCommand(String command) {
         Serial.println("ok");
       }
     } else {
-      Serial.println("error: usage - 'go [1/2/3/4] [speed] [cw/ccw]'");
+      Serial.println(F("error: usage - 'go [1/2/3/4] [speed] [cw/ccw]'"));
     }
   }
   else if (args[0].equals(String("mod"))) { // motor drive
@@ -380,7 +381,7 @@ void parseAndExecuteCommand(String command) {
       }
 
     } else {
-      Serial.println("error: usage - 'mod [0/1] [speed] [cw/ccw]'");
+      Serial.println(F("error: usage - 'mod [0/1] [speed] [cw/ccw]'"));
     }
   }
   else if (args[0].equals(String("mos"))) { // motor stop
@@ -395,7 +396,7 @@ void parseAndExecuteCommand(String command) {
         Serial.println("ok");
       }
     } else {
-      Serial.println("error: usage - 'mos [0/1]'");
+      Serial.println(F("error: usage - 'mos [0/1]'"));
     }
   }
   else if (args[0].equals(String("ep"))) { // encoder position (in rotations)
@@ -415,7 +416,7 @@ void parseAndExecuteCommand(String command) {
       ret += dts;
       Serial.println(ret);
     } else {
-      Serial.println("error: usage - 'ep'");
+      Serial.println(F("error: usage - 'ep'"));
     }
   }
   else if (args[0].equals(String("erp"))) { // encoder raw position (in ticks)
@@ -435,7 +436,7 @@ void parseAndExecuteCommand(String command) {
       ret += dts;
       Serial.println(ret);
     } else {
-      Serial.println("error: usage - 'erp'");
+      Serial.println(F("error: usage - 'erp'"));
     }
   }
   else if (args[0].equals(String("es"))) { // encoder speed (in revolutions per minute)
@@ -455,18 +456,18 @@ void parseAndExecuteCommand(String command) {
       ret += dts;
       Serial.println(ret);
     } else {
-      Serial.println("error: usage - 'es'");
+      Serial.println(F("error: usage - 'es'"));
     }
   }
   else if (args[0].equals(String("ez"))) { // encoder zero
     if (numArgs == 1)
     {
       for (int i = 0; i < 4; i++) {
-        encoders[i].zero();
+        encoders[i].zero(); 
       }
-      Serial.println("ok");
+      Serial.println(F("ok"));
     } else {
-      Serial.println("error: usage - 'ez'");
+      Serial.println(F("error: usage - 'ez'"));
     }
   }
   else if (args[0].equals(String("vss"))) { // Set the setpoint for a specific velocity PID
@@ -477,16 +478,16 @@ void parseAndExecuteCommand(String command) {
       {
         pids[pidNum].SetMode(AUTOMATIC);
         Setpoints[pidNum] = toDouble(args[2]);
-        Serial.println("ok");
+        Serial.println(F("ok"));
       }
       else
       {
-        Serial.println("error: usage - 'vss [1/2/3/4] [velocity]'");
+        Serial.println(F("error: usage - 'vss [1/2/3/4] [velocity]'"));
       }
     }
     else
     {
-      Serial.println("error: usage - 'vss [1/2/3/4] [velocity]'");
+      Serial.println(F("error: usage - 'vss [1/2/3/4] [velocity]'"));
     }
   }
   else if (args[0].equals(String("vs"))) { // Set all the setpoints for the velocity PIDs
@@ -504,7 +505,7 @@ void parseAndExecuteCommand(String command) {
     }
     else
     {
-      Serial.println("error: usage - 'vs [velocity1] [velocity2] [velocity3] [velocity4]'");
+      Serial.println(F("error: usage - 'vs [velocity1] [velocity2] [velocity3] [velocity4]'"));
     }
   }
   else if (args[0].equals(String("vp"))) { // Modify the pid constants
@@ -518,12 +519,12 @@ void parseAndExecuteCommand(String command) {
       }
       else
       {
-        Serial.println("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'");
+        Serial.println(F("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'"));
       }
     }
     else
     {
-      Serial.println("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'");
+      Serial.println(F("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'"));
     }
   }
   /*else if (args[0].equals(String("i"))) { // Display Inputs
@@ -588,7 +589,7 @@ void parseAndExecuteCommand(String command) {
   }*/
   else {
     // Unrecognized command
-    Serial.println("error: unrecognized command");
+    Serial.println(F("error: unrecognized command"));
   }
 }
 

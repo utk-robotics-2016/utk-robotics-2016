@@ -583,6 +583,8 @@ class Spine:
         assert m_id in [0, 1]
         assert 0 <= speed <= 1024
         assert direction in ['fw', 'bw']
+        if m_id == 0:
+            direction = 'fw' if direction == 'bw' else 'bw'
         command = 'mod ' + str(m_id) + ' ' + str(speed) + ' ' + direction
         response = self.send('loadmega', command)
         assert response == 'ok'
