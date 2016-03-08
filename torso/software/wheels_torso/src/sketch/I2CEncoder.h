@@ -41,11 +41,6 @@
 // 1 (Output Rotation) / 24.5 (Encoder Revolution)
 #define MOTOR_393_SPEED_ROTATIONS 0.04081632653
 
-// 393 Motor configured for Turbo speed: Ticks to Rotations
-// Encoder Revolutions to Output Rotations
-// 1 (Output Rotation) / 16.3 (Encoder Revolution)
-#define MOTOR_393_TURBO_ROTATIONS 0.06134969325
-
 // Time-delta to Minutes
 // 128 microseconds (per revolution)
 // 128 microseconds * 1s/10^6microseconds * 1 minute/60s
@@ -68,6 +63,7 @@ class I2CEncoder
   int ticks;
   int address;
   void accessRegister(unsigned char reg);
+  double maxZeroSpeed;
  public:
   I2CEncoder();
   void init(double rotation_factor, double time_delta);
@@ -81,6 +77,7 @@ class I2CEncoder
   void unTerminate();
   void terminate();
   int getAddress();
+  void setMaxZeroSpeed(double ZeroSpeed);
 };
 #endif
 

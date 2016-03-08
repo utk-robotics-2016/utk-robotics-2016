@@ -17,6 +17,7 @@ I2CEncoder::I2CEncoder() {
   nextAddress++;
   is_reversed = false;
   rotation_factor = 0;
+  maxZeroSpeed = 0xFFFF;
   time_delta = 0;
   ticks = 0;
 }
@@ -64,7 +65,7 @@ void I2CEncoder::setReversed(bool is_reversed) {
 double I2CEncoder::getSpeed() {
   // TODO: Check sanity of the values
   unsigned int vb = getVelocityBits();
-  if (vb == 0xFFFF) return 0;
+  if (vb >= maxZeroSpeed) return 0;
   return rotation_factor / (double(vb) * time_delta);
 }
 
@@ -137,6 +138,19 @@ void I2CEncoder::terminate() {
 int I2CEncoder::getAddress() {
   return address;
 }
+
+/**
+ * Modifiied by Thomas Thomas
+ * Sets the maximum speed at which the encoder will return a speed of 0.
+ * This also, sets the maximum length of time the encoder will report a 
+ * speed other than zero, after the shaft has stopped.
+ */
+void I2CEncoder::setMaxZeroSpeed(double zeroSpeed) {
+//  maxZeroSpeed = 30 / (zeroSpeed * 39.2 * 0.000064);
+//  maxZeroSpeed = zeroSpeed / ( TICKS * rotation_factor * time_delta );
+  maxZeroSpeed = rotation_factor / (zeroSpeed * time_delta);
+}
+
 
 // Private Functions
 void I2CEncoder::accessRegister(unsigned char reg) {
