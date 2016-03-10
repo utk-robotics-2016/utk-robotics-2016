@@ -16,11 +16,11 @@ class block_detector:
     def __init__(self, s):
 
         self.s = s
-        self.top_points = ((70, 160), (70, 350),
-                           (215, 160), (215, 350),
-                           (385, 160), (385, 350),
-                           (530, 160), (530, 350),
-                           (110, 100), (110, 325),
+        self.top_points = ((80, 160), (80, 350),
+                           (225, 160), (225, 350),
+                           (395, 160), (395, 350),
+                           (570, 160), (570, 350),
+                           (100, 100), (100, 325),
                            (235, 100), (235, 325),
                            (410, 100), (410, 325),
                            (570, 120), (570, 325))
@@ -28,11 +28,11 @@ class block_detector:
         self.bottom_points = ((124, 187), (124, 382),
                               (257, 187), (257, 382),
                               (398, 187), (398, 382),
-                              (521, 187), (521, 372),
-                              (107, 130), (107, 325),
-                              (250, 130), (250, 325),
-                              (400, 130), (400, 325),
-                              (520, 130), (520, 325))
+                              (526, 187), (526, 372),
+                              (107, 200), (107, 395),
+                              (250, 200), (250, 395),
+                              (400, 200), (400, 395),
+                              (530, 200), (530, 395))
 
     # Loads the frame from camera for the right side of the loader
     def grab_right_frame(self, saveImage=True):
@@ -63,7 +63,7 @@ class block_detector:
         if saveImage:
             cv2.imwrite(SAVE_LOC + "/%s_left.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
-        M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 29, 1)
+        M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 24, 1)
         self.left_frame = cv2.warpAffine(image, M, (cols, rows))
         if saveImage:
             cv2.imwrite(SAVE_LOC + "/%s_left_rotated.jpg" % datetime.now(), self.left_frame)
