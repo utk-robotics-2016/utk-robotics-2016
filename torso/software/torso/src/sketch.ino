@@ -18,15 +18,11 @@ Servo elbow;
 Servo wrist;
 Servo wristrotate;
 
-//Left is 19, right is 18
-Servo loader_right;
-Servo loader_left;
-
 Encoder lift(20,21);
 
 // Pin definitions
 const char LED = 13;
-const char ARM_LIMIT = 7;
+const char ARM_LIMIT = 43;
 const char SUCTION = 47;
 const char RELEASE_SUCTION = 46;
 const char RIGHT_LINE_SENSOR = 2; // Analog
@@ -198,23 +194,6 @@ void parseAndExecuteCommand(String command) {
             Serial.println("error: usage - 'sa [base] [shoulder] [elbow] [wrist] [wristrotate]'");
         }
     }
-    else if(args[0].equals(String("sls"))) { // set loader servos
-        if(numArgs == 3) {
-            int rightpos = args[1].toInt();
-            int leftpos = args[2].toInt();
-            if (!loader_right.attached()) {
-                loader_right.attach(18);
-            }
-            if (!loader_left.attached()) {
-                loader_left.attach(19);
-            }
-            loader_right.write(rightpos);
-            loader_left.write(leftpos);
-            Serial.println("ok");
-        } else {
-            Serial.println("error: usage - 'sls [rightpos] [leftpos]'");
-        }
-    }
     else if(args[0].equals(String("das"))) { // detach arm servos
         if(numArgs == 1) {
             base.detach();
@@ -222,15 +201,6 @@ void parseAndExecuteCommand(String command) {
             elbow.detach();
             wrist.detach();
             wristrotate.detach();
-            Serial.println("ok");
-        } else {
-            Serial.println("error: usage - 'ds'");
-        }
-    }
-    else if(args[0].equals(String("dls"))) { // detach loader servos
-        if(numArgs == 1) {
-            loader_right.detach();
-            loader_left.detach();
             Serial.println("ok");
         } else {
             Serial.println("error: usage - 'ds'");

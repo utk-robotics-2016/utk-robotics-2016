@@ -60,6 +60,66 @@ def strafe_at_distance(s, dist, unit, dir, total_time, rampUp=1.0, rampDown=1.0)
     s.stop()
 
 
+# read a sensor some number of times and return the average
+def ultrasonic_read_avg(s, sensor, units='cm', readings=5):
+    min = 99999
+    max = -1
+    avg = 0
+
+    # this function is pointless for less than three readings
+    assert (readings >= 3)
+
+    # get the readings and determine the average while recording the outliers
+    for x in range(readings):
+        read = s.read_ultrasonics(sensor, units)
+        if read < min:
+            min = read
+        if read > max:
+            max = read
+        avg += read
+
+    # return the average without the min/max being included
+    return (avg - max - min) / (readings - 2)
+
+
+# correct rotation using the front left and front right ultraonsic sensors
+def ultrasonic_rotate_square(s, tolerance=2.5, again=1):
+    # constants
+    num_read = 9
+
+    # get averages & difference between sensors
+    fl_avg = ultrasonic_read_avg(s, 'front_left', 'cm', num_read)
+    fr_avg = ultrasonic_read_avg(s, 'front_right', 'cm', num_read)
+    diff = abs(fl_avg - fr_avg)
+
+    print(fl_avg)
+    print(fr_avg)
+    print(diff)
+
+    while diff > tolerance:
+        # robot is angled right
+        if fl_avg > fr_avg:
+            s.move_pid(0, 0, 0.2)
+        # robot is angled left
+        else:
+            s.move_pid(0, 0, -0.2)
+
+        # get new readings
+        fl_avg = ultrasonic_read_avg(s, 'front_left', 'cm', num_read)
+        fr_avg = ultrasonic_read_avg(s, 'front_right', 'cm', num_read)
+        diff = abs(fl_avg - fr_avg)
+
+        print(fl_avg)
+        print(fr_avg)
+        print(diff)
+
+    # stop when done
+    s.stop()
+
+    if again == 1:
+        ultrasonic_rotate_square(s, 1.5, 0)
+
+
 # TO BE TESTED
 # Update December 14 - This function is used in dominate.py. Is that tested
 # enough? If not, please test what needs to be tested.
@@ -115,7 +175,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
                 else:
                     current = s.read_ultrasonics(side, unit)
             delta = (current - target)
-            logger.info("Delta: %s Current: %s Target: %s" % (delta, current, target))
+            logger.debug("Delta: %s Current: %s Target: %s" % (delta, current, target))
             if abs(delta / unit_mult) > 16:
                 speed = 1.0 * delta / abs(delta)
             else:

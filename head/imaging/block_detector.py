@@ -8,29 +8,31 @@ from color_point import color_point
 
 logger = logging.getLogger(__name__)
 
+SAVE_LOC = '/var/log/spine/imaging'
+
 
 class block_detector:
 
     def __init__(self, s):
 
         self.s = s
-        self.top_points = ((100, 187), (100, 382),
-                           (220, 187), (220, 382),
-                           (390, 187), (390, 382),
-                           (521, 187), (521, 372),
-                           (70, 100), (70, 325),
-                           (215, 100), (215, 325),
-                           (370, 100), (370, 325),
-                           (550, 100), (550, 325))
+        self.top_points = ((70, 160), (70, 350),
+                           (215, 160), (215, 350),
+                           (385, 160), (385, 350),
+                           (530, 160), (530, 350),
+                           (110, 100), (110, 325),
+                           (235, 100), (235, 325),
+                           (410, 100), (410, 325),
+                           (570, 120), (570, 325))
 
         self.bottom_points = ((124, 187), (124, 382),
                               (257, 187), (257, 382),
                               (398, 187), (398, 382),
                               (521, 187), (521, 372),
-                              (107, 100), (107, 325),
-                              (250, 100), (250, 325),
-                              (400, 100), (400, 325),
-                              (520, 100), (520, 325))
+                              (107, 130), (107, 325),
+                              (250, 130), (250, 325),
+                              (400, 130), (400, 325),
+                              (520, 130), (520, 325))
 
     # Loads the frame from camera for the right side of the loader
     def grab_right_frame(self, saveImage=True):
@@ -41,10 +43,12 @@ class block_detector:
         logger.info("Disconnecting from camera")
         self.camera.release()
         if saveImage:
-            cv2.imwrite("/tmp/%s_right.jpg" % datetime.now(), image)
+            cv2.imwrite(SAVE_LOC + "/%s_right.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), -18, 1)
         self.right_frame = cv2.warpAffine(image, M, (cols, rows))
+        if saveImage:
+            cv2.imwrite(SAVE_LOC + "/%s_right_rotated.jpg" % datetime.now(), self.right_frame)
         self.right_hsv, self.right_gray, self.right_laplacian = self.process_frame(
             self.right_frame)
 
@@ -57,10 +61,12 @@ class block_detector:
         logger.info("Disconnecting from camera")
         self.camera.release()
         if saveImage:
-            cv2.imwrite("/tmp/%s_left.jpg" % datetime.now(), image)
+            cv2.imwrite(SAVE_LOC + "/%s_left.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 29, 1)
         self.left_frame = cv2.warpAffine(image, M, (cols, rows))
+        if saveImage:
+            cv2.imwrite(SAVE_LOC + "/%s_left_rotated.jpg" % datetime.now(), self.left_frame)
         self.left_hsv, self.left_gray, self.left_laplacian = self.process_frame(
             self.left_frame)
 
@@ -229,7 +235,7 @@ class block_detector:
     # Determine the block colors and whether they are a full or half block.
     # This goes from the top left to the bottom right.
 
-    def get_blocks(self, top, display=False):
+    def get_blocks(self, top, saveFile=True, display=False):
         rv = ""
         if top:
             points = self.top_points
@@ -244,12 +250,12 @@ class block_detector:
             if self.check_half_block(cp_top, cp_bottom, 1):
                 rv = rv + cp_top.get_hsv_color() + "H " + \
                     cp_bottom.get_hsv_color() + "H "
-                if display:
+                if display or saveFile:
                     self.mark_point(cp_top, 1)
                     self.mark_point(cp_bottom, 1)
             else:
                 rv = rv + cp_top.get_hsv_color() + "L "
-                if display:
+                if display or saveFile:
                     cp_top.set_y((cp_top.get_y() + cp_bottom.get_y()) / 2)
                     self.mark_point(cp_top, 1)
 
@@ -262,18 +268,28 @@ class block_detector:
             if self.check_half_block(cp_top, cp_bottom, 0):
                 rv = rv + cp_top.get_hsv_color() + "H " + \
                     cp_bottom.get_hsv_color() + "H "
-                if display:
+                if display or saveFile:
                     self.mark_point(cp_top, 0)
                     self.mark_point(cp_bottom, 0)
             else:
                 rv = rv + cp_top.get_hsv_color() + "L "
-                if display:
+                if display or saveFile:
                     cp_top.set_y((cp_top.get_y() + cp_bottom.get_y()) / 2)
                     self.mark_point(cp_top, 0)
+
+        if saveFile:
+            if top:
+                cv2.imwrite(SAVE_LOC + "/%s_top_left_marked.jpg" % datetime.now(), self.left_frame)
+                cv2.imwrite(SAVE_LOC + "/%s_top_right_marked.jpg" % datetime.now(), self.right_frame)
+            else:
+                cv2.imwrite(SAVE_LOC + "/%s_bottom_left_marked.jpg" % datetime.now(), self.left_frame)
+                cv2.imwrite(SAVE_LOC + "/%s_bottom_right_marked.jpg" % datetime.now(), self.right_frame)
 
         self.s.writeWs({"type": "Blocks", "val": rv})
         if display:
             cv2.imshow("Left", self.left_frame)
-            cv2.imshow("Right",self.right_frame)
+            cv2.imshow("Right", self.right_frame)
         logger.info("Block Array: %s" % rv)
+        with open(SAVE_LOC + '/%s_parsed.txt' % datetime.now(), 'a') as the_file:
+            the_file.write(rv)
         return rv
