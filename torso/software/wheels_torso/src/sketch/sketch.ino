@@ -32,16 +32,6 @@ const char CH4_PWM = 9;  // Rear Right
 const char CH4_DIR = 12;
 const char CH4_CUR = 13;
 
-
-//Moved to main mega monster motor shield - TODO: REMOVE EVERYTHING INVOLVING
-//   LIFT AND WIDTH MOTOR CONTROLS FROM WHEELS_TORSO
-const char LIFT_PWM = 10;
-const char LIFT_IN1 = A0;
-const char LIFT_IN2 = A0;
-const char WIDTH_PWM = 10;
-const char WIDTH_IN1 = A0;
-const char WIDTH_IN2 = A0;
-
 // For encoders:
 I2CEncoder encoders[4];
 #define REAR_LEFT_ENC 0
@@ -61,13 +51,6 @@ vPID pids[4] = {pidRL, pidRR, pidFR, pidFL};
 void setup() {
   // Init LED pin
   pinMode(LED, OUTPUT);
-  // Init loader driver pins
-  pinMode(WIDTH_PWM, OUTPUT);
-  pinMode(WIDTH_IN1, OUTPUT);
-  pinMode(WIDTH_IN2, OUTPUT);
-  pinMode(LIFT_PWM, OUTPUT);
-  pinMode(LIFT_IN1, OUTPUT);
-  pinMode(LIFT_IN2, OUTPUT);
   // Init Rover 5 pins
   pinMode(CH1_PWM, OUTPUT);
   pinMode(CH1_DIR, OUTPUT);
@@ -134,7 +117,6 @@ void parse_args(String command) {
   int idx = command.indexOf(" ");
 
   String arg;
-  char charBuffer[16];
 
   while (idx != -1)
   {
@@ -158,7 +140,7 @@ void parse_args(String command) {
  */
 void checkInput() {
   int inbyte;
-  static char incomingBuffer[128];
+  static char incomingBuffer[64];
   static char bufPosition = 0;
 
   if (Serial.available() > 0) {
@@ -357,48 +339,6 @@ void parseAndExecuteCommand(String command) {
       Serial.println(F("error: usage - 'go [1/2/3/4] [speed] [cw/ccw]'"));
     }
   }
-  else if (args[0].equals(String("mod"))) { // motor drive
-    if (numArgs == 4) {
-      int speed = args[2].toInt();
-      boolean inPin1 = LOW;
-      boolean inPin2 = HIGH;
-
-      if (args[3].equals(String("ccw"))) {
-        inPin1 = HIGH;
-        inPin2 = LOW;
-      }
-
-      if (args[1].equals(String("1"))) {
-        digitalWrite(WIDTH_IN1, inPin1);
-        digitalWrite(WIDTH_IN2, inPin2);
-        analogWrite(WIDTH_PWM, speed);
-        Serial.println("ok");
-      } else if (args[1].equals(String("0"))) {
-        digitalWrite(LIFT_IN1, inPin1);
-        digitalWrite(LIFT_IN2, inPin2);
-        analogWrite(LIFT_PWM, speed);
-        Serial.println("ok");
-      }
-
-    } else {
-      Serial.println(F("error: usage - 'mod [0/1] [speed] [cw/ccw]'"));
-    }
-  }
-  else if (args[0].equals(String("mos"))) { // motor stop
-    if (numArgs == 2) {
-      if (args[1].equals(String("1"))) {
-        digitalWrite(WIDTH_IN1, LOW);
-        digitalWrite(WIDTH_IN2, LOW);
-        Serial.println("ok");
-      } else if (args[1].equals(String("0"))) {
-        digitalWrite(LIFT_IN1, LOW);
-        digitalWrite(LIFT_IN2, LOW);
-        Serial.println("ok");
-      }
-    } else {
-      Serial.println(F("error: usage - 'mos [0/1]'"));
-    }
-  }
   else if (args[0].equals(String("ep"))) { // encoder position (in rotations)
     if (numArgs == 1) {
       String ret = "";
@@ -527,6 +467,9 @@ void parseAndExecuteCommand(String command) {
       Serial.println(F("error: usage - 'vp [1/2/3/4] [kp] [ki] [kd]'"));
     }
   }
+  else if(args[0].equals(String("ram"))){ // Check RAM
+    Serial.println(freeRam());
+  }
   /*else if (args[0].equals(String("i"))) { // Display Inputs
     String ret = "";
     ret += Inputs[REAR_LEFT_ENC];
@@ -635,4 +578,11 @@ void updatePID()
     analogWrite(CH2_PWM, abs(Outputs[FRONT_LEFT_ENC]));
     digitalWrite(CH2_DIR, Outputs[FRONT_LEFT_ENC] < 0);
   }
+}
+
+int freeRam () 
+{
+  extern int __heap_start, *__brkval; 
+  int v; 
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
