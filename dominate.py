@@ -208,7 +208,7 @@ with get_spine() as s:
 
                 # Load the blocks from zone B
                 if self.use_loader is True:
-                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course], strafe_dist=78.0)
 
                 self.go_to_rail_cars()
                 # I took a picture of everything that happens up to this point
