@@ -336,7 +336,7 @@ class Spine:
         command = 'rls'
         response = self.send('mega', command)
         response = response.split(' ')
-        return {'right': int(response[0]), 'left': int(response[1])}
+        return {'left': int(response[0]), 'right': int(response[1])}
 
     def read_switches(self):
         '''Reads the switches mounted on the robot.
@@ -583,6 +583,9 @@ class Spine:
         assert m_id in [0, 1]
         assert 0 <= speed <= 1024
         assert direction in ['fw', 'bw']
+        if m_id == 0:
+            direction = 'fw' if direction == 'bw' else 'bw'
+        direction = {'fw': 'bw', 'bw': 'fw'}[direction]
         command = 'mod ' + str(m_id) + ' ' + str(speed) + ' ' + direction
         response = self.send('loadmega', command)
         assert response == 'ok'
@@ -624,8 +627,9 @@ class Spine:
 
         assert 0 <= speed <= 1024
         assert direction in ['cw', 'ccw']
-        command = 'mod ' + str(1) + ' ' + str(speed) + ' ' + direction
-        response = self.send('teensy', command)
+        direction = {'cw': 'fw', 'ccw': 'bw'}[direction]
+        command = 'mod ' + str(3) + ' ' + str(speed) + ' ' + direction
+        response = self.send('loadmega', command)
         assert response == 'ok'
 
     def stop_width_motor(self):
@@ -637,8 +641,8 @@ class Spine:
             higher level interface for the loader.
         '''
 
-        command = 'mos ' + str(1)
-        response = self.send('teensy', command)
+        command = 'mos ' + str(3)
+        response = self.send('loadmega', command)
         assert response == 'ok'
 
     def set_lift_motor(self, speed, direction):

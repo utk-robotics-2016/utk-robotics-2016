@@ -60,8 +60,14 @@ class BlockPicker:
         if col == 0 and desc == 'far_half':
             forward += 1
         '''
-        self.arm.move_to(Vec3d(lateral, forward,
-                         level_height + 4), 0, 180, SPEED)
+        if (col in [7] and desc == 'far_half'):
+            self.arm.move_to(Vec3d(lateral, forward - 3,
+                             level_height + 5), 0, 180, SPEED)
+            self.arm.move_to(Vec3d(lateral, forward,
+                             level_height + 5), 0, 180, SPEED)
+        else:
+            self.arm.move_to(Vec3d(lateral, forward,
+                             level_height + 4), 0, 180, SPEED)
         self.s.set_suction(True)
         self.arm.move_to(Vec3d(lateral, forward,
                          level_height - 1), -pi / 20, 180, SPEED)
@@ -72,6 +78,12 @@ class BlockPicker:
             forward = FULL_BLOCK_FORWARD
         self.arm.move_to(Vec3d(lateral, forward,
                          HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
+        if (col in [7] and desc == 'near_half'):
+            self.arm.move_to(Vec3d(lateral, forward - 2,
+                             HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
+        if (col in [7] and desc == 'far_half'):
+            self.arm.move_to(Vec3d(lateral, forward - 4,
+                             HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
 
     def drop_block(self, **kwargs):
         rail_drop = kwargs.get('rail', False)
