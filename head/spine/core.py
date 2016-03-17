@@ -201,6 +201,18 @@ class Spine:
             response = self.send(devname, 'ping')
             assert response == 'ok'
 
+    def get_teensy_ram(self):
+        '''Returns the free RAM on the teensy/arduino uno.
+
+        This is typically only used for debug purposes. The function
+        will return an integer value of remaining RAM in bytes.
+
+        :return: Integer number of free bytes of SRAM on Arduino Uno (Teensy replacement)
+        '''
+        command = 'ram'
+        response = self.send('teensy', command)
+        return response
+
     def set_led(self, devname, status):
         '''Turns the debug LED on or off for certain devices.
 

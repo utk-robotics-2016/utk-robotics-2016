@@ -217,6 +217,7 @@ class Loader(object):
             self.extend(FWD_EXTEND_ROTS + 1, 'right')
         time.sleep(1)
         self.s.stop()
+        logging.info("Free RAM: %s" % self.s.get_teensy_ram())
 
         # Strafe right to compress left side
         # self.s.move_pid(.5, -90, 0)
@@ -227,6 +228,7 @@ class Loader(object):
         trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
         time.sleep(1)
         self.s.stop()
+        logging.info("Free RAM: %s" % self.s.get_teensy_ram())
 
         # Compress blocks
         self.s.move(1, 0, 0)
@@ -235,6 +237,7 @@ class Loader(object):
         else:
             self.extend(FWD_EXTEND_ROTS + 1, 'left')
         self.s.stop()
+        logging.info("Free RAM: " + self.s.get_teensy_ram())
 
         # Do this when our compression issues are fixed
         # self.widen(1)
@@ -264,6 +267,7 @@ class Loader(object):
         # '''
         # Do not extend to 0.0 because we may E STOP
         self.extend(0.1, 'both')
+        logging.info("Free RAM: %s" % self.s.get_teensy_ram())
 
         # self.widen(0)
         # Allow servos time to move:

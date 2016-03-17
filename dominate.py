@@ -188,7 +188,7 @@ with get_spine() as s:
             def start(self):
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
-                logger.info("In corner")
+                logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 self.arm_to_vertical()
                 logger.info("Attempting to determine bin order")
@@ -198,6 +198,7 @@ with get_spine() as s:
                 # Give the rail sorter the bins in the correct order
                 self.rs.set_rail_zone_bins(list(reversed(bin_order)))
                 arm.park()
+                logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Move to Zone B from the corner
                 self.align_zone_b()
@@ -205,15 +206,18 @@ with get_spine() as s:
 
                 # Set proper lift height
                 self.ldr.lift(4.8)
+                logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Load the blocks from zone B
                 if self.use_loader is True:
                     self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
+                logger.info("Free RAM: %s" % s.get_teensy_ram())
                 self.go_to_rail_cars()
                 # I took a picture of everything that happens up to this point
 
                 self.rs.unload_rail(self.course)
+                logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Load at Zone B
                 # if self.use_loader is True:
@@ -254,6 +258,7 @@ with get_spine() as s:
 
         bot = Robot()
 
+        time.sleep(0.5)
         bot.wait_until_arm_limit_pressed()
         time.sleep(0.5)
         bot.start()
