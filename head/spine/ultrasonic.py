@@ -5,7 +5,6 @@ from control import keyframe
 
 logger = logging.getLogger(__name__)
 
-
 # TO BE TESTED
 def strafe_at_distance(s, dist, unit, dir, total_time, rampUp=1.0, rampDown=1.0):
     assert dir in ['left', 'right']
@@ -199,10 +198,17 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
         if unit == 'cm':
             unit_mult = 2.54
         threshold = 1.0 * unit_mult
-        current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
-        current_side = s.read_ultrasonics(side, unit)
 
-        delta_forward = (front - current_front)
+
+        current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+        while current_front == float('inf'):
+            current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+
+        current_side = s.read_ultrasonics(side, unit)
+        while current_side == float('inf')
+            current_side = s.read_ultrasonics(side, unit)
+
+        delta_forward = (front_target - current_front)
         delta_side = (side_target - current_side)
 
         angle = math.degrees(math.atan2(delta_forward, delta_side))
@@ -233,10 +239,16 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
 
             # TODO: speed adjusting
             s.move_pid(1.0, angle, 0)
+            
             current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
-            current_side = s.read_ultrasonics(side, unit)
+            while current_front == float('inf'):
+                current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
 
-            delta_forward = front - current_front
+            current_side = s.read_ultrasonics(side, unit)
+            while current_side == float('inf')
+                current_side = s.read_ultrasonics(side, unit)
+
+            delta_forward = front_target - current_front
             delta_side = side_target - current_side
         s.stop
 
