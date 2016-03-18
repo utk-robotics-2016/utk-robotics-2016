@@ -205,7 +205,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
             current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
 
         current_side = s.read_ultrasonics(side, unit)
-        while current_side == float('inf')
+        while current_side == float('inf'):
             current_side = s.read_ultrasonics(side, unit)
 
         delta_forward = (front_target - current_front)
@@ -245,7 +245,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
                 current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
 
             current_side = s.read_ultrasonics(side, unit)
-            while current_side == float('inf')
+            while current_side == float('inf'):
                 current_side = s.read_ultrasonics(side, unit)
 
             delta_forward = front_target - current_front
