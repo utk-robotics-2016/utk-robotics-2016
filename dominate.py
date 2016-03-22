@@ -47,7 +47,7 @@ with get_spine() as s:
 
                 # Initialize before button press
                 self.ldr.initial_zero_lift()
-                self.ldr.lift(1.0)
+                self.ldr.lift(1.9)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
@@ -189,6 +189,7 @@ with get_spine() as s:
 
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
+                logger.info("In corner")
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 self.arm_to_vertical()
