@@ -4,6 +4,7 @@
 *.pyc
 *~
 *.swp
+*.swo
 .DS_Store
 head/lastrun.log
 block_setup/Debug/*

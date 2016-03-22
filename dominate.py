@@ -211,7 +211,7 @@ with get_spine() as s:
 
                 # Load the blocks from zone B
                 if self.use_loader is True:
-                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course], strafe_dist=78.0)
+                    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
                 self.go_to_rail_cars()

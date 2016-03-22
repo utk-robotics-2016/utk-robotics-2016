@@ -2,7 +2,7 @@ import operator
 import time
 import logging
 from head.spine.control import trapezoid
-from head.spine.ultrasonic import ultrasonic_go_to_position
+
 logger = logging.getLogger(__name__)
 
 
@@ -265,9 +265,6 @@ class Loader(object):
         strafe_dir = kwargs.get('strafe_dir', None)
         # assert strafe_dir == 'right'
         assert strafe_dir in ['right', 'left']
-        
-        strafe_dist = kwargs.get('strafe_dist', None)
-        
         FWD_EXTEND_ROTS = 6.5
         # Open flaps and extend left
         self.open_flaps()
@@ -284,17 +281,14 @@ class Loader(object):
         # Strafe right to compress left side
         # self.s.move_pid(.5, -90, 0)
         if strafe_dir == 'right':
-            ultrasonic_go_to_position(self.s, right=strafe_dist, unit='cm', left_right_dir=85)
-            #thedir = -85
+            thedir = -85
         else:
-            ultrasonic_go_to_position(self.s, left=strafe_dist, unit='cm', left_right_dir=85)
-            #thedir = 85
+            thedir = 85
 
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
-
-        #trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
-        #time.sleep(1)
-        #self.s.stop()
+        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
+        time.sleep(1)
+        self.s.stop()
 
         # Compress blocks
         self.s.move(1, 0, 0)
