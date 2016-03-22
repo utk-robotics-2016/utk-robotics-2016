@@ -103,22 +103,34 @@ class Loader(object):
 
         if pos > encVal:
             direction = 'cw'
+            op_direction = 'ccw'
             op = operator.ge
         elif pos < encVal:
             direction = 'ccw'
+            op_direction = 'cw'
             op = operator.le
         else:
             raise ValueError
 
         self.s.set_width_motor(750, direction)
         starttime = time.time()
+        tries = 0
 
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 4):
-                self.s.stop_width_motor()
-                print self.s.get_loader_encoder(2)
-                print self.s.get_loader_encoder(2, raw=True)
-                raise EStopException
+                if tries >= 1:
+                    self.s.stop_width_motor()
+                    print self.s.get_loader_encoder(2)
+                    print self.s.get_loader_encoder(2, raw=True)
+                    raise EStopException
+                else:
+                    # Run in reverse briefly to counter internal jamming
+                    self.s.set_width_motor(750, op_direction)
+                    time.sleep(0.2)
+                    self.s.set_width_motor(750, direction)
+                    starttime = time.time()
+                    tries += 1
+
             encVal = self.s.get_loader_encoder(2)
             if op(encVal, pos):
                 self.s.stop_width_motor()
