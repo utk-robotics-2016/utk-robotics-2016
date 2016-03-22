@@ -47,7 +47,7 @@ with get_spine() as s:
 
                 # Initialize before button press
                 self.ldr.initial_zero_lift()
-                self.ldr.lift(1.9)
+                self.ldr.lift(1.0)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
@@ -118,7 +118,9 @@ with get_spine() as s:
             def wait_until_arm_limit_pressed(self):
                 logging.info("Waiting for arm limit press.")
                 while not s.read_arm_limit():
-                    time.sleep(0.1)
+                    # Large sleep time so that we do not get close to our
+                    # logging buffer flush threshold
+                    time.sleep(0.5)
 
             # Procedure to navigate from the start area through the tunnel to near Zone A
             def move_to_corner(self):
@@ -251,7 +253,6 @@ with get_spine() as s:
 
         bot = Robot()
 
-        time.sleep(1.5)
         bot.wait_until_arm_limit_pressed()
         time.sleep(0.5)
         bot.start()
