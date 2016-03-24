@@ -129,6 +129,11 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
     # stay brushed up against a barge for example. Probably a hacky solution,
     # but it works. Andrew, you can fix this up if you would like.
     right_left_dir = kwargs.get('right_left_dir', 90)
+    fw_dir = kwargs.get('fw_dir', 0)
+    bw_dir = fw_dir + 180
+    if bw_dir > 180:
+        bw_dir -= 360
+    logging.info(('fw and bw', fw_dir, bw_dir))
 
     def one_sensor(s, side, target, dir_pos, dir_neg, unit):
         unit_mult = 1.0
@@ -254,7 +259,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
 
     # front sensor
     if front != float('inf') and left == float('inf') and right == float('inf'):
-        one_sensor(s, 'front', front, 0, 180, unit)
+        one_sensor(s, 'front', front, fw_dir, bw_dir, unit)
 
     # front and left sensors
     elif front != float('inf') and left != float('inf') and right == float('inf'):
