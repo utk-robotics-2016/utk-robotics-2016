@@ -114,11 +114,12 @@ class Loader(object):
 
         self.s.set_width_motor(750, direction)
         starttime = time.time()
+        TOT_TRIES = 3
         tries = 0
 
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 4):
-                if tries >= 1:
+                if tries >= TOT_TRIES:
                     self.s.stop_width_motor()
                     print self.s.get_loader_encoder(2)
                     print self.s.get_loader_encoder(2, raw=True)
@@ -126,7 +127,7 @@ class Loader(object):
                 else:
                     # Run in reverse briefly to counter internal jamming
                     self.s.set_width_motor(750, op_direction)
-                    time.sleep(0.2)
+                    time.sleep(0.4)
                     self.s.set_width_motor(750, direction)
                     starttime = time.time()
                     tries += 1
@@ -338,7 +339,13 @@ class Loader(object):
         self.s.stop()
         # '''
         # Do not extend to 0.0 because we may E STOP
-        self.extend(0.1, 'both')
+        try:
+            self.extend(0.1, 'both')
+        except EStopException:
+            # Ignore the E-stop because we had problems with it E-stopping when
+            # very close to the target
+            logging.info("Ignoring E-stop on load retract.")
+            pass
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
 
         # self.widen(0)
