@@ -185,6 +185,11 @@ with get_spine() as s:
 
                 self.ldr.initial_zero_lift()
 
+            def ben_dot_py(self): 
+                s.move(1, 90, 0)
+                time.sleep(4.0)
+                s.stop()
+
             def start(self):
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
@@ -256,4 +261,4 @@ with get_spine() as s:
 
         bot.wait_until_arm_limit_pressed()
         time.sleep(0.5)
-        bot.start()
+        bot.ben_dot_py()
