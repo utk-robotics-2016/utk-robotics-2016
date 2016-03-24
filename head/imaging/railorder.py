@@ -9,20 +9,20 @@ SAVE_LOC = '/var/log/spine/imaging'
 class railorder:
 
     def __init__(self, course):
-        try:
-            this.red = [np.array([0, 150, 150]), np.array([180, 195, 205])]
-            this.green = [np.array([60, 65, 50]), np.array([85, 130, 125])]
-            this.blue = [np.array([105, 100, 100]), np.array([115, 170, 170])]
-            this.yellow = [np.array([25, 0, 220]), np.array([35, 255, 255])]
+        #try:
+            self.red = [np.array([0, 150, 160]), np.array([180, 185, 225])]
+            self.green = [np.array([60, 65, 50]), np.array([85, 130, 125])]
+            self.blue = [np.array([105, 100, 100]), np.array([115, 170, 170])]
+            self.yellow = [np.array([25, 0, 220]), np.array([35, 255, 255])]
 
             self.y1 = 0
             self.y2 = 480
 
             if course == 'A':
                 self.x1 = 0
-                self.x2 = 380
+                self.x2 = 430
             else:
-                self.x1 = 260
+                self.x1 = 210
                 self.x2 = 640
 
             self.w = self.x2 - self.x1
@@ -50,17 +50,17 @@ class railorder:
             mask = cv2.bitwise_or(mask, rb)
             mask = cv2.bitwise_or(mask, ry)
 
-            self.procImg = applyMask(self.procImg, mask)
+            self.procImg = self.applyMask(self.procImg, mask)
 
-            cv2.imwrite(SAVE_LOC + "/%s_rail_order_proc.jpg" % datetime.now(), self.procImg)
             cv2.imwrite(SAVE_LOC + "/%s_rail_order.jpg" % datetime.now(), self.origImg)
+            cv2.imwrite(SAVE_LOC + "/%s_rail_order_proc.jpg" % datetime.now(), self.procImg)
 
             self.points = [cr, cg, cb, cy]
             self.colors = ['red', 'green', 'blue', 'yellow']
 
-            self.railorder = sorted(zip(points, colors), key=lambda coord: coord[0][0])
-        except:
-            sys.stderr.write("Error in init\n")
+            self.railorder = sorted(zip(self.points, self.colors), key=lambda coord: coord[0][0])
+        #except:
+        #    sys.stderr.write("Error in init\n")
 
     def applyMask(self, img, mask):
         rv = np.zeros(img.shape, dtype=np.uint8)
