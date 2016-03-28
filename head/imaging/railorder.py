@@ -9,21 +9,20 @@ SAVE_LOC = '/var/log/spine/imaging'
 class railorder:
 
     def __init__(self, course):
-        try:
-            self.red = [np.array([0, 160, 155]), np.array([180, 215, 200])]
-            self.green = [np.array([50, 50, 60]), np.array([80, 160, 180])]
-            self.blue = [np.array([90, 80, 0]), np.array([120, 255, 255])]
-            self.yellow = [np.array([0, 200, 210]), np.array([40, 255, 255])]
+        #try:
+            self.red = [np.array([0, 150, 160]), np.array([180, 185, 225])]
+            self.green = [np.array([60, 65, 50]), np.array([85, 130, 125])]
+            self.blue = [np.array([105, 100, 100]), np.array([115, 170, 170])]
+            self.yellow = [np.array([25, 0, 220]), np.array([35, 255, 255])]
+
+            self.y1 = 0
+            self.y2 = 480
 
             if course == 'A':
-                self.y1 = 200
-                self.y2 = 350
                 self.x1 = 0
-                self.x2 = 380
+                self.x2 = 430
             else:
-                self.y1 = 200
-                self.y2 = 300
-                self.x1 = 260
+                self.x1 = 210
                 self.x2 = 640
 
             self.w = self.x2 - self.x1
@@ -34,10 +33,42 @@ class railorder:
             camera = cv2.VideoCapture(0)
             retval, self.origImg = camera.read()
             camera.release()
-            # cv2.imwrite("/home/kevin/utk-robotics-2016/tmp.jpeg", self.origImg)
+
+            blur = 51
+            self.procImg = cv2.GaussianBlur(self.origImg[self.y1:self.y2, self.x1:self.x2], (blur, blur), 0)
+            tmphsv = cv2.cvtColor(self.procImg, cv2.COLOR_BGR2HSV)
+            rr = cv2.inRange(tmphsv, self.red[0], self.red[1])
+            rg = cv2.inRange(tmphsv, self.green[0], self.green[1])
+            rb = cv2.inRange(tmphsv, self.blue[0], self.blue[1])
+            ry = cv2.inRange(tmphsv, self.yellow[0], self.yellow[1])
+            cr = self.findCenterOfBiggestMass(rr)
+            cg = self.findCenterOfBiggestMass(rg)
+            cb = self.findCenterOfBiggestMass(rb)
+            cy = self.findCenterOfBiggestMass(ry)
+
+            mask = cv2.bitwise_or(rr, rg)
+            mask = cv2.bitwise_or(mask, rb)
+            mask = cv2.bitwise_or(mask, ry)
+
+            self.procImg = self.applyMask(self.procImg, mask)
+
             cv2.imwrite(SAVE_LOC + "/%s_rail_order.jpg" % datetime.now(), self.origImg)
-        except:
-            sys.stderr.write("Error in init\n")
+            cv2.imwrite(SAVE_LOC + "/%s_rail_order_proc.jpg" % datetime.now(), self.procImg)
+
+            self.points = [cr, cg, cb, cy]
+            self.colors = ['red', 'green', 'blue', 'yellow']
+
+            self.railorder = sorted(zip(self.points, self.colors), key=lambda coord: coord[0][0])
+        #except:
+        #    sys.stderr.write("Error in init\n")
+
+    def applyMask(self, img, mask):
+        rv = np.zeros(img.shape, dtype=np.uint8)
+        for x in range(img.shape[0]):
+            for y in range(img.shape[1]):
+                if mask[x][y]:
+                    rv[x][y] = img[x][y]
+        return rv
 
     def findCenterOfBiggestMass(self, mask):
         try:
@@ -62,28 +93,16 @@ class railorder:
 
     def get_rail_order(self, course):
         try:
-            tmphsv = cv2.cvtColor(self.origImg[self.y1:self.y2, self.x1:self.x2], cv2.COLOR_BGR2HSV)
-            rr = cv2.inRange(tmphsv, self.red[0], self.red[1])
-            rg = cv2.inRange(tmphsv, self.green[0], self.green[1])
-            rb = cv2.inRange(tmphsv, self.blue[0], self.blue[1])
-            ry = cv2.inRange(tmphsv, self.yellow[0], self.yellow[1])
-            cr = self.findCenterOfBiggestMass(rr)
-            cg = self.findCenterOfBiggestMass(rg)
-            cb = self.findCenterOfBiggestMass(rb)
-            cy = self.findCenterOfBiggestMass(ry)
-            points = [cr, cg, cb, cy]
-            colors = ['red', 'green', 'blue', 'yellow']
-# assume that only one of the bins is not viewable from the camera
-            railorder = sorted(zip(points, colors), key=lambda coord: coord[0][0])
-# if less than 3 bins are visible throw an error
-# if railorder[1][0] the x of the second lowest value is -1
-            if railorder[1][0] == -1:
+            # assume that only one of the bins is not viewable from the camera
+            # if less than 3 bins are visible throw an error
+            # if railorder[1][0] the x of the second lowest value is -1
+            if self.railorder[1][0] == -1:
                 sys.stderr.write("not all bins were visible. Readjust the camera\n")
             if course == 'B':
                 # set the leftmost color's x coord to 1000 and resort, putting it on the right
-                railorder[0][0] = 1000
-                return [c for (p, c) in sorted(zip(points, colors), key=lambda coord: coord[0][0])]
+                self.railorder[0][0] = 1000
+                return [c for (p, c) in sorted(zip(self.points, self.colors), key=lambda coord: coord[0][0])]
             else:
-                return [c for (p, c) in railorder]
+                return [c for (p, c) in self.railorder]
         except:
             sys.stderr.write("Error in get_rail_order\n")
