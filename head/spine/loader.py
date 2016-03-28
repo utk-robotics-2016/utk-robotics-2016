@@ -126,8 +126,8 @@ class Loader(object):
                     raise EStopException
                 else:
                     # Run in reverse briefly to counter internal jamming
-                    self.s.set_width_motor(750, op_direction)
-                    time.sleep(0.4)
+                    self.s.set_width_motor(1023, op_direction)
+                    time.sleep(0.6)
                     self.s.set_width_motor(750, direction)
                     starttime = time.time()
                     tries += 1
@@ -294,9 +294,9 @@ class Loader(object):
         # Strafe right to compress left side
         # self.s.move_pid(.5, -90, 0)
         if strafe_dir == 'right':
-            thedir = -85
+            thedir = -80
         else:
-            thedir = 85
+            thedir = 80
 
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
         trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
@@ -304,7 +304,7 @@ class Loader(object):
         self.s.stop()
 
         # Compress blocks
-        self.s.move(1, 0, 0)
+        self.s.move_pid(1, 0, 0)
         if strafe_dir == 'right':
             self.extend(FWD_EXTEND_ROTS + 1, 'right')
         else:
