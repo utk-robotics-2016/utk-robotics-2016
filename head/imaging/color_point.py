@@ -136,8 +136,8 @@ class color_point:
     def get_hsv_color(self):
         h = self.hsv[0]
         s = self.hsv[1]
-        if s < 20:
-            return 'B'
+#        if s < 20:
+#            return 'B'
         if h <= 15 or h >= 165:
             if h == 0 and self.hsv[1] == 0 and self.hsv[2] == 0:
                 return '?'

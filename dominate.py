@@ -123,7 +123,7 @@ with get_spine() as s:
                     time.sleep(0.5)
 
             def wait_until_start_switch(self):
-                loggin.info("Waiting for start switch.")
+                logging.info("Waiting for start switch.")
                 while not s.read_start_switch():
                     # Large sleep time so that we do not get close to our
                     # logging buffer flush threshold
@@ -192,10 +192,9 @@ with get_spine() as s:
                 # back up slightly
                 trapezoid(s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 0.3)
 
-                self.ldr.initial_zero_lift()
+                self.ldr.initial_zero_lift(open_flaps=True)
 
             def start(self):
-
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("In corner")
@@ -226,7 +225,7 @@ with get_spine() as s:
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
                 self.go_to_rail_cars()
                 # I took a picture of everything that happens up to this point
-
+                
                 self.rs.unload_rail(self.course)
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
@@ -260,6 +259,6 @@ with get_spine() as s:
 
         bot = Robot()
 
-        bot.wait_until_arm_limit_pressed()
+        bot.wait_until_start_switch()
         time.sleep(0.5)
         bot.start()

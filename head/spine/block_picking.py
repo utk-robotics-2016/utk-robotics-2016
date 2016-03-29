@@ -54,12 +54,20 @@ class BlockPicker:
         else:
             raise ValueError
         # Special case!
+        if (col in [0] and desc == 'far_half'):
+            # To mitigate collision with right bar, move to a spot
+            # to the left first and then move right
+            self.arm.move_to(Vec3d(lateral - 4, forward + 1,
+                             level_height + 4), 0, 180, SPEED)
+            forward += 1
         if col == 0 and desc == 'full':
             forward -= 2
         '''
         if col == 0 and desc == 'far_half':
             forward += 1
         '''
+        if col in [7] and desc == 'far_half' and level == 'bottom':
+            forward += 1
         if (col in [7] and desc == 'far_half'):
             self.arm.move_to(Vec3d(lateral, forward - 3,
                              level_height + 5), 0, 180, SPEED)
@@ -74,8 +82,11 @@ class BlockPicker:
         time.sleep(0.5)
         # Special case!
         # To avoid the math domain errors on retract
-        if (col in [0, 1, 7] and desc == 'far_half'):
+        if (col in [1, 6, 7] and desc == 'far_half'):
             forward = FULL_BLOCK_FORWARD
+        if (col in [0] and desc == 'far_half'):
+            forward = NEAR_HALF_BLOCK_FORWARD
+            lateral -= 1.5
         self.arm.move_to(Vec3d(lateral, forward,
                          HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
         if (col in [7] and desc == 'near_half'):

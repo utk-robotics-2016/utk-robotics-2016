@@ -51,6 +51,7 @@ class block_detector:
             cv2.imwrite(SAVE_LOC + "/%s_right_rotated.jpg" % datetime.now(), self.right_frame)
         self.right_hsv, self.right_gray, self.right_laplacian = self.process_frame(
             self.right_frame)
+        cv2.imwrite(SAVE_LOC + "/%s_right_laplacian.jpg" % datetime.now(), self.right_laplacian)
 
     # Loads the frame from camera for the left side of the loader
     def grab_left_frame(self, saveImage=True):
@@ -69,6 +70,7 @@ class block_detector:
             cv2.imwrite(SAVE_LOC + "/%s_left_rotated.jpg" % datetime.now(), self.left_frame)
         self.left_hsv, self.left_gray, self.left_laplacian = self.process_frame(
             self.left_frame)
+        cv2.imwrite(SAVE_LOC + "/%s_left_laplacian.jpg" % datetime.now(), self.left_laplacian)
 
     # Loads the frame from file for the right side of the loader
     def load_right_frame(self, filename):
