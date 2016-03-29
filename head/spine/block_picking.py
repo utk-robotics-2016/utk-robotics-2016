@@ -87,8 +87,12 @@ class BlockPicker:
         if (col in [0] and desc == 'far_half'):
             forward = NEAR_HALF_BLOCK_FORWARD
             lateral -= 1.5
+        if '_half' in desc:
+            this_speed = 2.5
+        else:
+            this_speed = SPEED
         self.arm.move_to(Vec3d(lateral, forward,
-                         HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
+                         HEIGHT_TO_CLEAR_LOADER), 0, 180, this_speed)
         if (col in [7] and desc == 'near_half'):
             self.arm.move_to(Vec3d(lateral, forward - 2,
                              HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)

@@ -186,11 +186,14 @@ with get_spine() as s:
                 else:
                     ultrasonic_go_to_position(s, right=dist, unit='cm')
 
+                self.ldr.lift(1.8)
+
                 # move forward to the barge to square up
                 trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 4.0)
 
                 # back up slightly
                 trapezoid(s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 0.3)
+                time.sleep(0.75)
 
                 self.ldr.initial_zero_lift(open_flaps=True)
 
@@ -215,7 +218,7 @@ with get_spine() as s:
                 logger.info("At zone B")
 
                 # Set proper lift height
-                self.ldr.lift(4.8)
+                self.ldr.lift(4.9)
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Load the blocks from zone B
@@ -228,6 +231,12 @@ with get_spine() as s:
                 
                 self.rs.unload_rail(self.course)
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
+
+                self.s.set_width_motor(150, 'ccw')
+                time.sleep(1)
+                self.s.set_width_motor(0, 'ccw')
+                self.rotate_90('right')
+                self.ldr.dump_blocks()
 
                 # Load at Zone B
                 # if self.use_loader is True:

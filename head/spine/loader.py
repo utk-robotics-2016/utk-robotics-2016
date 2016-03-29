@@ -199,6 +199,7 @@ class Loader(object):
     def initial_zero_lift(self, use_widen=True, open_flaps=False):
         if open_flaps:
             self.open_flaps()
+            time.sleep(.4)
 
         # So the wings do not collide with the beaglebone, etc
         if use_widen:
@@ -206,6 +207,7 @@ class Loader(object):
 
         if open_flaps:
             self.close_flaps()
+            time.sleep(.4)
 
         if not self.s.read_switches()['lift']:
             self.s.set_lift_motor(255, 'cw')
