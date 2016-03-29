@@ -103,22 +103,35 @@ class Loader(object):
 
         if pos > encVal:
             direction = 'cw'
+            op_direction = 'ccw'
             op = operator.ge
         elif pos < encVal:
             direction = 'ccw'
+            op_direction = 'cw'
             op = operator.le
         else:
             raise ValueError
 
         self.s.set_width_motor(750, direction)
         starttime = time.time()
+        TOT_TRIES = 3
+        tries = 0
 
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 4):
-                self.s.stop_width_motor()
-                print self.s.get_loader_encoder(2)
-                print self.s.get_loader_encoder(2, raw=True)
-                raise EStopException
+                if tries >= TOT_TRIES:
+                    self.s.stop_width_motor()
+                    print self.s.get_loader_encoder(2)
+                    print self.s.get_loader_encoder(2, raw=True)
+                    raise EStopException
+                else:
+                    # Run in reverse briefly to counter internal jamming
+                    self.s.set_width_motor(1023, op_direction)
+                    time.sleep(0.6)
+                    self.s.set_width_motor(750, direction)
+                    starttime = time.time()
+                    tries += 1
+
             encVal = self.s.get_loader_encoder(2)
             if op(encVal, pos):
                 self.s.stop_width_motor()
@@ -197,6 +210,65 @@ class Loader(object):
         # raw_input('')
         # self.widen(0)
 
+    def load_sea_blocks(self, **kwargs):
+        '''Execute a sequence of Loader methods that will load the sea blocks.
+
+        Before executing this method, make sure the robot is lined up within
+        the tolerances of the loader with the blocks.
+        '''
+        strafe_dir = kwargs.get('strafe_dir', None)
+        # assert strafe_dir == 'right'
+        assert strafe_dir in ['right', 'left']
+
+        # strafe_dist = kwargs.get('strafe_dist', None)
+
+        # move lift up
+        self.lift(4.8)
+        time.sleep(0.5)
+
+        FWD_EXTEND_ROTS = 6.5
+        # Open flaps and extend left
+        self.open_flaps()
+        self.s.move(1, 0, 0)
+        self.widen(2.9)
+        if strafe_dir == 'right':
+            self.extend(FWD_EXTEND_ROTS, 'left')
+        else:
+            self.extend(FWD_EXTEND_ROTS, 'right')
+        time.sleep(1)
+        self.s.stop()
+        logging.info("Free RAM: %s" % self.s.get_teensy_ram())
+
+        # Compress blocks
+        self.s.move(1, 0, 0)
+        if strafe_dir == 'right':
+            self.extend(FWD_EXTEND_ROTS, 'right')
+        else:
+            self.extend(FWD_EXTEND_ROTS, 'left')
+        self.s.stop()
+        logging.info("Free RAM: " + self.s.get_teensy_ram())
+
+        # drop lift down to barge height
+        time.sleep(1.5)
+        self.lift(1.9)
+
+        '''
+        # Bring home the bacon
+        self.s.move(1, 0, 0)
+        time.sleep(0.5)
+        self.close_flaps()
+        time.sleep(1)  # Wait for servos to close
+        self.widen(1)
+        self.s.stop()
+        # Do not extend to 0.0 because we may E STOP
+        self.extend(0.1, 'both')
+        logging.info("Free RAM: %s" % self.s.get_teensy_ram())
+
+        # self.widen(0)
+        # Allow servos time to move:
+        time.sleep(2)
+        '''
+
     def load(self, **kwargs):
         '''Execute a sequence of Loader methods that will load a set of blocks.
 
@@ -217,24 +289,28 @@ class Loader(object):
             self.extend(FWD_EXTEND_ROTS + 1, 'right')
         time.sleep(1)
         self.s.stop()
+        logging.info("Free RAM: %s" % self.s.get_teensy_ram())
 
         # Strafe right to compress left side
         # self.s.move_pid(.5, -90, 0)
         if strafe_dir == 'right':
-            thedir = -85
+            thedir = -80
         else:
-            thedir = 85
+            thedir = 80
+
+        logging.info("Free RAM: %s" % self.s.get_teensy_ram())
         trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
         time.sleep(1)
         self.s.stop()
 
         # Compress blocks
-        self.s.move(1, 0, 0)
+        self.s.move_pid(1, 0, 0)
         if strafe_dir == 'right':
             self.extend(FWD_EXTEND_ROTS + 1, 'right')
         else:
             self.extend(FWD_EXTEND_ROTS + 1, 'left')
         self.s.stop()
+        logging.info("Free RAM: " + self.s.get_teensy_ram())
 
         # Do this when our compression issues are fixed
         # self.widen(1)
@@ -263,7 +339,14 @@ class Loader(object):
         self.s.stop()
         # '''
         # Do not extend to 0.0 because we may E STOP
-        self.extend(0.1, 'both')
+        try:
+            self.extend(0.1, 'both')
+        except EStopException:
+            # Ignore the E-stop because we had problems with it E-stopping when
+            # very close to the target
+            logging.info("Ignoring E-stop on load retract.")
+            pass
+        logging.info("Free RAM: %s" % self.s.get_teensy_ram())
 
         # self.widen(0)
         # Allow servos time to move:

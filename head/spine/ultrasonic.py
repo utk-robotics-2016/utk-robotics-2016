@@ -130,6 +130,11 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
     # stay brushed up against a barge for example. Probably a hacky solution,
     # but it works. Andrew, you can fix this up if you would like.
     right_left_dir = kwargs.get('right_left_dir', 90)
+    fw_dir = kwargs.get('fw_dir', 0)
+    bw_dir = fw_dir + 180
+    if bw_dir > 180:
+        bw_dir -= 360
+    logging.info(('fw and bw', fw_dir, bw_dir))
 
     def one_sensor(s, side, target, dir_pos, dir_neg, unit):
         unit_mult = 1.0
@@ -199,10 +204,16 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
         if unit == 'cm':
             unit_mult = 2.54
         threshold = 1.0 * unit_mult
-        current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
-        current_side = s.read_ultrasonics(side, unit)
 
-        delta_forward = (front - current_front)
+        current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+        while current_front == float('inf'):
+            current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+
+        current_side = s.read_ultrasonics(side, unit)
+        while current_side == float('inf'):
+            current_side = s.read_ultrasonics(side, unit)
+
+        delta_forward = (front_target - current_front)
         delta_side = (side_target - current_side)
 
         angle = math.degrees(math.atan2(delta_forward, delta_side))
@@ -233,16 +244,22 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
 
             # TODO: speed adjusting
             s.move_pid(1.0, angle, 0)
-            current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
-            current_side = s.read_ultrasonics(side, unit)
 
-            delta_forward = front - current_front
+            current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+            while current_front == float('inf'):
+                current_front = (s.read_ultrasonics('front_left', unit) + s.read_ultrasonics('front_right', unit)) / 2.0
+
+            current_side = s.read_ultrasonics(side, unit)
+            while current_side == float('inf'):
+                current_side = s.read_ultrasonics(side, unit)
+
+            delta_forward = front_target - current_front
             delta_side = side_target - current_side
         s.stop
 
     # front sensor
     if front != float('inf') and left == float('inf') and right == float('inf'):
-        one_sensor(s, 'front', front, 0, 180, unit)
+        one_sensor(s, 'front', front, fw_dir, bw_dir, unit)
 
     # front and left sensors
     elif front != float('inf') and left != float('inf') and right == float('inf'):

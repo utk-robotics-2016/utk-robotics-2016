@@ -16,12 +16,15 @@ parser = argparse.ArgumentParser(description='Manual control of loader')
 parser.add_argument('--retract', type=float, help='Retract the loader arms for SECONDS.')
 parser.add_argument('--extend', type=float, help='Extend the loader arms for SECONDS.')
 parser.add_argument('--compress', type=float, help='Compress the loader arms for SECONDS.')
+parser.add_argument('--widen', type=float, help='Widen the loader arms for SECONDS.')
+parser.add_argument('--no_right', action='store_true', help='No right extend', default=False)
+parser.add_argument('--no_left', action='store_true', help='No left extend', default=False)
 parser.add_argument('--lift', type=float, help='Lift the loader up for SECONDS.')
 parser.add_argument('--lower', type=float, help='Lower the loader for SECONDS.')
 parser.add_argument('--power', default=100, type=int, help='Motor power to use. Default=100.')
 args = parser.parse_args()
 
-if args.extend is None and args.retract is None and args.compress is None and args.lift is None and args.lower is None:
+if args.extend is None and args.retract is None and args.compress is None and args.widen is None and args.lift is None and args.lower is None:
     parser.print_help()
     sys.exit()
 
@@ -30,21 +33,34 @@ with get_spine() as s:
     # ldr.load(strafe_dir='right')
 
     def retract(seconds):
-        s.set_loader_motor(0, int(args.power * 3 / 4), 'bw')
-        s.set_loader_motor(1, args.power, 'bw')
+        if not args.no_left:
+            s.set_loader_motor(0, int(args.power * 3 / 4), 'bw')
+        if not args.no_right:
+            s.set_loader_motor(1, args.power, 'bw')
         time.sleep(seconds)
-        s.stop_loader_motor(0)
-        s.stop_loader_motor(1)
+        if not args.no_left:
+            s.stop_loader_motor(0)
+        if not args.no_right:
+            s.stop_loader_motor(1)
 
     def extend(seconds):
-        s.set_loader_motor(0, args.power, 'fw')
-        s.set_loader_motor(1, int(args.power * 3 / 4), 'fw')
+        if not args.no_left:
+            s.set_loader_motor(0, args.power, 'fw')
+        if not args.no_right:
+            s.set_loader_motor(1, int(args.power * 3 / 4), 'fw')
         time.sleep(seconds)
-        s.stop_loader_motor(0)
-        s.stop_loader_motor(1)
+        if not args.no_left:
+            s.stop_loader_motor(0)
+        if not args.no_right:
+            s.stop_loader_motor(1)
 
     def compress(seconds):
         s.set_width_motor(int(args.power * 1.5), 'ccw')
+        time.sleep(seconds)
+        s.stop_width_motor()
+
+    def widen(seconds):
+        s.set_width_motor(int(args.power * 1.5), 'cw')
         time.sleep(seconds)
         s.stop_width_motor()
 
@@ -64,6 +80,8 @@ with get_spine() as s:
         extend(args.extend)
     if args.compress:
         compress(args.compress)
+    if args.widen:
+        widen(args.widen)
     if args.lift:
         lift(args.lift)
     if args.lower:

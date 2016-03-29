@@ -47,7 +47,7 @@ with get_spine() as s:
 
                 # Initialize before button press
                 self.ldr.initial_zero_lift()
-                self.ldr.lift(1.9)
+                self.ldr.lift(1.0)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
@@ -118,7 +118,9 @@ with get_spine() as s:
             def wait_until_arm_limit_pressed(self):
                 logging.info("Waiting for arm limit press.")
                 while not s.read_arm_limit():
-                    time.sleep(0.1)
+                    # Large sleep time so that we do not get close to our
+                    # logging buffer flush threshold
+                    time.sleep(0.5)
 
             # Procedure to navigate from the start area through the tunnel to near Zone A
             def move_to_corner(self):
@@ -186,9 +188,11 @@ with get_spine() as s:
                 self.ldr.initial_zero_lift()
 
             def start(self):
+
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("In corner")
+                logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 self.arm_to_vertical()
                 logger.info("Attempting to determine bin order")
@@ -198,6 +202,7 @@ with get_spine() as s:
                 # Give the rail sorter the bins in the correct order
                 self.rs.set_rail_zone_bins(list(reversed(bin_order)))
                 arm.park()
+                logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Move to Zone B from the corner
                 self.align_zone_b()
@@ -205,52 +210,46 @@ with get_spine() as s:
 
                 # Set proper lift height
                 self.ldr.lift(4.8)
+                logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Load the blocks from zone B
                 if self.use_loader is True:
                     self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
+                logger.info("Free RAM: %s" % s.get_teensy_ram())
                 self.go_to_rail_cars()
                 # I took a picture of everything that happens up to this point
 
                 self.rs.unload_rail(self.course)
+                logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Load at Zone B
                 # if self.use_loader is True:
                 #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
-                # LOAD SEA BLOCKS
-                # self.align_zone_a()
-                # logger.info("At zone A")
-                # note: the life is already set to the correct height for Zone A (1.9)
-                # if self.use_loader is True:
-                #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                '''
+                # Testing Sea blocks loading
+                s.move(1, 0, 0)
+                time.sleep(1.5)
+                s.stop()
 
-                # move from zone A to the sea zone
-                # self.zone_a_to_sea_zone()
+                dist = 13
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, left=dist, unit='cm', left_right_dir=85)
+                else:
+                    ultrasonic_go_to_position(s, right=dist, unit='cm', left_right_dir=85)
+
+                s.move(1, 0, 0)
+                time.sleep(1.5)
+                s.stop()
+
+                self.ldr.load_sea_blocks(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                '''
 
                 # unload blocks
                 # logging.info("Unloading at sea zone")
                 # if self.use_loader is True:
                 #    self.ldr.dump_blocks()
-
-                # move from the sea zone to zone B
-                # self.sea_zone_to_zone_b()
-
-                # pick up the blocks in zone b
-                # logging.info("Picking up zone B blocks")
-                # Lift to proper loading height for rail blocks.
-                # self.ldr.lift(4.875)
-                # if self.use_loader is True:
-                #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
-
-                # move to the rail zone
-                # logging.info("Moving to rail zone")
-                # self.zone_b_to_rail_zone()
-
-                # sort and unload blocks into bins in rail zone
-                # TODO #
-                # logging.info("At rail zone")
 
         bot = Robot()
 
