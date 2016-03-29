@@ -114,19 +114,20 @@ class Loader(object):
 
         self.s.set_width_motor(750, direction)
         starttime = time.time()
+        TOT_TRIES = 3
         tries = 0
 
         while True:
             if time.time() - starttime > kwargs.get('e_stop', 4):
-                if tries >= 1:
+                if tries >= TOT_TRIES:
                     self.s.stop_width_motor()
                     print self.s.get_loader_encoder(2)
                     print self.s.get_loader_encoder(2, raw=True)
                     raise EStopException
                 else:
                     # Run in reverse briefly to counter internal jamming
-                    self.s.set_width_motor(750, op_direction)
-                    time.sleep(0.2)
+                    self.s.set_width_motor(1023, op_direction)
+                    time.sleep(0.6)
                     self.s.set_width_motor(750, direction)
                     starttime = time.time()
                     tries += 1
@@ -225,9 +226,7 @@ class Loader(object):
         strafe_dir = kwargs.get('strafe_dir', None)
         # assert strafe_dir == 'right'
         assert strafe_dir in ['right', 'left']
-        
-        strafe_dist = kwargs.get('strafe_dist', None)
-        
+
         FWD_EXTEND_ROTS = 6.5
         # Open flaps and extend left
         self.open_flaps()
@@ -295,9 +294,9 @@ class Loader(object):
         # Strafe right to compress left side
         # self.s.move_pid(.5, -90, 0)
         if strafe_dir == 'right':
-            thedir = -85
+            thedir = -80
         else:
-            thedir = 85
+            thedir = 80
 
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
         trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
@@ -305,7 +304,7 @@ class Loader(object):
         self.s.stop()
 
         # Compress blocks
-        self.s.move(1, 0, 0)
+        self.s.move_pid(1, 0, 0)
         if strafe_dir == 'right':
             self.extend(FWD_EXTEND_ROTS + 1, 'right')
         else:
@@ -340,7 +339,13 @@ class Loader(object):
         self.s.stop()
         # '''
         # Do not extend to 0.0 because we may E STOP
-        self.extend(0.1, 'both')
+        try:
+            self.extend(0.1, 'both')
+        except EStopException:
+            # Ignore the E-stop because we had problems with it E-stopping when
+            # very close to the target
+            logging.info("Ignoring E-stop on load retract.")
+            pass
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
 
         # self.widen(0)

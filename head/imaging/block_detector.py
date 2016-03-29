@@ -285,7 +285,7 @@ class block_detector:
                 cv2.imwrite(SAVE_LOC + "/%s_bottom_left_marked.jpg" % datetime.now(), self.left_frame)
                 cv2.imwrite(SAVE_LOC + "/%s_bottom_right_marked.jpg" % datetime.now(), self.right_frame)
 
-        self.s.writeWs({"type": "Blocks", "val": rv})
+        # self.s.writeWs({"type": "Blocks", "val": rv})
         if display:
             cv2.imshow("Left", self.left_frame)
             cv2.imshow("Right", self.right_frame)
