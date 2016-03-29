@@ -232,10 +232,10 @@ with get_spine() as s:
                 self.rs.unload_rail(self.course)
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
-                self.s.set_width_motor(150, 'ccw')
+                s.set_width_motor(150, 'ccw')
                 time.sleep(1)
-                self.s.set_width_motor(0, 'ccw')
-                self.rotate_90('right')
+                s.set_width_motor(0, 'ccw')
+                s.rotate_90('right')
                 self.ldr.dump_blocks()
 
                 # Load at Zone B
