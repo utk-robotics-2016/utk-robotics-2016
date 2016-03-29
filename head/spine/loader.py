@@ -219,9 +219,9 @@ class Loader(object):
         strafe_dir = kwargs.get('strafe_dir', None)
         # assert strafe_dir == 'right'
         assert strafe_dir in ['right', 'left']
-        
-        strafe_dist = kwargs.get('strafe_dist', None)
-        
+
+        # strafe_dist = kwargs.get('strafe_dist', None)
+
         # move lift up
         self.lift(4.8)
         time.sleep(0.5)

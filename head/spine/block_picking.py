@@ -57,7 +57,7 @@ class BlockPicker:
         if (col in [0] and desc == 'far_half'):
             # To mitigate collision with right bar, move to a spot
             # to the left first and then move right
-            self.arm.move_to(Vec3d(lateral-4, forward+1,
+            self.arm.move_to(Vec3d(lateral - 4, forward + 1,
                              level_height + 4), 0, 180, SPEED)
             forward += 1
         if col == 0 and desc == 'full':

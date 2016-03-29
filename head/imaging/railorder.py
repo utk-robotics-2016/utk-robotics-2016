@@ -9,7 +9,7 @@ SAVE_LOC = '/var/log/spine/imaging'
 class railorder:
 
     def __init__(self, course):
-        #try:
+        # try:
             self.red = [np.array([0, 150, 160]), np.array([180, 185, 225])]
             self.green = [np.array([60, 65, 50]), np.array([85, 130, 125])]
             self.blue = [np.array([105, 100, 100]), np.array([115, 170, 170])]
@@ -59,7 +59,7 @@ class railorder:
             self.colors = ['red', 'green', 'blue', 'yellow']
 
             self.railorder = sorted(zip(self.points, self.colors), key=lambda coord: coord[0][0])
-        #except:
+        # except:
         #    sys.stderr.write("Error in init\n")
 
     def applyMask(self, img, mask):
