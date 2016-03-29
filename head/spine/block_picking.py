@@ -66,6 +66,8 @@ class BlockPicker:
         if col == 0 and desc == 'far_half':
             forward += 1
         '''
+        if col in [7] and desc == 'far_half' and level == 'bottom':
+            forward += 1
         if (col in [7] and desc == 'far_half'):
             self.arm.move_to(Vec3d(lateral, forward - 3,
                              level_height + 5), 0, 180, SPEED)
