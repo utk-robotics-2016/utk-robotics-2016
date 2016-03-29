@@ -128,7 +128,7 @@ class Loader(object):
                     # Run in reverse briefly to counter internal jamming
                     self.s.set_width_motor(1023, op_direction)
                     time.sleep(0.6)
-                    self.s.set_width_motor(750, direction)
+                    self.s.set_width_motor(1023, direction)
                     starttime = time.time()
                     tries += 1
 
@@ -203,10 +203,16 @@ class Loader(object):
         self.extend(0.1, 'both')
         self.s.close_loader_flaps()
 
-    def initial_zero_lift(self, use_widen=True):
+    def initial_zero_lift(self, use_widen=True, open_flaps=False):
+        if open_flaps:
+            self.open_flaps()
+
         # So the wings do not collide with the beaglebone, etc
         if use_widen:
             self.widen(3)
+
+        if open_flaps:
+            self.close_flaps()
 
         if not self.s.read_switches()['lift']:
             self.s.set_lift_motor(255, 'cw')
@@ -299,7 +305,7 @@ class Loader(object):
             thedir = 80
 
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
-        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
+        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 2.0)
         time.sleep(1)
         self.s.stop()
 
@@ -347,6 +353,10 @@ class Loader(object):
             logging.info("Ignoring E-stop on load retract.")
             pass
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
+
+        self.s.set_width_motor(150, 'ccw')
+        time.sleep(2)
+        self.s.stop_width_motor()
 
         # self.widen(0)
         # Allow servos time to move:

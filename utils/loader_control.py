@@ -22,6 +22,8 @@ parser.add_argument('--no_left', action='store_true', help='No left extend', def
 parser.add_argument('--lift', type=float, help='Lift the loader up for SECONDS.')
 parser.add_argument('--lower', type=float, help='Lower the loader for SECONDS.')
 parser.add_argument('--power', default=100, type=int, help='Motor power to use. Default=100.')
+parser.add_argument('--close', help='Close the flaps.')
+parser.add_argument('--open', help='Open the flaps.')
 args = parser.parse_args()
 
 if args.extend is None and args.retract is None and args.compress is None and args.widen is None and args.lift is None and args.lower is None:
@@ -74,6 +76,12 @@ with get_spine() as s:
         time.sleep(seconds)
         s.stop_lift_motor()
 
+    def close_flaps():
+        s.close_loader_flaps()
+
+    def open_flaps():
+        s.open_loader_flaps()
+
     if args.retract:
         retract(args.retract)
     if args.extend:
@@ -86,3 +94,7 @@ with get_spine() as s:
         lift(args.lift)
     if args.lower:
         lower(args.lower)
+    if args.open_flaps:
+        open_flaps()
+    if args.close_flaps():
+        close_flaps()

@@ -340,6 +340,15 @@ class Spine:
         response = self.send('mega', command)
         return {'0': True, '1': False}[response]
 
+    def read_start_switch(self):
+        '''Reads the start switch mounted next to the arm base.
+
+        :return: Boolean for if the switch is turned on.
+        '''
+        command = 'rss'
+        response = self.send('mega', command)
+        return {'1': True, '0': False}[response]
+
     def read_line_sensors(self):
         '''Reads the right and the left line sensors mounted on the front.
 
