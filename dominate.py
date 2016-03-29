@@ -47,7 +47,7 @@ with get_spine() as s:
 
                 # Initialize before button press
                 self.ldr.initial_zero_lift()
-                self.ldr.lift(1.0)
+                self.ldr.lift(1.9)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
@@ -244,11 +244,13 @@ with get_spine() as s:
 
                 '''
                 # Testing Sea blocks loading
+                self.ldr.lift(1.9)
+
                 s.move(1, 0, 0)
                 time.sleep(1.5)
                 s.stop()
 
-                dist = 13
+                dist = 16
                 if self.course == 'A':
                     ultrasonic_go_to_position(s, left=dist, unit='cm', left_right_dir=85)
                 else:
@@ -260,7 +262,6 @@ with get_spine() as s:
 
                 self.ldr.load_sea_blocks(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
                 '''
-
                 # unload blocks
                 # logging.info("Unloading at sea zone")
                 # if self.use_loader is True:
