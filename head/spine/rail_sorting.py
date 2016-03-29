@@ -38,13 +38,13 @@ class RailSorter:
                 elif destzone == 3:
                     front_dist = 97
 
-                ultrasonic_go_to_position(self.s, front=front_dist, unit='cm')
+                ultrasonic_go_to_position(self.s, front=front_dist, unit='cm', fw_dir=20)
 
-                side_dist = 13
-                if course == 'A':
-                    ultrasonic_go_to_position(self.s, left=side_dist, unit='cm')
-                else:
-                    ultrasonic_go_to_position(self.s, right=side_dist, unit='cm')
+#                side_dist = 13
+#                if course == 'A':
+#                    ultrasonic_go_to_position(self.s, left=side_dist, unit='cm')
+#                else:
+#                    ultrasonic_go_to_position(self.s, right=side_dist, unit='cm')
 
                 '''
                 trapezoid(self.s.move_pid, (0, 180, 0), (0.5, 180, 0), (0, 180, 0), 2.0)

@@ -122,6 +122,13 @@ with get_spine() as s:
                     # logging buffer flush threshold
                     time.sleep(0.5)
 
+            def wait_until_start_switch(self):
+                loggin.info("Waiting for start switch.")
+                while not s.read_start_switch():
+                    # Large sleep time so that we do not get close to our
+                    # logging buffer flush threshold
+                    time.sleep(0.5)
+
             # Procedure to navigate from the start area through the tunnel to near Zone A
             def move_to_corner(self):
                 # advance through the tunnel

@@ -299,7 +299,7 @@ class Loader(object):
             thedir = 85
 
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
-        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.5)
+        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 2.0)
         time.sleep(1)
         self.s.stop()
 

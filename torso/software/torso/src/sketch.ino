@@ -34,6 +34,8 @@ const char LEFT_ULTRASONIC = 25; // Get checked
 const char RIGHT_ULTRASONIC = 24; // Get checked
 const char LIFT_LIMIT_SWITCH = 26;
 
+const char START_SWITCH = 41;
+
 NewPing front_left_sonar(FRONT_LEFT_ULTRASONIC,FRONT_LEFT_ULTRASONIC);
 NewPing front_right_sonar(FRONT_RIGHT_ULTRASONIC,FRONT_RIGHT_ULTRASONIC);
 NewPing left_sonar(LEFT_ULTRASONIC,LEFT_ULTRASONIC);
@@ -50,6 +52,7 @@ void setup() {
     pinMode(ARM_LIMIT, INPUT);
     pinMode(COURSE_MIRROR_LIMIT_SWITCH, INPUT);
 
+    pinMode(START_SWITCH, INPUT);
 
     pinMode(LIFT_LIMIT_SWITCH, INPUT_PULLUP);
     // Init serial
@@ -241,6 +244,13 @@ void parseAndExecuteCommand(String command) {
             Serial.println(digitalRead(ARM_LIMIT));
         } else {
             Serial.println("error: usage - 'ral'");
+        }
+    }
+    else if(args[0].equals(String("rss"))){ // read start switch
+        if(numArgs == 1){
+            Serial.println(digitalRead(START_SWITCH));
+        } else {
+            Serial.println("error: usage - 'rss'");
         }
     }
     else if(args[0].equals(String("rus"))){ // read ultrasonic
