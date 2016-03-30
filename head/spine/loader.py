@@ -2,6 +2,7 @@ import operator
 import time
 import logging
 from head.spine.control import trapezoid
+from head.spine.ultrasonic import ultrasonic_go_to_position
 
 logger = logging.getLogger(__name__)
 
@@ -152,15 +153,16 @@ class Loader(object):
             return self.s.read_lift_encoder() / 464.64 / 20.0
 
         encVal = encoder_inches()
+        motor_speed = 220
 
         if pos > encVal:
             direction = 'ccw'
             op = operator.ge
-            self.s.set_lift_motor(255, direction)
+            self.s.set_lift_motor(motor_speed, direction)
         elif pos < encVal:
             direction = 'cw'
             op = operator.le
-            self.s.set_lift_motor(255, direction)
+            self.s.set_lift_motor(motor_speed, direction)
         else:
             raise ValueError
 
@@ -217,7 +219,7 @@ class Loader(object):
             time.sleep(.4)
 
         if not self.s.read_switches()['lift']:
-            self.s.set_lift_motor(255, 'cw')
+            self.s.set_lift_motor(220, 'cw')
             while not self.s.read_switches()['lift']:
                 time.sleep(.01)
             self.s.stop_lift_motor()
@@ -239,7 +241,7 @@ class Loader(object):
         # Open flaps and extend left
         self.open_flaps()
         self.s.move(1, 0, 0)
-        self.widen(2.0)
+        self.widen(2.3)
         time.sleep(1)
         self.s.stop()
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
@@ -255,6 +257,18 @@ class Loader(object):
 
         time.sleep(0.5)
 
+        if strafe_dir == 'right':
+            thedir = -80
+        else:
+            thedir = 80
+
+        logging.info("Free RAM: %s" % self.s.get_teensy_ram())
+        trapezoid(self.s.move_pid, (0, thedir, 0), (0.5, thedir, 0), (0, thedir, 0), 1.2)
+        time.sleep(1)
+        self.s.stop()
+
+        time.sleep(0.5)
+
         # Bring home the bacon
         self.s.move(1, 0, 0)
         time.sleep(0.5)
@@ -265,11 +279,20 @@ class Loader(object):
         time.sleep(1)  # Wait for servos to close
         self.widen(1)
         self.s.stop()
+
         # Do not extend to 0.0 because we may E STOP
         if strafe_dir == 'right':
-            self.extend(0.1, 'left')
+            try:
+                self.extend(0.1, 'left')
+            except EStopException:
+                logging.info("Ignoring E-stop on load retract.")
+                pass
         else:
-            self.extend(0.1, 'right')
+            try:
+                self.extend(0.1, 'right')
+            except EStopException:
+                logging.info("Ignoring E-stop on load retract.")
+                pass
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
         self.close_flaps()
 
