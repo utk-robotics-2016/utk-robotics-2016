@@ -153,7 +153,7 @@ class Loader(object):
             return self.s.read_lift_encoder() / 464.64 / 20.0
 
         encVal = encoder_inches()
-        motor_speed = 220
+        motor_speed = 255
 
         if pos > encVal:
             direction = 'ccw'
@@ -219,7 +219,7 @@ class Loader(object):
             time.sleep(.4)
 
         if not self.s.read_switches()['lift']:
-            self.s.set_lift_motor(220, 'cw')
+            self.s.set_lift_motor(255, 'cw')
             while not self.s.read_switches()['lift']:
                 time.sleep(.01)
             self.s.stop_lift_motor()
