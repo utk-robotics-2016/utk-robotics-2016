@@ -54,6 +54,8 @@ class BlockPicker:
         else:
             raise ValueError
         # Special case!
+        if (col in [1] and desc == 'far_half'):
+            lateral += .5
         if (col in [0] and desc == 'far_half'):
             # To mitigate collision with right bar, move to a spot
             # to the left first and then move right
@@ -84,11 +86,14 @@ class BlockPicker:
         # To avoid the math domain errors on retract
         if (col in [1, 6, 7] and desc == 'far_half'):
             forward = FULL_BLOCK_FORWARD
+        wrist_rotate = 0
         if (col in [0] and desc == 'far_half'):
             forward = NEAR_HALF_BLOCK_FORWARD
             lateral -= 1.5
+        if (col in [0, 1] and desc == 'far_half'):
+            wrist_rotate = pi / 5
         self.arm.move_to(Vec3d(lateral, forward,
-                         HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
+                         HEIGHT_TO_CLEAR_LOADER), wrist_rotate, 180, SPEED)
         if (col in [7] and desc == 'near_half'):
             self.arm.move_to(Vec3d(lateral, forward - 2,
                              HEIGHT_TO_CLEAR_LOADER), 0, 180, SPEED)
