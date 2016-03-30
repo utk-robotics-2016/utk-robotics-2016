@@ -150,7 +150,9 @@ class Loader(object):
               Abort the movement if destination not reach after ``e_stop`` seconds. Defaults to 10.
         '''
         def encoder_inches():
-            return self.s.read_lift_encoder() / 464.64 / 20.0
+            # Correct for the new lift motor which is 34:1 instead of 9.68:1
+            return ( self.s.read_lift_encoder() / 464.64 / 20.0 ) * ( (1.0 / 34) * 9.68 )
+            #return self.s.read_lift_encoder() / 464.64 / 20.0
 
         encVal = encoder_inches()
         motor_speed = 255
