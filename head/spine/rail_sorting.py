@@ -77,6 +77,7 @@ class RailSorter:
         logging.info(raw_blocks)
         blocks = []
         colors = {'G': 'green', 'B': 'blue', 'R': 'red', 'Y': 'yellow'}
+        colors['?'] = self.bin_colors[0]
         i = 0
         while i < len(raw_blocks):
             if raw_blocks[i][1] == 'L':
