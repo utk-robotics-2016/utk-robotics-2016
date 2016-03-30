@@ -23,12 +23,12 @@ class color_point:
                 if j < 0 or j > hsv_image.shape[1]:
                     continue
                 count = count + 1
-                r = r + rgb_image[point[1], point[0]][2]
-                g = g + rgb_image[point[1], point[0]][1]
-                b = b + rgb_image[point[1], point[0]][0]
-                h = h + hsv_image[point[1], point[0]][0]
-                s = s + hsv_image[point[1], point[0]][1]
-                v = v + hsv_image[point[1], point[0]][2]
+                r = r + rgb_image[i, j][2]
+                g = g + rgb_image[i, j][1]
+                b = b + rgb_image[i, j][0]
+                h = h + hsv_image[i, j][0]
+                s = s + hsv_image[i, j][1]
+                v = v + hsv_image[i, j][2]
         self.hsv = (math.floor(h / count),
                     math.floor(s / count), math.floor(v / count))
         self.rgb = (math.floor(r / count),
