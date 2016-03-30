@@ -198,7 +198,6 @@ with get_spine() as s:
                 self.ldr.initial_zero_lift(open_flaps=True)
 
             def start(self):
-                '''
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
                 logger.info("In corner")
@@ -240,7 +239,6 @@ with get_spine() as s:
                 s.rotate_90('right')
                 self.ldr.dump_blocks()
 
-                '''
 
                 # rotate back to barge
                 self.rotate_90('left')
