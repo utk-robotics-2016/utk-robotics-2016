@@ -160,9 +160,9 @@ with get_spine() as s:
         test(vacuum, "Did the suction and release_suction appear to work?")
 
         def lift_up_down():
-            s.set_lift_motor(255, 'ccw')
+            s.set_lift_motor(127, 'ccw')
             time.sleep(1)
-            s.set_lift_motor(255, 'cw')
+            s.set_lift_motor(127, 'cw')
             time.sleep(1)
             s.stop_lift_motor()
         test(lift_up_down, "Did the lift go up and down?")
