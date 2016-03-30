@@ -175,6 +175,13 @@ class Loader(object):
                 self.s.stop_lift_motor()
                 break
 
+    def control_flaps(self, left, right):
+        '''Control the loader flaps independently
+
+        This method is preferred to calling Spine's direct method.
+        '''
+        self.s.control_loader_flaps(left, right)
+
     def close_flaps(self):
         '''Close the loader flaps.
 
@@ -199,6 +206,7 @@ class Loader(object):
     def initial_zero_lift(self, use_widen=True, open_flaps=False):
         if open_flaps:
             self.open_flaps()
+            time.sleep(.4)
 
         # So the wings do not collide with the beaglebone, etc
         if use_widen:
@@ -206,6 +214,7 @@ class Loader(object):
 
         if open_flaps:
             self.close_flaps()
+            time.sleep(.4)
 
         if not self.s.read_switches()['lift']:
             self.s.set_lift_motor(255, 'cw')
@@ -226,21 +235,11 @@ class Loader(object):
         # assert strafe_dir == 'right'
         assert strafe_dir in ['right', 'left']
 
-        # strafe_dist = kwargs.get('strafe_dist', None)
-
-        # move lift up
-        self.lift(4.8)
-        time.sleep(0.5)
-
         FWD_EXTEND_ROTS = 6.5
         # Open flaps and extend left
         self.open_flaps()
         self.s.move(1, 0, 0)
-        self.widen(2.9)
-        if strafe_dir == 'right':
-            self.extend(FWD_EXTEND_ROTS, 'left')
-        else:
-            self.extend(FWD_EXTEND_ROTS, 'right')
+        self.widen(2.0)
         time.sleep(1)
         self.s.stop()
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
@@ -248,32 +247,35 @@ class Loader(object):
         # Compress blocks
         self.s.move(1, 0, 0)
         if strafe_dir == 'right':
-            self.extend(FWD_EXTEND_ROTS, 'right')
+            self.extend(FWD_EXTEND_ROTS + 1, 'left')
         else:
-            self.extend(FWD_EXTEND_ROTS, 'left')
+            self.extend(FWD_EXTEND_ROTS + 1, 'right')
         self.s.stop()
         logging.info("Free RAM: " + self.s.get_teensy_ram())
 
-        # drop lift down to barge height
-        time.sleep(1.5)
-        self.lift(1.9)
+        time.sleep(0.5)
 
-        '''
         # Bring home the bacon
         self.s.move(1, 0, 0)
         time.sleep(0.5)
-        self.close_flaps()
+        if strafe_dir == 'right':
+            self.control_flaps('close', 'open')
+        else:
+            self.control_flaps('open', 'close')
         time.sleep(1)  # Wait for servos to close
         self.widen(1)
         self.s.stop()
         # Do not extend to 0.0 because we may E STOP
-        self.extend(0.1, 'both')
+        if strafe_dir == 'right':
+            self.extend(0.1, 'left')
+        else:
+            self.extend(0.1, 'right')
         logging.info("Free RAM: %s" % self.s.get_teensy_ram())
+        self.close_flaps()
 
         # self.widen(0)
         # Allow servos time to move:
         time.sleep(2)
-        '''
 
     def load(self, **kwargs):
         '''Execute a sequence of Loader methods that will load a set of blocks.

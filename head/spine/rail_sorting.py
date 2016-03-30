@@ -44,6 +44,7 @@ class RailSorter:
                        ultrasonic_go_to_position(self.s, front=26, unit='cm', rot=.01)
                    elif destzone == 0:
                        ultrasonic_go_to_position(self.s, front=5, unit='cm')
+                       trapezoid(self.s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 0.3)
 #                side_dist = 13
 #                if course == 'A':
 #                    ultrasonic_go_to_position(self.s, left=side_dist, unit='cm')

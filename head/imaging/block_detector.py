@@ -93,6 +93,8 @@ class block_detector:
     # Processes the frame with horizontal edge detection
     def process_frame(self, image):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        #blur = 51
+        #hsv = cv2.GaussianBlur(hsv, (blur, blur), 0)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # Grabs the horizontal edges
