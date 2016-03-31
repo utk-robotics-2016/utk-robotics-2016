@@ -69,12 +69,12 @@ with get_spine() as s:
         s.stop_width_motor()
 
     def lift(seconds):
-        s.set_lift_motor(255, 'ccw')
+        s.set_lift_motor(127, 'ccw')
         time.sleep(seconds)
         s.stop_lift_motor()
 
     def lower(seconds):
-        s.set_lift_motor(255, 'cw')
+        s.set_lift_motor(127, 'cw')
         time.sleep(seconds)
         s.stop_lift_motor()
 
