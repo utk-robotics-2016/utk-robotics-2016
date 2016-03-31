@@ -34,17 +34,9 @@ with get_spine() as s:
                 # set a threshold for white vs black values from the QTR sensor
                 self.qtr_threshold = 800
 
-                # Determine which course layout
-                if s.read_switches()['course_mirror'] == 1:
-                    # tunnel on left
-                    self.course = 'B'
-                    # dir_mod stands for direction modifier
-                    self.dir_mod = 1
-                else:
-                    # tunnel on right
-                    self.course = 'A'
-                    self.dir_mod = -1
-                logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
+                # These will be set after start switch press
+                self.course = None
+                self.dir_mod = None
 
                 # Initialize before button press
                 self.ldr.initial_zero_lift()
@@ -125,10 +117,25 @@ with get_spine() as s:
 
             def wait_until_start_switch(self):
                 logging.info("Waiting for start switch.")
+                ledstatus = True
                 while not s.read_start_switch():
                     # Large sleep time so that we do not get close to our
                     # logging buffer flush threshold
+                    s.set_led('teensy', ledstatus)
+                    ledstatus = not ledstatus
                     time.sleep(0.5)
+
+                # Determine which course layout
+                if s.read_switches()['course_mirror'] == 1:
+                    # tunnel on left
+                    self.course = 'B'
+                    # dir_mod stands for direction modifier
+                    self.dir_mod = 1
+                else:
+                    # tunnel on right
+                    self.course = 'A'
+                    self.dir_mod = -1
+                logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
 
             # Procedure to navigate from the start area through the tunnel to near Zone A
             def move_to_corner(self):
@@ -212,9 +219,13 @@ with get_spine() as s:
                 logger.info("Attempting to determine bin order")
                 binStuff = railorder(self.course)
                 bin_order = binStuff.get_rail_order(self.course)
-                print(bin_order)
                 # Give the rail sorter the bins in the correct order
-                self.rs.set_rail_zone_bins(list(reversed(bin_order)))
+                if self.course == 'B':
+                    print(bin_order)
+                    self.rs.set_rail_zone_bins(list(bin_order))
+                else:
+                    print(reversed(bin_order))
+                    self.rs.set_rail_zone_bins(list(reversed(bin_order)))
                 arm.park()
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
@@ -223,7 +234,12 @@ with get_spine() as s:
                 logger.info("At zone B")
 
                 # Set proper lift height
-                self.ldr.lift(4.8)
+                if self.course == 'B':
+                    self.ldr.lift(4.7)
+                elif self.course == 'A':
+                    self.ldr.lift(4.8)
+                else:
+                    raise ValueError
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Load the blocks from zone B
@@ -242,7 +258,12 @@ with get_spine() as s:
                 s.set_width_motor(150, 'ccw')
                 time.sleep(1)
                 s.set_width_motor(0, 'ccw')
-                self.rotate_90('right')
+                if self.course == 'A':
+                    self.rotate_90('right')
+                elif self.course == 'B':
+                    self.rotate_90('left')
+                else:
+                    raise ValueError
                 self.ldr.dump_blocks()
 
 
