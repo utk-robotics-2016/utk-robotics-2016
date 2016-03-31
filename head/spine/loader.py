@@ -150,28 +150,26 @@ class Loader(object):
               Abort the movement if destination not reach after ``e_stop`` seconds. Defaults to 10.
         '''
         def encoder_inches():
-            # Correct for the new lift motor which is 34:1 instead of 9.68:1
-            return ( self.s.read_lift_encoder() / 464.64 / 20.0 ) * ( (1.0 / 34) * 9.68 )
-            #return self.s.read_lift_encoder() / 464.64 / 20.0
+            return ( self.s.read_lift_encoder() / 464.64 / 20.0 ) * (9.68 / 34) 
 
         encVal = encoder_inches()
-        motor_speed = 255
+        motor_speed = 170
 
         if pos > encVal:
             direction = 'ccw'
             op = operator.ge
-            self.s.set_lift_motor(127, direction)
+            self.s.set_lift_motor(motor_speed, direction)
         elif pos < encVal:
             direction = 'cw'
             op = operator.le
-            self.s.set_lift_motor(127, direction)
+            self.s.set_lift_motor(motor_speed, direction)
         else:
             raise ValueError
 
         starttime = time.time()
 
         while True:
-            if time.time() - starttime > kwargs.get('e_stop', 10):
+            if time.time() - starttime > kwargs.get('e_stop', 25):
                 self.s.stop_lift_motor()
                 raise EStopException
             encVal = encoder_inches()
@@ -221,7 +219,7 @@ class Loader(object):
             time.sleep(.4)
 
         if not self.s.read_switches()['lift']:
-            self.s.set_lift_motor(127, 'cw')
+            self.s.set_lift_motor(170, 'cw')
             while not self.s.read_switches()['lift']:
                 time.sleep(.01)
             self.s.stop_lift_motor()

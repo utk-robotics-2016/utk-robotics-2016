@@ -197,6 +197,10 @@ with get_spine() as s:
 
                 self.ldr.initial_zero_lift(open_flaps=True)
 
+            def check_lift(self):
+                self.ldr.lift(1.9)
+                logger.info("Lifted")
+
             def start(self):
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
@@ -218,7 +222,7 @@ with get_spine() as s:
                 logger.info("At zone B")
 
                 # Set proper lift height
-                self.ldr.lift(4.9)
+                self.ldr.lift(4.8)
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Load the blocks from zone B
@@ -300,4 +304,5 @@ with get_spine() as s:
 
         bot.wait_until_start_switch()
         time.sleep(0.5)
+        #bot.check_lift()
         bot.start()
