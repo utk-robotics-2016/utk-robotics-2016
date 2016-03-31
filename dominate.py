@@ -197,6 +197,10 @@ with get_spine() as s:
 
                 self.ldr.initial_zero_lift(open_flaps=True)
 
+            def check_lift(self):
+                self.ldr.lift(1.9)
+                logger.info("Lifted")
+
             def start(self):
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
@@ -218,7 +222,7 @@ with get_spine() as s:
                 logger.info("At zone B")
 
                 # Set proper lift height
-                self.ldr.lift(4.9)
+                self.ldr.lift(4.8)
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Load the blocks from zone B
@@ -233,43 +237,72 @@ with get_spine() as s:
                 arm.park()
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
+                # rotate to the side and dump any extra blocks to clear the loader
                 s.set_width_motor(150, 'ccw')
                 time.sleep(1)
                 s.set_width_motor(0, 'ccw')
                 self.rotate_90('right')
                 self.ldr.dump_blocks()
 
-                # Load at Zone B
-                # if self.use_loader is True:
-                #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
-                '''
+                # rotate back to barge
+                self.rotate_90('left')
+
                 # Testing Sea blocks loading
                 self.ldr.lift(1.9)
 
-                s.move(1, 0, 0)
+                # move forward to barge
+                s.move_pid(1, 0, 0)
                 time.sleep(1.5)
                 s.stop()
 
-                dist = 16
+                # align horizontally for pickup
+                dist = 18
                 if self.course == 'A':
                     ultrasonic_go_to_position(s, left=dist, unit='cm', left_right_dir=85)
                 else:
                     ultrasonic_go_to_position(s, right=dist, unit='cm', left_right_dir=85)
 
-                s.move(1, 0, 0)
+                # bump barge
+                trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 2.5)
+
+                # try again
+                dist = 18
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, left=dist, unit='cm', left_right_dir=82)
+                else:
+                    ultrasonic_go_to_position(s, right=dist, unit='cm', left_right_dir=82)
+
+                # load a couple blocks?
+                self.ldr.load_sea_blocks(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                 
+                dist = 19
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, left=dist, unit='cm', left_right_dir=85)
+                else:
+                    ultrasonic_go_to_position(s, right=dist, unit='cm', left_right_dir=85)
+
+                trapezoid(s.move_pid, (0, 180, 0), (1, 180, 0), (0, 180, 0), 1.0)
+
+                # turn around to face the sea zone
+                self.rotate_180()
+
+                # bump barge to square up /w back of robot
+                s.move_pid(1, 180, 0)
                 time.sleep(1.5)
                 s.stop()
 
-                self.ldr.load_sea_blocks(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
-                '''
+                # drive to the sea zone
+                trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 4.0)
+
                 # unload blocks
-                # logging.info("Unloading at sea zone")
-                # if self.use_loader is True:
-                #    self.ldr.dump_blocks()
+                logging.info("Unloading at sea zone")
+                if self.use_loader is True:
+                    self.ldr.dump_blocks()
 
         bot = Robot()
 
         bot.wait_until_start_switch()
         time.sleep(0.5)
+        #bot.check_lift()
         bot.start()
