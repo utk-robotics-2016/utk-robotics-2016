@@ -16,13 +16,13 @@ class block_detector:
     def __init__(self, s):
 
         self.s = s
-        self.top_points = ((80, 160), (80, 350),
-                           (225, 160), (225, 350),
-                           (395, 160), (395, 350),
-                           (570, 160), (570, 350),
-                           (100, 100), (100, 325),
+        self.top_points = ((60, 160), (60, 350),
+                           (215, 160), (215, 350),
+                           (385, 160), (385, 350),
+                           (560, 160), (560, 350),
+                           (80, 100), (80, 325),
                            (235, 100), (235, 325),
-                           (410, 100), (410, 325),
+                           (400, 100), (400, 325),
                            (570, 120), (570, 325))
 
         self.bottom_points = ((124, 187), (124, 382),
@@ -206,8 +206,8 @@ class block_detector:
             text5 = "Da Fuck...?"
 
         if left_blocks:
-            cv2.rectangle(self.left_frame, (cp.get_x() - 20, cp.get_y() - 20),
-                          (cp.get_x() + 20, cp.get_y() + 20), (255, 0, 0))
+            cv2.rectangle(self.left_frame, (cp.get_x() - 30, cp.get_y() - 30),
+                          (cp.get_x() + 30, cp.get_y() + 30), (255, 0, 0))
             cv2.circle(self.left_frame, (cp.get_x(),
                                          cp.get_y()), 3, (0, 255, 0), 2)
             cv2.putText(self.left_frame, text1, (cp.get_x() - 60,
@@ -221,8 +221,8 @@ class block_detector:
             cv2.putText(self.left_frame, text5, (cp.get_x() - 60,
                                                  cp.get_y() + 85), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
         else:
-            cv2.rectangle(self.right_frame, (cp.get_x() - 20, cp.get_y() - 20),
-                          (cp.get_x() + 20, cp.get_y() + 20), (255, 0, 0))
+            cv2.rectangle(self.right_frame, (cp.get_x() - 30, cp.get_y() - 30),
+                          (cp.get_x() + 30, cp.get_y() + 30), (255, 0, 0))
             cv2.circle(self.right_frame, (cp.get_x(),
                                           cp.get_y()), 3, (0, 255, 0), 2)
             cv2.putText(self.right_frame, text1, (cp.get_x() - 60,
