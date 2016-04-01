@@ -53,7 +53,7 @@ with get_spine() as s:
 					raw_input(", ".join(map(lambda x: x[0], e)))
 					self.arm_to_vertical()
 					reval, img = camera.read()
-					cv2.imwrite("bins/" + "".join(map(lambda x: x[1], e)))
+					cv2.imwrite("bins/" + self.course + "".join(map(lambda x: x[1], e)))
 					print("saving...")
 					time.sleep(1) 
 					self.park_arm()
