@@ -19,7 +19,7 @@ BOTTOM_LEVEL_HEIGHT = -2
 BLOCK_WIDTH_IN_CM = 1.5 * 2.54
 # height of the top surface of the top level
 TOP_LEVEL_HEIGHT = BOTTOM_LEVEL_HEIGHT + BLOCK_WIDTH_IN_CM
-RAIL_DROP_XY = {'right': (16 + 5, -5), 'left': (-(16 + 5), -4)}
+RAIL_DROP_XY = {'right': (16 + 5, -3), 'left': (-(16 + 5), -4)}
 HEIGHT_TO_DROP_RAIL = HEIGHT_TO_CLEAR_LOADER - 11
 
 
@@ -118,7 +118,7 @@ class BlockPicker:
                          HEIGHT_TO_CLEAR_LOADER), wrist, 180, 0.75)
         if rail_drop:
             self.arm.move_to(Vec3d(RAIL_DROP_XY[side][0], RAIL_DROP_XY[side][1],
-                             HEIGHT_TO_DROP_RAIL), wrist, 180, FAST_SPEED)
+                             HEIGHT_TO_DROP_RAIL), wrist, 180, SPEED)
         self.s.set_suction(False)
         self.s.set_release_suction(True)
         time.sleep(0.15)
