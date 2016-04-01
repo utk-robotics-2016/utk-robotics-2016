@@ -1,6 +1,8 @@
 # Python modules
 import time
 import logging
+import itertools
+import cv2
 
 # Local modules
 from head.spine.core import get_spine
@@ -39,24 +41,24 @@ with get_spine() as s:
                 if self.course == 'A':
                     arm.move_to(Vec3d(-11, -4, 10), 1.3, 180)
                 time.sleep(1)
-				
-			def park_arm(self):
-				arm.move_to(Vec3d(11, -4, 10), 1.3, 180)
-				arm.park()
+                
+            def park_arm(self):
+                arm.move_to(Vec3d(11, -4, 10), 1.3, 180)
+                arm.park()
 
             def start(self):
                 self.arm_to_vertical()
-				bins = [("red", "r"), ("green", "g"), ("blue", "b"), ("yellow", "y")]
-				pbins = itertools.permutations(bins)
-				camera = cv2.VideoCapture(0)
-				for i, e in enumerate(pbins):
-					raw_input(", ".join(map(lambda x: x[0], e)))
-					self.arm_to_vertical()
-					reval, img = camera.read()
-					cv2.imwrite("bins/" + self.course + "".join(map(lambda x: x[1], e)))
-					print("saving...")
-					time.sleep(1) 
-					self.park_arm()
+                bins = [("red", "r"), ("green", "g"), ("blue", "b"), ("yellow", "y")]
+                pbins = itertools.permutations(bins)
+                camera = cv2.VideoCapture(0)
+                for i, e in enumerate(pbins):
+                    raw_input(", ".join(map(lambda x: x[0], e)))
+                    self.arm_to_vertical()
+                    reval, img = camera.read()
+                    cv2.imwrite("bins/" + self.course + "".join(map(lambda x: x[1], e)) + ".jpg", img)
+                    print("saving...")
+                    time.sleep(1) 
+                    self.park_arm()
 
         bot = Robot()
 
