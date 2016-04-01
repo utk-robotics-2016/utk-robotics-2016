@@ -24,6 +24,8 @@ with get_spine() as s:
         class Robot:
 
             def __init__(self):
+                assert not s.read_start_switch()
+
                 self.ldr = Loader(s)
                 self.rs = RailSorter(s, arm)
 
@@ -247,6 +249,7 @@ with get_spine() as s:
                     self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
                 else:
                     self.wait_until_arm_limit_pressed()
+                    self.ldr.close_flaps()
 
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
                 self.go_to_rail_cars()
