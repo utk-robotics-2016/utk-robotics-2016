@@ -524,7 +524,7 @@ class Spine:
     def open_loader_flaps(self):
         '''Set the loader servos to open the flaps.
         '''
-        off = 87
+        off = 84
         self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
 
     def control_loader_flaps(self, left_open, right_open):
