@@ -29,7 +29,7 @@ with get_spine() as s:
 
                 # flag to determine if the loader is enabled
                 # this allows for a pure navigational run when set to False
-                self.use_loader = True
+                self.use_loader = False
 
                 # set a threshold for white vs black values from the QTR sensor
                 self.qtr_threshold = 800
@@ -180,7 +180,7 @@ with get_spine() as s:
             def arm_to_vertical(self):
                 arm.move_to(Vec3d(11, -5, 10), 1.3, 180)
                 if self.course == 'A':
-                    arm.move_to(Vec3d(-11, -5, 10), 1.3, 180)
+                    arm.move_to(Vec3d(-11, -4, 10), 1.3, 180)
                 time.sleep(1)
 
             def go_to_rail_cars(self):
@@ -245,11 +245,13 @@ with get_spine() as s:
                 # Load the blocks from zone B
                 if self.use_loader is True:
                     self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                else:
+                    self.wait_until_arm_limit_pressed()
 
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
                 self.go_to_rail_cars()
                 # I took a picture of everything that happens up to this point
-                
+
                 self.rs.unload_rail(self.course)
                 arm.park()
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
@@ -296,7 +298,10 @@ with get_spine() as s:
                     ultrasonic_go_to_position(s, right=dist, unit='cm', left_right_dir=82)
 
                 # load a couple blocks?
-                self.ldr.load_sea_blocks(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                if self.use_loader is True:
+                    self.ldr.load_sea_blocks(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                else:
+                    self.wait_until_arm_limit_pressed()
                  
                 dist = 19
                 if self.course == 'A':

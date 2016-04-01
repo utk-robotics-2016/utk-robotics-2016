@@ -49,9 +49,9 @@ class RailSorter:
                 elif course == 'B':
                     if currzone < destzone: # moving backward
                         if destzone == 1:
-                            ultrasonic_go_to_position(self.s, front=26, unit='cm')
+                            ultrasonic_go_to_position(self.s, front=26, unit='cm', rot=-.055)
                         elif destzone == 2:
-                            ultrasonic_go_to_position(self.s, front=50, unit='cm')
+                            ultrasonic_go_to_position(self.s, front=50, unit='cm', rot=-.02)
                         elif destzone == 3:
                             trapezoid(self.s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 1.2)
                             self.s.stop()
