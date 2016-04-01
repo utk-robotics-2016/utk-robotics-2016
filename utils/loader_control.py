@@ -19,6 +19,8 @@ parser.add_argument('--compress', type=float, help='Compress the loader arms for
 parser.add_argument('--widen', type=float, help='Widen the loader arms for SECONDS.')
 parser.add_argument('--no_right', action='store_true', help='No right extend', default=False)
 parser.add_argument('--no_left', action='store_true', help='No left extend', default=False)
+parser.add_argument('--open_flaps', action='store_true', default=False)
+parser.add_argument('--close_flaps', action='store_true', default=False)
 parser.add_argument('--lift', type=float, help='Lift the loader up for SECONDS.')
 parser.add_argument('--lower', type=float, help='Lower the loader for SECONDS.')
 parser.add_argument('--power', default=100, type=int, help='Motor power to use. Default=100.')
@@ -26,7 +28,7 @@ parser.add_argument('--close', help='Close the flaps.')
 parser.add_argument('--open', help='Open the flaps.')
 args = parser.parse_args()
 
-if args.extend is None and args.retract is None and args.compress is None and args.widen is None and args.lift is None and args.lower is None:
+if args.extend is None and args.retract is None and args.compress is None and args.widen is None and args.lift is None and args.lower is None and args.open_flaps == False and args.close_flaps == False:
     parser.print_help()
     sys.exit()
 
@@ -67,12 +69,12 @@ with get_spine() as s:
         s.stop_width_motor()
 
     def lift(seconds):
-        s.set_lift_motor(255, 'ccw')
+        s.set_lift_motor(127, 'ccw')
         time.sleep(seconds)
         s.stop_lift_motor()
 
     def lower(seconds):
-        s.set_lift_motor(255, 'cw')
+        s.set_lift_motor(127, 'cw')
         time.sleep(seconds)
         s.stop_lift_motor()
 
@@ -96,5 +98,5 @@ with get_spine() as s:
         lower(args.lower)
     if args.open_flaps:
         open_flaps()
-    if args.close_flaps():
+    if args.close_flaps:
         close_flaps()

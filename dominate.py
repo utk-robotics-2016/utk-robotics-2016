@@ -1,6 +1,7 @@
 # Python modules
 import time
 import logging
+import sys
 
 # Local modules
 from head.spine.core import get_spine
@@ -33,21 +34,13 @@ with get_spine() as s:
                 # set a threshold for white vs black values from the QTR sensor
                 self.qtr_threshold = 800
 
-                # Determine which course layout
-                if s.read_switches()['course_mirror'] == 1:
-                    # tunnel on left
-                    self.course = 'B'
-                    # dir_mod stands for direction modifier
-                    self.dir_mod = 1
-                else:
-                    # tunnel on right
-                    self.course = 'A'
-                    self.dir_mod = -1
-                logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
+                # These will be set after start switch press
+                self.course = None
+                self.dir_mod = None
 
                 # Initialize before button press
                 self.ldr.initial_zero_lift()
-                self.ldr.lift(1.0)
+                self.ldr.lift(1.9)
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 self.ldr.widen(0.1)
                 arm.park()
@@ -124,10 +117,25 @@ with get_spine() as s:
 
             def wait_until_start_switch(self):
                 logging.info("Waiting for start switch.")
+                ledstatus = True
                 while not s.read_start_switch():
                     # Large sleep time so that we do not get close to our
                     # logging buffer flush threshold
+                    s.set_led('teensy', ledstatus)
+                    ledstatus = not ledstatus
                     time.sleep(0.5)
+
+                # Determine which course layout
+                if s.read_switches()['course_mirror'] == 1:
+                    # tunnel on left
+                    self.course = 'B'
+                    # dir_mod stands for direction modifier
+                    self.dir_mod = 1
+                else:
+                    # tunnel on right
+                    self.course = 'A'
+                    self.dir_mod = -1
+                logging.info("Using course id '%s' and dir_mod '%d'." % (self.course, self.dir_mod))
 
             # Procedure to navigate from the start area through the tunnel to near Zone A
             def move_to_corner(self):
@@ -170,9 +178,9 @@ with get_spine() as s:
                 # trapezoid(s.move, (0, 0, 0), (1, 0, 0), (0, 0, 0), 3)
 
             def arm_to_vertical(self):
-                arm.move_to(Vec3d(11, -4, 10), 1.3, 180)
+                arm.move_to(Vec3d(11, -5, 10), 1.3, 180)
                 if self.course == 'A':
-                    arm.move_to(Vec3d(-11, -4, 10), 1.3, 180)
+                    arm.move_to(Vec3d(-11, -5, 10), 1.3, 180)
                 time.sleep(1)
 
             def go_to_rail_cars(self):
@@ -197,6 +205,10 @@ with get_spine() as s:
 
                 self.ldr.initial_zero_lift(open_flaps=True)
 
+            def check_lift(self):
+                self.ldr.lift(1.9)
+                logger.info("Lifted")
+
             def start(self):
                 # Moves from start square to corner near Zone A
                 self.move_to_corner()
@@ -207,9 +219,13 @@ with get_spine() as s:
                 logger.info("Attempting to determine bin order")
                 binStuff = railorder(self.course)
                 bin_order = binStuff.get_rail_order(self.course)
-                print(bin_order)
                 # Give the rail sorter the bins in the correct order
-                self.rs.set_rail_zone_bins(list(reversed(bin_order)))
+                if self.course == 'B':
+                    print(bin_order)
+                    self.rs.set_rail_zone_bins(list(bin_order))
+                else:
+                    print(reversed(bin_order))
+                    self.rs.set_rail_zone_bins(list(reversed(bin_order)))
                 arm.park()
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
@@ -218,7 +234,12 @@ with get_spine() as s:
                 logger.info("At zone B")
 
                 # Set proper lift height
-                self.ldr.lift(4.9)
+                if self.course == 'B':
+                    self.ldr.lift(4.7)
+                elif self.course == 'A':
+                    self.ldr.lift(4.8)
+                else:
+                    raise ValueError
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
                 # Load the blocks from zone B
@@ -230,44 +251,80 @@ with get_spine() as s:
                 # I took a picture of everything that happens up to this point
                 
                 self.rs.unload_rail(self.course)
+                arm.park()
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
-                self.s.set_width_motor(150, 'ccw')
+                # rotate to the side and dump any extra blocks to clear the loader
+                s.set_width_motor(150, 'ccw')
                 time.sleep(1)
-                self.s.set_width_motor(0, 'ccw')
-                self.rotate_90('right')
+                s.set_width_motor(0, 'ccw')
+                if self.course == 'A':
+                    self.rotate_90('right')
+                elif self.course == 'B':
+                    self.rotate_90('left')
+                else:
+                    raise ValueError
                 self.ldr.dump_blocks()
 
-                # Load at Zone B
-                # if self.use_loader is True:
-                #    self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
 
-                '''
+                # rotate back to barge
+                self.rotate_90('left')
+
                 # Testing Sea blocks loading
-                s.move(1, 0, 0)
+                self.ldr.lift(1.9)
+
+                # move forward to barge
+                s.move_pid(1, 0, 0)
                 time.sleep(1.5)
                 s.stop()
 
-                dist = 13
+                # align horizontally for pickup
+                dist = 18
                 if self.course == 'A':
                     ultrasonic_go_to_position(s, left=dist, unit='cm', left_right_dir=85)
                 else:
                     ultrasonic_go_to_position(s, right=dist, unit='cm', left_right_dir=85)
 
-                s.move(1, 0, 0)
+                # bump barge
+                trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 2.5)
+
+                # try again
+                dist = 18
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, left=dist, unit='cm', left_right_dir=82)
+                else:
+                    ultrasonic_go_to_position(s, right=dist, unit='cm', left_right_dir=82)
+
+                # load a couple blocks?
+                self.ldr.load_sea_blocks(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
+                 
+                dist = 19
+                if self.course == 'A':
+                    ultrasonic_go_to_position(s, left=dist, unit='cm', left_right_dir=85)
+                else:
+                    ultrasonic_go_to_position(s, right=dist, unit='cm', left_right_dir=85)
+
+                trapezoid(s.move_pid, (0, 180, 0), (1, 180, 0), (0, 180, 0), 1.0)
+
+                # turn around to face the sea zone
+                self.rotate_180()
+
+                # bump barge to square up /w back of robot
+                s.move_pid(1, 180, 0)
                 time.sleep(1.5)
                 s.stop()
 
-                self.ldr.load_sea_blocks(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
-                '''
+                # drive to the sea zone
+                trapezoid(s.move_pid, (0, 0, 0), (1, 0, 0), (0, 0, 0), 4.0)
 
                 # unload blocks
-                # logging.info("Unloading at sea zone")
-                # if self.use_loader is True:
-                #    self.ldr.dump_blocks()
+                logging.info("Unloading at sea zone")
+                if self.use_loader is True:
+                    self.ldr.dump_blocks()
 
         bot = Robot()
 
         bot.wait_until_start_switch()
         time.sleep(0.5)
+        #bot.check_lift()
         bot.start()
