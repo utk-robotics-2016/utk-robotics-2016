@@ -14,8 +14,10 @@ hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 def mouse_events(event, x, y, flags, param):
     global image, hsv
     image = clone.copy()
+    image = cv2.blur(image, (31,31))
     cv2.circle(image, (x, y), 3, (0, 255, 0), 2)
     cv2.putText(image, "H: %d S: %d V: %d" % (hsv[y, x][0], hsv[y, x][1], hsv[y, x][2]), (x,y+20), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
+    cv2.putText(image, "R: %d G: %d B: %d" % (image[y, x][2], image[y, x][1], image[y, x][0]),(x, y+40),cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
     cv2.imshow("image", image)
 
 cv2.namedWindow("image")
