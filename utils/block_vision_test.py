@@ -19,7 +19,7 @@ with get_spine() as s:
                 pass
 
             def start(self):
-                logger.info(arm.detect_blocks('top'))
+                logger.info(arm.detect_blocks('bottom'))
 
         bot = Robot()
         bot.start()
