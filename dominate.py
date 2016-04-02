@@ -61,6 +61,7 @@ with get_spine() as s:
                 for enc_id in range(3):
                     s.zero_loader_encoder(enc_id)
                 arm.park()
+                self.ldr.close_flaps()
 
                 # sys.exit()
 
