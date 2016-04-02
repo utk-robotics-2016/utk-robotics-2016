@@ -17,14 +17,14 @@ class railorder:
             self.blue = [np.array([103, 100, 60]), np.array([115, 180, 150])]
             self.yellow = [np.array([25, 130, 155]), np.array([30, 255, 255])]
 
-            self.y1 = 200
-            self.y2 = 350
+            self.y1 = 150
+            self.y2 = 400
 
             if course == 'A':
                 self.x1 = 0
-                self.x2 = 365
+                self.x2 = 400
             else:
-                self.x1 = 275
+                self.x1 = 200
                 self.x2 = 640
 
             self.w = self.x2 - self.x1
