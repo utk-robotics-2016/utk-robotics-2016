@@ -7,4 +7,4 @@ then
     python utils/loader_control.py --lift=7
 fi
 python utils/loader_control.py --compress=4
-python utils/loader_control.py --retract=2 --power=130
+python utils/loader_control.py --retract=3 --power=130
