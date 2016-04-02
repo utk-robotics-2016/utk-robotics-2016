@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import logging
 import numpy as np
+import time
 from datetime import datetime
 import cv2
 
@@ -36,12 +37,19 @@ class block_detector:
 
     # Loads the frame from camera for the right side of the loader
     def grab_right_frame(self, saveImage=True):
-        logger.info("Connecting to camera")
-        self.camera = cv2.VideoCapture(0)
-        logger.info("Grabbing right frame")
-        retval, image = self.camera.read()
-        logger.info("Disconnecting from camera")
-        self.camera.release()
+        retval = False
+        # loop until we get an image -- sleep to let the camera come online
+        while( retval == False ):
+            logger.info("Connecting to camera")
+            self.camera = cv2.VideoCapture(0)
+            time.sleep(1.0)
+            logger.info("Grabbing right frame")
+            retval, image = self.camera.read()
+            logging.info(("Camera init return - block_detect", retval, type(image)))
+            logger.info("Disconnecting from camera")
+            self.camera.release()
+        logging.info("Camera grab success")
+
         if saveImage:
             cv2.imwrite(SAVE_LOC + "/%s_right.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
@@ -55,12 +63,19 @@ class block_detector:
 
     # Loads the frame from camera for the left side of the loader
     def grab_left_frame(self, saveImage=True):
-        logger.info("Connecting to camera")
-        self.camera = cv2.VideoCapture(0)
-        logger.info("Grabbing left frame")
-        retval, image = self.camera.read()
-        logger.info("Disconnecting from camera")
-        self.camera.release()
+        retval = False
+        # loop until we get an image -- sleep to let the camera come online
+        while( retval == False ):
+            logger.info("Connecting to camera")
+            self.camera = cv2.VideoCapture(0)
+            time.sleep(1.0)
+            logger.info("Grabbing left frame")
+            retval, image = self.camera.read()
+            logging.info(("Camera init return - block_detect", retval, type(image)))
+            logger.info("Disconnecting from camera")
+            self.camera.release()
+        logging.info("Camera grab success")
+
         if saveImage:
             cv2.imwrite(SAVE_LOC + "/%s_left.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
