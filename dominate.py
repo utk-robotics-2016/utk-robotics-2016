@@ -140,8 +140,7 @@ with get_spine() as s:
             def wait_until_start_switch(self):
                 logging.info("Waiting for start switch.")
                 ledstatus = True
-                origswitch = s.read_start_switch()
-                while s.read_start_switch() == origswitch:
+                while not s.read_start_switch():
                     # Large sleep time so that we do not get close to our
                     # logging buffer flush threshold
                     s.set_led('teensy', ledstatus)
