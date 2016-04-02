@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 import sys
+import time
 
 SAVE_LOC = '/var/log/spine/imaging'
 
@@ -30,9 +31,15 @@ class railorder:
 
             self.massThreshold = 1500
 
-            camera = cv2.VideoCapture(0)
-            retval, self.origImg = camera.read()
-            camera.release()
+            retval = false
+
+            # loop until we get an image -- sleep to let the camera come online
+            while( retval == false ):
+                camera = cv2.VideoCapture(0)
+                time.sleep(1.0)
+                retval, self.origImg = camera.read()
+                logging.info((retval, self.origImg))
+                camera.release()
 
             blur = 51
             self.procImg = cv2.GaussianBlur(self.origImg[self.y1:self.y2, self.x1:self.x2], (blur, blur), 0)
