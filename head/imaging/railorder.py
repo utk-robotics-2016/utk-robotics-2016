@@ -11,9 +11,9 @@ class railorder:
     def __init__(self, course):
         # try:
             self.red = [np.array([0, 151, 88]), np.array([180, 243, 135])]
-			self.green = [np.array([48, 52, 0]), np.array([99, 149, 255])]
-			self.blue = [np.array([103, 57, 50]), np.array([114, 218, 255])]
-			self.yellow = [np.array([21, 181, 136]), np.array([161, 255, 255])]
+            self.green = [np.array([48, 52, 0]), np.array([99, 149, 255])]
+            self.blue = [np.array([103, 57, 50]), np.array([114, 218, 255])]
+            self.yellow = [np.array([21, 181, 136]), np.array([161, 255, 255])]
 
             self.y1 = 150
             self.y2 = 400
