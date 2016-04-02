@@ -696,7 +696,7 @@ class Spine:
             'cw' is going down, 'ccw' is going up.
         :type direction: ``string``
         '''
-        assert 0 <= speed <= 170
+        assert 0 <= speed <= 200
         assert direction in ['cw', 'ccw']
         direction = {'cw': 'bw', 'ccw': 'fw'}[direction]
         command = 'mod ' + str(2) + ' ' + str(speed) + ' ' + direction
