@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from datetime import datetime
+import logging
 import sys
 import time
 
@@ -31,14 +32,14 @@ class railorder:
 
             self.massThreshold = 2000
 
-            retval = false
+            retval = False
 
             # loop until we get an image -- sleep to let the camera come online
-            while( retval == false ):
+            while( retval == False ):
                 camera = cv2.VideoCapture(0)
                 time.sleep(1.0)
                 retval, self.origImg = camera.read()
-                logging.info(("Camera init return - railorder", retval, self.origImg))
+                logging.info(("Camera init return - railorder", retval, type(self.origImg)))
                 camera.release()
 
             logging.info("Camera grab success")
