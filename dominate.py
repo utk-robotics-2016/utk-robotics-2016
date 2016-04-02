@@ -31,7 +31,7 @@ with get_spine() as s:
 
                 # flag to determine if the loader is enabled
                 # this allows for a pure navigational run when set to False
-                self.use_loader = False
+                self.use_loader = True
 
                 # set a threshold for white vs black values from the QTR sensor
                 self.qtr_threshold = 800
@@ -246,6 +246,7 @@ with get_spine() as s:
 
                 # Load the blocks from zone B
                 if self.use_loader is True:
+                    # self.wait_until_arm_limit_pressed()
                     self.ldr.load(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
                 else:
                     self.wait_until_arm_limit_pressed()
