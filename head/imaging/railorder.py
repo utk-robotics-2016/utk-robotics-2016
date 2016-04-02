@@ -38,8 +38,10 @@ class railorder:
                 camera = cv2.VideoCapture(0)
                 time.sleep(1.0)
                 retval, self.origImg = camera.read()
-                logging.info((retval, self.origImg))
+                logging.info(("Camera init return - railorder", retval, self.origImg))
                 camera.release()
+
+            logging.info("Camera grab success")
 
             blur = 11
             self.procImg = cv2.GaussianBlur(self.origImg[self.y1:self.y2, self.x1:self.x2], (blur, blur), 0)
