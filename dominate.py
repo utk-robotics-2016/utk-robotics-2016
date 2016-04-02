@@ -24,7 +24,7 @@ with get_spine() as s:
         class Robot:
 
             def __init__(self):
-                assert not s.read_start_switch()
+                # assert not s.read_start_switch()
 
                 self.ldr = Loader(s)
                 self.rs = RailSorter(s, arm)
@@ -41,11 +41,30 @@ with get_spine() as s:
                 self.dir_mod = None
 
                 # Initialize before button press
-                self.ldr.initial_zero_lift()
+                self.ldr.initial_zero_lift(use_widen=False)
                 self.ldr.lift(1.9)
+
                 arm.move_to(Vec3d(11, -1, 10), 0, 180)
-                self.ldr.widen(0.1)
+
+                # Basically run reset.sh here, remember to zero extend and widen encoders
+                # python utils/loader_control.py --compress=4
+                s.set_width_motor(int(100 * 1.5), 'ccw')
+                time.sleep(6)
+                s.stop_width_motor()
+                # python utils/loader_control.py --retract=3 --power=130
+                s.set_loader_motor(0, int(100 * 3 / 4), 'bw')
+                s.set_loader_motor(1, 100, 'bw')
+                time.sleep(5)
+                s.stop_loader_motor(0)
+                s.stop_loader_motor(1)
+
+                for enc_id in range(3):
+                    s.zero_loader_encoder(enc_id)
                 arm.park()
+
+                # sys.exit()
+
+                # self.ldr.widen(0.1)
 
             def move_pid(self, speed, dir, angle):
                 s.move_pid(speed, self.dir_mod * dir, self.dir_mod * angle)
@@ -120,7 +139,8 @@ with get_spine() as s:
             def wait_until_start_switch(self):
                 logging.info("Waiting for start switch.")
                 ledstatus = True
-                while not s.read_start_switch():
+                origswitch = s.read_start_switch()
+                while s.read_start_switch() == origswitch:
                     # Large sleep time so that we do not get close to our
                     # logging buffer flush threshold
                     s.set_led('teensy', ledstatus)
@@ -228,6 +248,7 @@ with get_spine() as s:
                 else:
                     print(reversed(bin_order))
                     self.rs.set_rail_zone_bins(list(reversed(bin_order)))
+                arm.move_to(Vec3d(11, -1, 10), 0, 180)
                 arm.park()
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
