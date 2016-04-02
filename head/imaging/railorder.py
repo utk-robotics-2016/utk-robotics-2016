@@ -11,25 +11,25 @@ class railorder:
 
     def __init__(self, course):
         # try:
-            self.red = [np.array([0, 150, 160]), np.array([180, 185, 225])]
-            self.green = [np.array([60, 65, 50]), np.array([85, 130, 125])]
-            self.blue = [np.array([105, 100, 100]), np.array([115, 170, 170])]
-            self.yellow = [np.array([25, 0, 220]), np.array([35, 255, 255])]
+            self.red = [np.array([0, 140, 100]), np.array([180, 245, 150])]
+            self.green = [np.array([45, 40, 30]), np.array([100, 130, 85])]
+            self.blue = [np.array([103, 100, 60]), np.array([115, 180, 150])]
+            self.yellow = [np.array([25, 130, 155]), np.array([30, 255, 255])]
 
-            self.y1 = 0
-            self.y2 = 480
+            self.y1 = 200
+            self.y2 = 350
 
             if course == 'A':
                 self.x1 = 0
-                self.x2 = 430
+                self.x2 = 365
             else:
-                self.x1 = 250
+                self.x1 = 275
                 self.x2 = 640
 
             self.w = self.x2 - self.x1
             self.h = self.y2 - self.y1
 
-            self.massThreshold = 1500
+            self.massThreshold = 2000
 
             retval = false
 
@@ -41,7 +41,7 @@ class railorder:
                 logging.info((retval, self.origImg))
                 camera.release()
 
-            blur = 51
+            blur = 11
             self.procImg = cv2.GaussianBlur(self.origImg[self.y1:self.y2, self.x1:self.x2], (blur, blur), 0)
             tmphsv = cv2.cvtColor(self.procImg, cv2.COLOR_BGR2HSV)
             rr = cv2.inRange(tmphsv, self.red[0], self.red[1])
@@ -109,12 +109,6 @@ class railorder:
                 sys.stderr.write("not all bins were visible. Readjust the camera\n")
             if course == 'B':
                 # set the leftmost color's x coord to 1000 and resort, putting it on the right
-                '''
-                self.railorder[0][0] = (1000, -1)
-                print(self.railorder)
-                rv = [c for (p, c) in sorted(zip(self.points, self.colors), key=lambda coord: coord[0][0])]
-                print(rv)
-                '''
                 return [self.railorder[1][1], self.railorder[2][1], self.railorder[3][1], self.railorder[0][1]]
             else:
                 return [c for (p, c) in self.railorder]
