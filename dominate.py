@@ -248,7 +248,7 @@ with get_spine() as s:
                 else:
                     print(reversed(bin_order))
                     self.rs.set_rail_zone_bins(list(reversed(bin_order)))
-                arm.move_to(Vec3d(11, -1, 10), 0, 180)
+                arm.move_to(Vec3d(11, -5, 10), 1.3, 180)
                 arm.park()
                 logger.info("Free RAM: %s" % s.get_teensy_ram())
 
