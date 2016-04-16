@@ -182,6 +182,6 @@ class RailSorter:
                     logging.info((i, block_type))
                     self.bp.pick_block(i, level, block_type)
                     side = {'B': 'right', 'A': 'left'}[course]
-                    self.bp.drop_block(rail = True, side = side)
+                    self.bp.drop_block(rail=True, side=side)
                 # self.s.close_loader_flaps()
                 # lastzid = zid

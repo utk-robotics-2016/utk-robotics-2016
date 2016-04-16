@@ -5,6 +5,7 @@ from head.spine.control import trapezoid
 
 logger = logging.getLogger(__name__)
 
+
 class EStopException(Exception):
     pass
 
