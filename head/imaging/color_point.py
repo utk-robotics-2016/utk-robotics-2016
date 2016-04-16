@@ -7,7 +7,7 @@ import math
 class color_point:
     """ Class that stores the color information of a pixel in an image"""
 
-    def __init__(self, point, rgb_image, hsv_image, blur=2):
+    def __init__(self, point, rgb_image, hsv_image, blur=30):
         self.p = point
         count = 0.0
         r = 0.0
@@ -16,19 +16,24 @@ class color_point:
         h = 0.0
         s = 0.0
         v = 0.0
-        for i in range(point[1] - blur * 10, point[1] + blur * 10 + 1, blur * 10):
+        for i in range(point[1] - blur, point[1] + blur):
             if i < 0 or i > hsv_image.shape[0]:
                 continue
-            for j in range(point[0] - blur * 10, point[0] + blur * 10 + 1, blur * 10):
+            for j in range(point[0] - blur, point[0] + blur):
                 if j < 0 or j > hsv_image.shape[1]:
                     continue
+                if hsv_image[i, j][1] <= 20:
+                    continue
                 count = count + 1
-                r = r + rgb_image[point[1], point[0]][2]
-                g = g + rgb_image[point[1], point[0]][1]
-                b = b + rgb_image[point[1], point[0]][0]
-                h = h + hsv_image[point[1], point[0]][0]
-                s = s + hsv_image[point[1], point[0]][1]
-                v = v + hsv_image[point[1], point[0]][2]
+                r = r + rgb_image[i, j][2]
+                g = g + rgb_image[i, j][1]
+                b = b + rgb_image[i, j][0]
+                if hsv_image[i, j][0] >= 165:
+                    h = h + 180 - hsv_image[i, j][0]
+                else:
+                    h = h + hsv_image[i, j][0]
+                s = s + hsv_image[i, j][1]
+                v = v + hsv_image[i, j][2]
         self.hsv = (math.floor(h / count),
                     math.floor(s / count), math.floor(v / count))
         self.rgb = (math.floor(r / count),
@@ -138,15 +143,44 @@ class color_point:
         s = self.hsv[1]
         if s < 20:
             return 'B'
-        if h < 15 or h > 165:
+        if h <= 15 or h >= 165:
             if h == 0 and self.hsv[1] == 0 and self.hsv[2] == 0:
                 return '?'
             return 'R'
-        elif h < 32:
+        elif h <= 32:
             return 'Y'
-        elif h < 90:
+        elif h <= 95:
             return 'G'
-        elif h < 145:
+        elif h <= 145:
+            return 'B'
+        else:
+            return '?'
+
+    def get_color_improved(self):
+        h = self.hsv[0]
+        s = self.hsv[1]
+        # v = self.hsv[2]
+        r = self.rgb[0]
+        g = self.rgb[1]
+        b = self.rgb[2]
+
+        if r > 200 and g < 150 and b < 150:
+            return 'R'
+        elif g > 200 and r < 150 and b < 150:
+            return 'G'
+        elif b > 200 and r < 150 and g < 150:
+            return 'B'
+        elif s < 20:
+            return 'B'
+        elif h <= 15:
+            if h == 0 and self.hsv[1] == 0 and self.hsv[2] == 0:
+                return '?'
+            return 'R'
+        elif h <= 32:
+            return 'Y'
+        elif h <= 95:
+            return 'G'
+        elif h <= 145:
             return 'B'
         else:
             return '?'

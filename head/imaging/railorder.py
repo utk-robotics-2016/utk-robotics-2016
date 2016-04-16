@@ -1,7 +1,9 @@
 import cv2
 import numpy as np
 from datetime import datetime
+import logging
 import sys
+import time
 
 SAVE_LOC = '/var/log/spine/imaging'
 
@@ -10,19 +12,19 @@ class railorder:
 
     def __init__(self, course):
         # try:
-            self.red = [np.array([0, 150, 160]), np.array([180, 185, 225])]
-            self.green = [np.array([60, 65, 50]), np.array([85, 130, 125])]
-            self.blue = [np.array([105, 100, 100]), np.array([115, 170, 170])]
-            self.yellow = [np.array([25, 0, 220]), np.array([35, 255, 255])]
+            self.red = [np.array([0, 151, 88]), np.array([180, 243, 135])]
+            self.green = [np.array([48, 52, 0]), np.array([99, 149, 255])]
+            self.blue = [np.array([103, 57, 50]), np.array([114, 218, 255])]
+            self.yellow = [np.array([21, 181, 136]), np.array([161, 255, 255])]
 
-            self.y1 = 0
-            self.y2 = 480
+            self.y1 = 150
+            self.y2 = 400
 
             if course == 'A':
                 self.x1 = 0
-                self.x2 = 430
+                self.x2 = 400
             else:
-                self.x1 = 210
+                self.x1 = 200
                 self.x2 = 640
 
             self.w = self.x2 - self.x1
@@ -30,11 +32,19 @@ class railorder:
 
             self.massThreshold = 2000
 
-            camera = cv2.VideoCapture(0)
-            retval, self.origImg = camera.read()
-            camera.release()
+            retval = False
 
-            blur = 51
+            # loop until we get an image -- sleep to let the camera come online
+            while(retval is False):
+                camera = cv2.VideoCapture(0)
+                time.sleep(1.0)
+                retval, self.origImg = camera.read()
+                logging.info(("Camera init return - railorder", retval, type(self.origImg)))
+                camera.release()
+
+            logging.info("Camera grab success")
+
+            blur = 11
             self.procImg = cv2.GaussianBlur(self.origImg[self.y1:self.y2, self.x1:self.x2], (blur, blur), 0)
             tmphsv = cv2.cvtColor(self.procImg, cv2.COLOR_BGR2HSV)
             rr = cv2.inRange(tmphsv, self.red[0], self.red[1])
@@ -59,6 +69,8 @@ class railorder:
             self.colors = ['red', 'green', 'blue', 'yellow']
 
             self.railorder = sorted(zip(self.points, self.colors), key=lambda coord: coord[0][0])
+            self.railorder = [list(i) for i in self.railorder]
+            print(self.railorder)
         # except:
         #    sys.stderr.write("Error in init\n")
 
@@ -71,7 +83,7 @@ class railorder:
         return rv
 
     def findCenterOfBiggestMass(self, mask):
-        try:
+        # try:
             _, contours, hierarchy = cv2.findContours(mask, 1, 2)
             biggestArea = -1
             biggestIndex = -1
@@ -88,11 +100,11 @@ class railorder:
                 cy = int(M['m01'] / M['m00'])
                 return (cx, cy)
             return (-1, -1)
-        except:
-            sys.stderr.write("Error in findCenterOfBiggestMass")
+        # except:
+            # sys.stderr.write("Error in findCenterOfBiggestMass")
 
     def get_rail_order(self, course):
-        try:
+        # try:
             # assume that only one of the bins is not viewable from the camera
             # if less than 3 bins are visible throw an error
             # if railorder[1][0] the x of the second lowest value is -1
@@ -100,9 +112,8 @@ class railorder:
                 sys.stderr.write("not all bins were visible. Readjust the camera\n")
             if course == 'B':
                 # set the leftmost color's x coord to 1000 and resort, putting it on the right
-                self.railorder[0][0] = 1000
-                return [c for (p, c) in sorted(zip(self.points, self.colors), key=lambda coord: coord[0][0])]
+                return [self.railorder[1][1], self.railorder[2][1], self.railorder[3][1], self.railorder[0][1]]
             else:
                 return [c for (p, c) in self.railorder]
-        except:
-            sys.stderr.write("Error in get_rail_order\n")
+        # except:
+            # sys.stderr.write("Error in get_rail_order\n")

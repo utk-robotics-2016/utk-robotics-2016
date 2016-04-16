@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import logging
 import numpy as np
+import time
 from datetime import datetime
 import cv2
 
@@ -16,32 +17,39 @@ class block_detector:
     def __init__(self, s):
 
         self.s = s
-        self.top_points = ((80, 160), (80, 350),
-                           (225, 160), (225, 350),
-                           (395, 160), (395, 350),
-                           (570, 160), (570, 350),
-                           (100, 100), (100, 325),
-                           (235, 100), (235, 325),
-                           (410, 100), (410, 325),
+        self.top_points = ((60, 160), (60, 350),
+                           (200, 160), (200, 350),
+                           (375, 160), (375, 350),
+                           (560, 160), (560, 350),
+                           (80, 100), (80, 325),
+                           (225, 100), (225, 325),
+                           (400, 100), (400, 325),
                            (570, 120), (570, 325))
 
-        self.bottom_points = ((124, 187), (124, 382),
-                              (257, 187), (257, 382),
-                              (398, 187), (398, 382),
+        self.bottom_points = ((104, 187), (104, 382),
+                              (232, 187), (232, 382),
+                              (378, 187), (378, 382),
                               (526, 187), (526, 372),
-                              (107, 200), (107, 395),
-                              (250, 200), (250, 395),
-                              (400, 200), (400, 395),
+                              (100, 200), (100, 375),
+                              (240, 200), (240, 395),
+                              (390, 200), (390, 395),
                               (530, 200), (530, 395))
 
     # Loads the frame from camera for the right side of the loader
     def grab_right_frame(self, saveImage=True):
-        logger.info("Connecting to camera")
-        self.camera = cv2.VideoCapture(0)
-        logger.info("Grabbing right frame")
-        retval, image = self.camera.read()
-        logger.info("Disconnecting from camera")
-        self.camera.release()
+        retval = False
+        # loop until we get an image -- sleep to let the camera come online
+        while(retval is False):
+            logger.info("Connecting to camera")
+            self.camera = cv2.VideoCapture(0)
+            time.sleep(1.0)
+            logger.info("Grabbing right frame")
+            retval, image = self.camera.read()
+            logging.info(("Camera init return - block_detect", retval, type(image)))
+            logger.info("Disconnecting from camera")
+            self.camera.release()
+        logging.info("Camera grab success")
+
         if saveImage:
             cv2.imwrite(SAVE_LOC + "/%s_right.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
@@ -51,15 +59,23 @@ class block_detector:
             cv2.imwrite(SAVE_LOC + "/%s_right_rotated.jpg" % datetime.now(), self.right_frame)
         self.right_hsv, self.right_gray, self.right_laplacian = self.process_frame(
             self.right_frame)
+        cv2.imwrite(SAVE_LOC + "/%s_right_laplacian.jpg" % datetime.now(), self.right_laplacian)
 
     # Loads the frame from camera for the left side of the loader
     def grab_left_frame(self, saveImage=True):
-        logger.info("Connecting to camera")
-        self.camera = cv2.VideoCapture(0)
-        logger.info("Grabbing left frame")
-        retval, image = self.camera.read()
-        logger.info("Disconnecting from camera")
-        self.camera.release()
+        retval = False
+        # loop until we get an image -- sleep to let the camera come online
+        while(retval is False):
+            logger.info("Connecting to camera")
+            self.camera = cv2.VideoCapture(0)
+            time.sleep(1.0)
+            logger.info("Grabbing left frame")
+            retval, image = self.camera.read()
+            logging.info(("Camera init return - block_detect", retval, type(image)))
+            logger.info("Disconnecting from camera")
+            self.camera.release()
+        logging.info("Camera grab success")
+
         if saveImage:
             cv2.imwrite(SAVE_LOC + "/%s_left.jpg" % datetime.now(), image)
         rows, cols = image.shape[:2]
@@ -69,6 +85,7 @@ class block_detector:
             cv2.imwrite(SAVE_LOC + "/%s_left_rotated.jpg" % datetime.now(), self.left_frame)
         self.left_hsv, self.left_gray, self.left_laplacian = self.process_frame(
             self.left_frame)
+        cv2.imwrite(SAVE_LOC + "/%s_left_laplacian.jpg" % datetime.now(), self.left_laplacian)
 
     # Loads the frame from file for the right side of the loader
     def load_right_frame(self, filename):
@@ -83,7 +100,7 @@ class block_detector:
     def load_left_frame(self, filename):
         image = cv2.imread(filename)
         rows, cols = image.shape[:2]
-        M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 29, 1)
+        M = cv2.getRotationMatrix2D((cols / 2, rows / 2), 24, 1)
         self.left_frame = cv2.warpAffine(image, M, (cols, rows))
         self.left_hsv, self.left_gray, self.left_laplacian = self.process_frame(
             self.left_frame)
@@ -91,6 +108,8 @@ class block_detector:
     # Processes the frame with horizontal edge detection
     def process_frame(self, image):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        # blur = 51
+        # hsv = cv2.GaussianBlur(hsv, (blur, blur), 0)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # Grabs the horizontal edges
@@ -118,13 +137,13 @@ class block_detector:
         text = "H=%d, S=%d, V=%d" % (cp.get_h(), cp.get_s(), cp.get_v())
         cv2.putText(temp, text, (5, 30),
                     cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-        if cp.get_hsv_color() == 'R':
+        if cp.get_color_improved() == 'R':
             text = "Red"
-        elif cp.get_hsv_color() == 'Y':
+        elif cp.get_color_improved() == 'Y':
             text = "Yellow"
-        elif cp.get_hsv_color() == 'G':
+        elif cp.get_color_improved() == 'G':
             text = "Green"
-        elif cp.get_hsv_color() == 'B':
+        elif cp.get_color_improved() == 'B':
             text = "Blue"
         else:
             text = "Da Fuck...?"
@@ -141,13 +160,13 @@ class block_detector:
         text = "H=%d, S=%d, V=%d" % (cp.get_h(), cp.get_s(), cp.get_v())
         cv2.putText(temp, text, (5, 30),
                     cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
-        if cp.get_hsv_color() == 'R':
+        if cp.get_color_improved() == 'R':
             text = "Red"
-        elif cp.get_hsv_color() == 'Y':
+        elif cp.get_color_improved() == 'Y':
             text = "Yellow"
-        elif cp.get_hsv_color() == 'G':
+        elif cp.get_color_improved() == 'G':
             text = "Green"
-        elif cp.get_hsv_color() == 'B':
+        elif cp.get_color_improved() == 'B':
             text = "Blue"
         else:
             text = "Da Fuck...?"
@@ -157,7 +176,7 @@ class block_detector:
 
     # Checks if a slot is 2 half blocks or a full length block
     def check_half_block(self, top, bottom, left_blocks):
-        if(top.get_hsv_color() != bottom.get_hsv_color()):
+        if(top.get_color_improved() != bottom.get_color_improved()):
             return True
         left = top.get_x() - 20
         right = top.get_x() + 20
@@ -179,13 +198,13 @@ class block_detector:
     def mark_point(self, cp, left_blocks):
         text1 = "x=%d, y=%d" % (cp.get_x(), cp.get_y())
         text2 = "H=%d, S=%d, V=%d" % (cp.get_h(), cp.get_s(), cp.get_v())
-        if cp.get_hsv_color() == 'R':
+        if cp.get_color_improved() == 'R':
             text3 = "Red"
-        elif cp.get_hsv_color() == 'Y':
+        elif cp.get_color_improved() == 'Y':
             text3 = "Yellow"
-        elif cp.get_hsv_color() == 'G':
+        elif cp.get_color_improved() == 'G':
             text3 = "Green"
-        elif cp.get_hsv_color() == 'B':
+        elif cp.get_color_improved() == 'B':
             text3 = "Blue"
         else:
             text3 = "Da Fuck...?"
@@ -202,8 +221,8 @@ class block_detector:
             text5 = "Da Fuck...?"
 
         if left_blocks:
-            cv2.rectangle(self.left_frame, (cp.get_x() - 20, cp.get_y() - 20),
-                          (cp.get_x() + 20, cp.get_y() + 20), (255, 0, 0))
+            cv2.rectangle(self.left_frame, (cp.get_x() - 30, cp.get_y() - 30),
+                          (cp.get_x() + 30, cp.get_y() + 30), (255, 0, 0))
             cv2.circle(self.left_frame, (cp.get_x(),
                                          cp.get_y()), 3, (0, 255, 0), 2)
             cv2.putText(self.left_frame, text1, (cp.get_x() - 60,
@@ -217,8 +236,8 @@ class block_detector:
             cv2.putText(self.left_frame, text5, (cp.get_x() - 60,
                                                  cp.get_y() + 85), cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 255, 0))
         else:
-            cv2.rectangle(self.right_frame, (cp.get_x() - 20, cp.get_y() - 20),
-                          (cp.get_x() + 20, cp.get_y() + 20), (255, 0, 0))
+            cv2.rectangle(self.right_frame, (cp.get_x() - 30, cp.get_y() - 30),
+                          (cp.get_x() + 30, cp.get_y() + 30), (255, 0, 0))
             cv2.circle(self.right_frame, (cp.get_x(),
                                           cp.get_y()), 3, (0, 255, 0), 2)
             cv2.putText(self.right_frame, text1, (cp.get_x() - 60,
@@ -248,13 +267,13 @@ class block_detector:
             cp_bottom = color_point(
                 points[i * 2 + 1], self.left_frame, self.left_hsv)
             if self.check_half_block(cp_top, cp_bottom, 1):
-                rv = rv + cp_top.get_hsv_color() + "H " + \
-                    cp_bottom.get_hsv_color() + "H "
+                rv = rv + cp_top.get_color_improved() + "H " + \
+                    cp_bottom.get_color_improved() + "H "
                 if display or saveFile:
                     self.mark_point(cp_top, 1)
                     self.mark_point(cp_bottom, 1)
             else:
-                rv = rv + cp_top.get_hsv_color() + "L "
+                rv = rv + cp_top.get_color_improved() + "L "
                 if display or saveFile:
                     cp_top.set_y((cp_top.get_y() + cp_bottom.get_y()) / 2)
                     self.mark_point(cp_top, 1)
@@ -266,13 +285,13 @@ class block_detector:
             cp_bottom = color_point(
                 points[i * 2 + 1], self.right_frame, self.right_hsv)
             if self.check_half_block(cp_top, cp_bottom, 0):
-                rv = rv + cp_top.get_hsv_color() + "H " + \
-                    cp_bottom.get_hsv_color() + "H "
+                rv = rv + cp_top.get_color_improved() + "H " + \
+                    cp_bottom.get_color_improved() + "H "
                 if display or saveFile:
                     self.mark_point(cp_top, 0)
                     self.mark_point(cp_bottom, 0)
             else:
-                rv = rv + cp_top.get_hsv_color() + "L "
+                rv = rv + cp_top.get_color_improved() + "L "
                 if display or saveFile:
                     cp_top.set_y((cp_top.get_y() + cp_bottom.get_y()) / 2)
                     self.mark_point(cp_top, 0)

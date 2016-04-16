@@ -6,7 +6,7 @@ import logging
 # from head.spine.Vec3d import Vec3d
 from head.spine.ultrasonic import ultrasonic_go_to_position
 from head.spine.block_picking import BlockPicker
-# from head.spine.control import trapezoid
+from head.spine.control import trapezoid
 
 
 class RailSorter:
@@ -28,25 +28,49 @@ class RailSorter:
                 # Move away from railroad
                 self.s.move_for(1, 0.6, 70, 0)
             elif currzone != -1:
-
-                if destzone == 0:
-                    front_dist = 11
-                elif destzone == 1:
-                    front_dist = 36
-                elif destzone == 2:
-                    front_dist = 65
-                elif destzone == 3:
-                    front_dist = 97
-
-                ultrasonic_go_to_position(self.s, front=front_dist, unit='cm', fw_dir=15)
-
-                '''
-                side_dist = 13
                 if course == 'A':
-                    ultrasonic_go_to_position(self.s, left=side_dist, unit='cm')
+                    if currzone < destzone:  # moving backward
+                        if destzone == 1:
+                            ultrasonic_go_to_position(self.s, front=26, unit='cm', rot=-.055)
+                        elif destzone == 2:
+                            ultrasonic_go_to_position(self.s, front=50, unit='cm', rot=-.02)
+                        elif destzone == 3:
+                            trapezoid(self.s.move_pid, (0, -175, .02), (.6, -175, .02), (0, -175, .02), 1.2)
+                            self.s.stop()
+                    else:
+                        if destzone == 2:
+                            trapezoid(self.s.move_pid, (0, 0, .01), (.6, 0, .01), (0, 0, .01), 2.0)
+                            self.s.stop()
+                        elif destzone == 1:
+                            ultrasonic_go_to_position(self.s, front=26, unit='cm', rot=.01)
+                        elif destzone == 0:
+                            ultrasonic_go_to_position(self.s, front=5, unit='cm')
+                            trapezoid(self.s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 0.3)
+                elif course == 'B':
+                    if currzone < destzone:  # moving backward
+                        if destzone == 1:
+                            ultrasonic_go_to_position(self.s, front=26, unit='cm', rot=-.055)
+                        elif destzone == 2:
+                            ultrasonic_go_to_position(self.s, front=50, unit='cm', rot=-.02)
+                        elif destzone == 3:
+                            trapezoid(self.s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 1.2)
+                            self.s.stop()
+                    else:
+                        if destzone == 2:
+                            trapezoid(self.s.move_pid, (0, 0, 0), (.6, 0, 0), (0, 0, 0), 2.0)
+                            self.s.stop()
+                        elif destzone == 1:
+                            ultrasonic_go_to_position(self.s, front=26, unit='cm')
+                        elif destzone == 0:
+                            ultrasonic_go_to_position(self.s, front=5, unit='cm')
+                            trapezoid(self.s.move_pid, (0, 180, 0), (.6, 180, 0), (0, 180, 0), 0.3)
                 else:
-                    ultrasonic_go_to_position(self.s, right=side_dist, unit='cm')
-                '''
+                    raise ValueError
+#                side_dist = 13
+#                if course == 'A':
+#                    ultrasonic_go_to_position(self.s, left=side_dist, unit='cm')
+#                else:
+#                    ultrasonic_go_to_position(self.s, right=side_dist, unit='cm')
 
                 '''
                 trapezoid(self.s.move_pid, (0, 180, 0), (0.5, 180, 0), (0, 180, 0), 2.0)
@@ -74,6 +98,7 @@ class RailSorter:
         logging.info(raw_blocks)
         blocks = []
         colors = {'G': 'green', 'B': 'blue', 'R': 'red', 'Y': 'yellow'}
+        colors['?'] = self.bin_colors[0]
         i = 0
         while i < len(raw_blocks):
             if raw_blocks[i][1] == 'L':
@@ -135,13 +160,18 @@ class RailSorter:
         return self.bin_colors[zid]
 
     def unload_rail(self, course):
-        lastzid = -1
-        # for level in ['top', 'bottom']:
-        for level in ['top']:
+        # lastzid = -1
+        # for level in ['top']:
+        for level in ['top', 'bottom']:
             blocks = self.detect_blocks(level)
             for zid in range(4):
-                self.move_to_rail_zone(lastzid, zid, course)
-                color = self.get_rail_zone_color(zid)
+                if level == 'top':
+                    self.move_to_rail_zone(zid - 1, zid, course)
+                    color = self.get_rail_zone_color(zid)
+                else:
+                    self.move_to_rail_zone(4 - zid, 3 - zid, course)
+                    color = self.get_rail_zone_color(3 - zid)
+                # self.s.open_loader_flaps()
                 indices = []
                 for i, col in enumerate(blocks):
                     for j, b in enumerate(col):
@@ -153,4 +183,5 @@ class RailSorter:
                     self.bp.pick_block(i, level, block_type)
                     side = {'B': 'right', 'A': 'left'}[course]
                     self.bp.drop_block(rail=True, side=side)
-                lastzid = zid
+                # self.s.close_loader_flaps()
+                # lastzid = zid

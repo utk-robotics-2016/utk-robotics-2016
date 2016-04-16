@@ -130,13 +130,19 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
     # stay brushed up against a barge for example. Probably a hacky solution,
     # but it works. Andrew, you can fix this up if you would like.
     right_left_dir = kwargs.get('right_left_dir', 90)
+    assert right_left_dir >= -180 and right_left_dir <= 180
+
     fw_dir = kwargs.get('fw_dir', 0)
+    assert fw_dir >= -180 and fw_dir <= 180
     bw_dir = fw_dir + 180
     if bw_dir > 180:
         bw_dir -= 360
     logging.info(('fw and bw', fw_dir, bw_dir))
 
-    def one_sensor(s, side, target, dir_pos, dir_neg, unit):
+    rot = kwargs.get('rot', 0.0)
+    assert rot >= -1.0 and rot <= 1.0
+
+    def one_sensor(s, side, target, dir_pos, dir_neg, unit, rotation):
         unit_mult = 1.0
         if unit == 'cm':
             unit_mult = 2.54
@@ -166,7 +172,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
         if speed > 1.0:
             speed = 1.0
 
-        s.move_pid(speed, dir, 0)
+        s.move_pid(speed, dir, rotation)
         last_speed = speed
 
         while(abs(delta) > threshold):
@@ -193,7 +199,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
             if speed > 1.0:
                 speed = 1.0
             if speed != last_speed:
-                s.move_pid(speed, dir, 0)
+                s.move_pid(speed, dir, rotation)
                 last_speed = speed
         s.stop()
 
@@ -259,7 +265,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
 
     # front sensor
     if front != float('inf') and left == float('inf') and right == float('inf'):
-        one_sensor(s, 'front', front, fw_dir, bw_dir, unit)
+        one_sensor(s, 'front', front, fw_dir, bw_dir, unit, rot)
 
     # front and left sensors
     elif front != float('inf') and left != float('inf') and right == float('inf'):
@@ -271,8 +277,8 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
 
     # right sensor
     elif front == float('inf') and left == float('inf') and right != float('inf'):
-        one_sensor(s, 'right', right, -right_left_dir, right_left_dir, unit)
+        one_sensor(s, 'right', right, -right_left_dir, right_left_dir, unit, rot)
 
     # left sensor
     elif front == float('inf') and left != float('inf') and right == float('inf'):
-        one_sensor(s, 'left', left, right_left_dir, -right_left_dir, unit)
+        one_sensor(s, 'left', left, right_left_dir, -right_left_dir, unit, rot)

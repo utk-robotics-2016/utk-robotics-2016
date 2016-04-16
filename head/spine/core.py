@@ -340,6 +340,15 @@ class Spine:
         response = self.send('mega', command)
         return {'0': True, '1': False}[response]
 
+    def read_start_switch(self):
+        '''Reads the start switch mounted next to the arm base.
+
+        :return: Boolean for if the switch is turned on.
+        '''
+        command = 'rss'
+        response = self.send('mega', command)
+        return {'1': True, '0': False}[response]
+
     def read_line_sensors(self):
         '''Reads the right and the left line sensors mounted on the front.
 
@@ -515,8 +524,23 @@ class Spine:
     def open_loader_flaps(self):
         '''Set the loader servos to open the flaps.
         '''
-        off = 87
+        off = 84
         self.set_loader_servos(self.calibrated_right - off, self.calibrated_left + off)
+
+    def control_loader_flaps(self, left_open, right_open):
+        '''Set the loader servos to open or close each flap independently
+        '''
+        if left_open == 'open':
+            l_off = 87
+        else:
+            l_off = 0
+
+        if right_open == 'open':
+            r_off = 87
+        else:
+            r_off = 0
+
+        self.set_loader_servos(self.calibrated_right - r_off, self.calibrated_left + l_off)
 
     def close_loader_flaps(self):
         '''Set the loader servos to close the flaps.
@@ -672,7 +696,7 @@ class Spine:
             'cw' is going down, 'ccw' is going up.
         :type direction: ``string``
         '''
-        assert 0 <= speed <= 255
+        assert 0 <= speed <= 200
         assert direction in ['cw', 'ccw']
         direction = {'cw': 'bw', 'ccw': 'fw'}[direction]
         command = 'mod ' + str(2) + ' ' + str(speed) + ' ' + direction
