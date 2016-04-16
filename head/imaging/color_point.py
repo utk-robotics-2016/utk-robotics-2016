@@ -159,7 +159,7 @@ class color_point:
     def get_color_improved(self):
         h = self.hsv[0]
         s = self.hsv[1]
-        v = self.hsv[2]
+        # v = self.hsv[2]
         r = self.rgb[0]
         g = self.rgb[1]
         b = self.rgb[2]

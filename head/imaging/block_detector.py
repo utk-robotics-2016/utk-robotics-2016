@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 SAVE_LOC = '/var/log/spine/imaging'
 
-
 class block_detector:
 
     def __init__(self, s):
@@ -39,7 +38,7 @@ class block_detector:
     def grab_right_frame(self, saveImage=True):
         retval = False
         # loop until we get an image -- sleep to let the camera come online
-        while( retval == False ):
+        while(retval is False):
             logger.info("Connecting to camera")
             self.camera = cv2.VideoCapture(0)
             time.sleep(1.0)
@@ -65,7 +64,7 @@ class block_detector:
     def grab_left_frame(self, saveImage=True):
         retval = False
         # loop until we get an image -- sleep to let the camera come online
-        while( retval == False ):
+        while(retval is False):
             logger.info("Connecting to camera")
             self.camera = cv2.VideoCapture(0)
             time.sleep(1.0)
@@ -108,8 +107,8 @@ class block_detector:
     # Processes the frame with horizontal edge detection
     def process_frame(self, image):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        #blur = 51
-        #hsv = cv2.GaussianBlur(hsv, (blur, blur), 0)
+        # blur = 51
+        # hsv = cv2.GaussianBlur(hsv, (blur, blur), 0)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # Grabs the horizontal edges

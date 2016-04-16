@@ -18,13 +18,13 @@ def test(HandlerClass=SimpleHTTPRequestHandler, ServerClass=BaseHTTPServer.HTTPS
             except:
                 host = sys.argv[1]
 
-     server_address = (host, port)
-     HandlerClass.protocol_version = protocol
-     httpd = ServerClass(server_address, HandlerClass)
+    server_address = (host, port)
+    HandlerClass.protocol_version = protocol
+    httpd = ServerClass(server_address, HandlerClass)
 
-     sa = httpd.socket.getsockname()
-     print "Serving HTTP on", sa[0], "port", sa[1], "..."
-     httpd.serve_forever()
+    sa = httpd.socket.getsockname()
+    print "Serving HTTP on", sa[0], "port", sa[1], "..."
+    httpd.serve_forever()
 
 if __name__ == "__main__":
     test()

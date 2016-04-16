@@ -1,5 +1,5 @@
 import argparse
-import numpy as np
+# import numpy as np
 import cv2
 
 ap = argparse.ArgumentParser()

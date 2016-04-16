@@ -1,7 +1,6 @@
 # Python modules
 import time
 import logging
-import sys
 
 # Local modules
 from head.spine.core import get_spine
@@ -327,7 +326,7 @@ with get_spine() as s:
                     self.ldr.load_sea_blocks(strafe_dir={'B': 'right', 'A': 'left'}[self.course])
                 else:
                     self.wait_until_arm_limit_pressed()
-                 
+
                 dist = 19
                 if self.course == 'A':
                     ultrasonic_go_to_position(s, left=dist, unit='cm', left_right_dir=85)
@@ -356,5 +355,5 @@ with get_spine() as s:
 
         bot.wait_until_start_switch()
         time.sleep(0.5)
-        #bot.check_lift()
+        # bot.check_lift()
         bot.start()

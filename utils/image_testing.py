@@ -1,4 +1,4 @@
-import numpy
+# import numpy
 import cv2
 import argparse
 import sys
@@ -23,6 +23,7 @@ image = cv2.imread(args["image"])
 clone = image.copy()
 hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
+
 def mouse_events(event, x, y, flags, param):
     global refPt, processing, selecting, image
 
@@ -37,8 +38,8 @@ def mouse_events(event, x, y, flags, param):
         selecting = False
         refPt.append((x, y))
 
-        #cv2.rectangle(image, refPt[0], refPt[1], (0, 255, 0), 2)
-        #cv2.imshow("image", image)
+        # cv2.rectangle(image, refPt[0], refPt[1], (0, 255, 0), 2)
+        # cv2.imshow("image", image)
     elif selecting:
         image = clone.copy()
         cv2.rectangle(image, refPt[0], (x, y), (0, 255, 0), 2)

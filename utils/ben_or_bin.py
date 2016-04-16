@@ -6,18 +6,13 @@ import sys
 # Local modules
 from head.spine.core import get_spine
 from head.spine.arm import get_arm
-from head.spine.rail_sorting import RailSorter
-from head.spine.loader import Loader
-from head.spine.control import trapezoid
 from head.spine.Vec3d import Vec3d
-from head.spine.ultrasonic import ultrasonic_go_to_position
 # from head.spine.ultrasonic import ultrasonic_rotate_square
 from head.spine.ourlogging import setup_logging
-from head.imaging.railorder import railorder
+# from head.imaging.railorder import railorder
 
 setup_logging(__file__)
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger(__name__
 
 with get_spine() as s:
     with get_arm(s) as arm:

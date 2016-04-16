@@ -28,7 +28,7 @@ parser.add_argument('--close', help='Close the flaps.')
 parser.add_argument('--open', help='Open the flaps.')
 args = parser.parse_args()
 
-if args.extend is None and args.retract is None and args.compress is None and args.widen is None and args.lift is None and args.lower is None and args.open_flaps == False and args.close_flaps == False:
+if args.extend is None and args.retract is None and args.compress is None and args.widen is None and args.lift is None and args.lower is None and args.open_flaps is False and args.close_flaps is False:
     parser.print_help()
     sys.exit()
 

@@ -2,10 +2,8 @@ import operator
 import time
 import logging
 from head.spine.control import trapezoid
-from head.spine.ultrasonic import ultrasonic_go_to_position
 
 logger = logging.getLogger(__name__)
-
 
 class EStopException(Exception):
     pass
@@ -150,7 +148,7 @@ class Loader(object):
               Abort the movement if destination not reach after ``e_stop`` seconds. Defaults to 10.
         '''
         def encoder_inches():
-            return ( self.s.read_lift_encoder() / 464.64 / 20.0 ) * (9.68 / 34) 
+            return (self.s.read_lift_encoder() / 464.64 / 20.0) * (9.68 / 34)
 
         encVal = encoder_inches()
         motor_speed = 190

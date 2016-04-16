@@ -35,7 +35,7 @@ class railorder:
             retval = False
 
             # loop until we get an image -- sleep to let the camera come online
-            while( retval == False ):
+            while(retval is False):
                 camera = cv2.VideoCapture(0)
                 time.sleep(1.0)
                 retval, self.origImg = camera.read()
@@ -83,7 +83,7 @@ class railorder:
         return rv
 
     def findCenterOfBiggestMass(self, mask):
-        #try:
+        # try:
             _, contours, hierarchy = cv2.findContours(mask, 1, 2)
             biggestArea = -1
             biggestIndex = -1
@@ -100,11 +100,11 @@ class railorder:
                 cy = int(M['m01'] / M['m00'])
                 return (cx, cy)
             return (-1, -1)
-        #except:
-            #sys.stderr.write("Error in findCenterOfBiggestMass")
+        # except:
+            # sys.stderr.write("Error in findCenterOfBiggestMass")
 
     def get_rail_order(self, course):
-        #try:
+        # try:
             # assume that only one of the bins is not viewable from the camera
             # if less than 3 bins are visible throw an error
             # if railorder[1][0] the x of the second lowest value is -1
@@ -115,5 +115,5 @@ class railorder:
                 return [self.railorder[1][1], self.railorder[2][1], self.railorder[3][1], self.railorder[0][1]]
             else:
                 return [c for (p, c) in self.railorder]
-        #except:
-            #sys.stderr.write("Error in get_rail_order\n")
+        # except:
+            # sys.stderr.write("Error in get_rail_order\n")

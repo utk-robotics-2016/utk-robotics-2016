@@ -1,24 +1,17 @@
 # Python modules
 import time
 import logging
-import itertools
-import cv2
 
 # Local modules
 from head.spine.core import get_spine
 from head.spine.arm import get_arm
-from head.spine.rail_sorting import RailSorter
-from head.spine.loader import Loader
-from head.spine.control import trapezoid
 from head.spine.Vec3d import Vec3d
-from head.spine.ultrasonic import ultrasonic_go_to_position
 # from head.spine.ultrasonic import ultrasonic_rotate_square
 from head.spine.ourlogging import setup_logging
 from head.imaging.railorder import railorder
 
 setup_logging(__file__)
 logger = logging.getLogger(__name__)
-
 
 with get_spine() as s:
     with get_arm(s) as arm:
@@ -41,7 +34,7 @@ with get_spine() as s:
                 if self.course == 'A':
                     arm.move_to(Vec3d(-11, -4, 10), 1.3, 180)
                 time.sleep(1)
-                
+
             def park_arm(self):
                 arm.move_to(Vec3d(11, -4, 10), 1.3, 180)
                 arm.park()
@@ -52,7 +45,6 @@ with get_spine() as s:
                 bin_order = binStuff.get_rail_order(self.course)
                 print(bin_order)
                 self.park_arm()
-                
 
         bot = Robot()
 
