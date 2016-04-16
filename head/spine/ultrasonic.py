@@ -141,7 +141,7 @@ def ultrasonic_go_to_position(s, front=float('inf'), left=float('inf'), right=fl
 
     rot = kwargs.get('rot', 0.0)
     assert rot >= -1.0 and rot <= 1.0
-    
+
     def one_sensor(s, side, target, dir_pos, dir_neg, unit, rotation):
         unit_mult = 1.0
         if unit == 'cm':

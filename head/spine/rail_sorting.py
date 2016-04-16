@@ -8,6 +8,7 @@ from head.spine.ultrasonic import ultrasonic_go_to_position
 from head.spine.block_picking import BlockPicker
 from head.spine.control import trapezoid
 
+
 class RailSorter:
     def __init__(self, s, arm):
         self.s = s
@@ -165,7 +166,7 @@ class RailSorter:
             blocks = self.detect_blocks(level)
             for zid in range(4):
                 if level == 'top':
-                    self.move_to_rail_zone(zid-1, zid, course)
+                    self.move_to_rail_zone(zid - 1, zid, course)
                     color = self.get_rail_zone_color(zid)
                 else:
                     self.move_to_rail_zone(4 - zid, 3 - zid, course)
@@ -181,6 +182,6 @@ class RailSorter:
                     logging.info((i, block_type))
                     self.bp.pick_block(i, level, block_type)
                     side = {'B': 'right', 'A': 'left'}[course]
-                    self.bp.drop_block(rail=True, side=side)
+                    self.bp.drop_block(rail = True, side = side)
                 # self.s.close_loader_flaps()
                 # lastzid = zid

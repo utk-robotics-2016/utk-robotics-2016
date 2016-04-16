@@ -292,7 +292,6 @@ with get_spine() as s:
                     raise ValueError
                 self.ldr.dump_blocks()
 
-
                 # rotate back to barge
                 self.rotate_90('left')
 

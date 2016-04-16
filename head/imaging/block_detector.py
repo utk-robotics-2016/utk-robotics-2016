@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 SAVE_LOC = '/var/log/spine/imaging'
 
+
 class block_detector:
 
     def __init__(self, s):
