@@ -2,6 +2,14 @@
 
 # utk-robotics-2016
 
+### Introduction
+
+Welcome to the UTK Robotics 2015-2016 SouthEastCon Competition Repository! The code in master represents the latest code run on our competition robot.
+
+All code in Python represents code run on the BeagleBone Black board. The code in torso is to be run on AVR Arudinos or Arduino compatible boards (e.g. Teensy 2). The microcontroller boards handle actual interaction with sensors and motors leaving the BeagleBone Black to do the higher level processing like image recognition. The BBB communicates to the Arduinos over USB. The spine Python code sends encoded messages to the appropriate Arudino for each task.
+
+---------------------------------------
+
 Here are the steps that will get you coding as fast as possible:
 
 ### Reading
